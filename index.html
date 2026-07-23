@@ -37,13 +37,13 @@
   --red:#e5352b;          /* blood red — precious */
   --paper:#f5f1e8;        /* gallery white — the hero's inversion */
   --paper-ink:#141210;    /* near-black used for content ON paper */
-  /* fixed chrome (logo/cta/chapter/hint/rail) reads in cream by default,
-     flips to ink while body.chrome-light is set (over the white hero) */
-  --chrome-c:var(--cream);
-  --chrome-c-55:var(--cream-55);
-  --chrome-c-40:var(--cream-40);
-  --chrome-c-24:var(--cream-24);
-  --chrome-c-10:var(--cream-10);
+  /* the whole site is a light/paper theme now — chrome just reads dark
+     permanently, no more light/dark toggling needed */
+  --chrome-c:var(--paper-ink);
+  --chrome-c-55:rgba(20,18,16,.6);
+  --chrome-c-40:rgba(20,18,16,.42);
+  --chrome-c-24:rgba(20,18,16,.24);
+  --chrome-c-10:rgba(20,18,16,.12);
   --kuevy:'Geist',-apple-system,sans-serif;
   --sans:'Geist',-apple-system,sans-serif;
   --accent:#3971ff;      /* leeroy-blue — a second, cooler accent alongside red */
@@ -77,8 +77,8 @@ html.lenis,html.lenis body{height:auto}
 .lenis.lenis-smooth{scroll-behavior:auto!important}
 
 body{
-  background:var(--ink);
-  color:var(--cream);
+  background:var(--paper);
+  color:var(--paper-ink);
   font-family:var(--sans);
   font-weight:400;
   overflow-x:hidden;
@@ -91,26 +91,20 @@ a,button,[data-hover]{cursor:none}
 body.touch a,body.touch button{cursor:pointer}
 
 /* ————— atmosphere ————— */
-/* the body is near-black by default, but nothing past the hero should
-   read as flat/off — each chapter tints the same fixed wash a different
-   colour, so the film stays "warm dark" the whole way down instead of
-   just going black once the hero's paper background ends.
-   Each chapter is its OWN fixed layer with a permanent gradient, and only
-   opacity ever animates between them — cross-fading the `background`
-   value directly (different gradient shapes/stops) doesn't interpolate
-   smoothly in browsers and was reading as a jump/snap on scroll. */
+/* the whole site is a single warm paper tone now, hero through footer —
+   no chapter-to-chapter colour washes. #grain still runs everywhere for
+   texture; the old dark vignette is gone since it read as muddy over a
+   light background. */
 
-#grain{position:fixed;inset:-100px;z-index:60;pointer-events:none;opacity:.07;mix-blend-mode:overlay}
-#vignette{position:fixed;inset:0;z-index:2;pointer-events:none;
-  background:radial-gradient(ellipse 120% 90% at 50% 45%,transparent 55%,rgba(5,4,3,.55) 100%)}
+#grain{position:fixed;inset:-100px;z-index:60;pointer-events:none;opacity:.05;mix-blend-mode:multiply}
 
 /* ————— preloader ————— */
-#veil{position:fixed;inset:0;z-index:200;clip-path:inset(0 0 0 0);background:var(--ink);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:28px}
+#veil{position:fixed;inset:0;z-index:200;clip-path:inset(0 0 0 0);background:var(--paper);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:28px}
 #veil svg{width:52px;height:52px;overflow:visible}
-#veil svg path{fill:none;stroke:var(--cream);stroke-width:.8;stroke-linecap:round}
-#veil .veil-line{width:120px;height:1px;background:var(--cream-10);position:relative;overflow:hidden}
-#veil .veil-line i{position:absolute;inset:0;background:var(--cream-40);transform:scaleX(0);transform-origin:left}
-#veil .veil-word{font-family:var(--sans);font-weight:300;font-size:10px;letter-spacing:.42em;text-transform:lowercase;color:var(--cream-40);opacity:0}
+#veil svg path{fill:none;stroke:var(--paper-ink);stroke-width:.8;stroke-linecap:round}
+#veil .veil-line{width:120px;height:1px;background:rgba(20,18,16,.12);position:relative;overflow:hidden}
+#veil .veil-line i{position:absolute;inset:0;background:rgba(20,18,16,.4);transform:scaleX(0);transform-origin:left}
+#veil .veil-word{font-family:var(--sans);font-weight:300;font-size:10px;letter-spacing:.42em;text-transform:lowercase;color:rgba(20,18,16,.4);opacity:0}
 
 /* ————— cursor ————— */
 #cur-dot{position:fixed;top:0;left:0;z-index:150;pointer-events:none;will-change:transform;width:23px;height:24px;margin:-6px 0 0 -2px;transform-origin:10% 26%;mix-blend-mode:difference}
@@ -153,21 +147,32 @@ body.touch #cur-dot{display:none}
 /* ————— layout / chapters ————— */
 main{position:relative;z-index:10}
 section{position:relative}
-.pinwrap{height:100vh;width:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.pinwrap{height:100vh;width:100%;position:relative;overflow:hidden}
+#ch0.hero-mask{background:var(--paper)}
+
+.hero-idx{position:absolute;left:var(--pad);bottom:var(--pad);z-index:2;font-size:11px;letter-spacing:.1em;color:rgba(20,18,16,.4);opacity:0}
+html.static .hero-idx{opacity:1}
+
+.hero-mark-wrap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(1);width:min(30vw,340px);aspect-ratio:1;z-index:1;opacity:0;will-change:transform,opacity}
+.hero-blob{position:absolute;border-radius:52% 48% 55% 45%/48% 52% 48% 52%;background:radial-gradient(circle at 35% 30%,rgba(70,68,64,.5),rgba(70,68,64,.18) 70%,transparent 100%);filter:blur(26px);opacity:.85}
+.hero-blob--1{width:62%;height:52%;top:-30%;right:-32%}
+.hero-blob--2{width:26%;height:22%;bottom:6%;right:-30%}
+.hero-blob--3{width:18%;height:15%;top:38%;right:-42%}
+.hero-mark-svg{position:relative;z-index:2;width:100%;height:100%;display:block;filter:drop-shadow(0 30px 50px rgba(20,18,16,.16))}
+.hero-mark-svg image{filter:saturate(.92)}
+
+.hero-caption{position:absolute;left:var(--pad);bottom:var(--pad);z-index:2;opacity:0;max-width:min(46vw,520px)}
+.hero-sub{font-family:var(--sans);font-weight:500;font-size:12px;letter-spacing:.28em;color:rgba(20,18,16,.5);text-transform:lowercase;margin-bottom:18px}
+.hero-heading{opacity:1}
+.hero-heading h1{font-family:var(--sans);font-weight:600;font-size:clamp(34px,4.6vw,64px);line-height:.98;letter-spacing:-.015em;color:var(--paper-ink);text-transform:lowercase;margin-bottom:16px}
+.hero-heading .rd{color:var(--red)}
+.hero-tag{font-size:clamp(13px,1.1vw,15px);font-weight:400;letter-spacing:.01em;color:rgba(20,18,16,.6);text-transform:none;line-height:1.5;max-width:38ch}
+@media (max-width:760px){
+  .hero-mark-wrap{width:min(52vw,260px)}
+  .hero-caption{max-width:calc(100vw - var(--pad) * 2)}
+}
 
 /* ch0 — the dark */
-#ch0.hero-mask{background-color:rgba(245,241,232,var(--hero-bg,1))}
-#ch0 .pinwrap{position:relative}
-.hero-static{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(55vh,73vw);aspect-ratio:1;z-index:1;opacity:0}
-.hero-static svg{width:100%;height:100%;display:block}
-.hero-static path{fill:var(--paper-ink)}
-#hero-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;touch-action:pan-y}
-.hero-heading{position:absolute;left:50%;top:11vh;transform:translateX(-50%);z-index:2;opacity:0;text-align:center;padding:0 var(--pad)}
-.hero-heading h1{font-family:var(--kuevy);font-weight:400;font-size:clamp(30px,5.4vw,72px);line-height:1;letter-spacing:-.01em;color:var(--paper-ink);text-transform:lowercase}
-.hero-heading .rd{color:var(--red)}
-.hero-caption{position:absolute;left:50%;bottom:12vh;transform:translateX(-50%);z-index:2;opacity:0;text-align:center;padding:0 var(--pad)}
-.hero-sub{font-family:var(--kuevy);font-weight:400;font-size:clamp(15px,1.6vw,20px);letter-spacing:-.005em;color:var(--paper-ink);text-transform:lowercase;margin-bottom:14px;opacity:.92}
-.hero-tag{font-size:clamp(11px,1vw,13px);font-weight:400;letter-spacing:.42em;color:var(--paper-ink);text-transform:lowercase;opacity:.7}
 .hero-tag .dot{color:var(--red)}
 
 
@@ -207,86 +212,62 @@ body.touch .modal-close{cursor:pointer}
    fades to reveal the body's default ink beneath it — see --hero-bg).
    this field only needs to own the two colour beats after that: the dive
    into red for the cta, and the return to cream for the footer. */
-#bg-field{position:fixed;inset:0;z-index:1;pointer-events:none;background:var(--ink)}
-html.static #bg-field{display:none}
-
-.sec{position:relative;z-index:10;padding:16vh var(--pad)}
-.sec--dark{color:var(--cream)}
-.sec--red{color:#fff}
-.sec--paper{color:var(--paper-ink)}
+.sec{position:relative;z-index:10;padding:16vh var(--pad);color:var(--paper-ink)}
 .sec-head{display:flex;align-items:baseline;gap:22px;margin-bottom:clamp(48px,7vh,90px);max-width:1400px;margin-left:auto;margin-right:auto}
-.sec-idx{font-size:11px;font-weight:400;letter-spacing:.34em;color:var(--cream-55)}
-.sec--red .sec-idx{color:rgba(255,255,255,.6)}
+.sec-idx{font-size:11px;font-weight:400;letter-spacing:.34em;color:rgba(20,18,16,.5)}
 .sec-head h2{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(30px,4.4vw,68px);line-height:1}
-.sec-head .rule{flex:1;height:1px;background:var(--cream-10)}
-.sec--red .sec-head .rule{background:rgba(255,255,255,.18)}
+.sec-head .rule{flex:1;height:1px;background:rgba(20,18,16,.12)}
 
-/* ————— 01 work — orbital carousel ————— */
-#work{padding-top:20vh;padding-bottom:6vh;min-height:100vh}
-.work-pin{min-height:100vh;display:flex;flex-direction:column;justify-content:center}
-.carousel{position:relative;height:44vh;min-height:320px;perspective:1500px;margin:0 auto 6vh}
-.carousel__stage{position:relative;width:100%;height:100%;transform-style:preserve-3d;will-change:transform}
-.pcard{position:absolute;top:50%;left:50%;width:min(320px,58vw);aspect-ratio:3/4;margin:calc(min(320px,58vw) * -0.667 / 2) 0 0 calc(min(320px,58vw) / -2);will-change:transform,opacity;cursor:none}
-body.touch .pcard{cursor:pointer}
-.pcard__media{position:relative;width:100%;height:100%;border-radius:6px;overflow:hidden;background:var(--ink-2)}
-.pcard__media img,.pcard__media video{display:block;width:100%;height:100%;object-fit:cover}
-.pcard__meta{position:absolute;left:0;right:0;bottom:0;padding:16px 18px;background:linear-gradient(0deg,rgba(10,9,8,.72) 0%,transparent 100%)}
-.pcard__num{font-size:10px;letter-spacing:.3em;color:var(--cream-55)}
-.pcard__name{display:block;font-family:var(--sans);font-weight:400;text-transform:lowercase;font-size:clamp(17px,1.8vw,22px);margin-top:2px}
-.carousel__nav{display:flex;justify-content:center;gap:18px;margin-bottom:8vh}
-.carousel__nav button{all:unset;cursor:none;font-size:11px;font-weight:600;letter-spacing:.28em;text-transform:lowercase;color:var(--cream-55);padding:10px 6px;transition:color .3s}
-body.touch .carousel__nav button{cursor:pointer}
-.carousel__nav button:hover{color:var(--cream)}
+/* ————— 01 work — scattered gallery ————— */
+#work.sec--gallery{padding-top:14vh;padding-bottom:10vh}
+.gallery{position:relative;height:min(86vh,760px);min-height:520px}
+#gallery-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y}
+.gallery-idx{position:absolute;left:0;top:50%;transform:translateY(-50%);font-size:11px;letter-spacing:.14em;color:rgba(20,18,16,.4);z-index:3;opacity:0}
+.gallery-label{position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:12px;letter-spacing:.05em;color:rgba(20,18,16,.55);z-index:3;opacity:0}
+.gallery-copy{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:min(720px,74vw);text-align:center;z-index:3;pointer-events:none;opacity:0}
+.gallery-copy p{font-family:var(--sans);font-weight:400;font-size:clamp(21px,2.7vw,38px);line-height:1.3;color:var(--paper-ink)}
+.gallery-copy em{font-style:italic;font-family:Georgia,'Times New Roman',serif;color:rgba(20,18,16,.75)}
 
-.carousel__detail{max-width:760px;margin:0 auto;text-align:center}
-.pd__tags{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-bottom:22px}
-.pd__tags span{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--cream-70);border:1px solid var(--cream-24);padding:6px 12px;border-radius:99px}
-.pd__title{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(26px,3.2vw,44px);margin-bottom:20px}
-.pd__copy{font-size:clamp(15px,1.3vw,18px);line-height:1.75;color:var(--cream-70);max-width:56ch;margin:0 auto}
-.pd__copy b{color:var(--cream);font-weight:500}
-.pd__link{display:inline-flex;align-items:center;gap:10px;margin-top:24px;font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:lowercase;color:var(--accent);border-bottom:1px solid currentColor;padding-bottom:6px}
-.pd__link::after{content:"↗";font-size:12px}
-.pd__link[hidden]{display:none}
-
-/* mobile / reduced-motion fallback — a plain stacked list, no 3D */
+/* mobile / reduced-motion fallback — a plain stacked list, no webgl */
 .work-flat{display:none;max-width:760px;margin:0 auto}
-.wf-item{padding:44px 0;border-top:1px solid var(--cream-10)}
-.wf-item:last-child{border-bottom:1px solid var(--cream-10)}
-.wf-item__media{border-radius:6px;overflow:hidden;margin-bottom:22px;background:var(--ink-2)}
+.wf-item{padding:44px 0;border-top:1px solid rgba(20,18,16,.1);cursor:none}
+body.touch .wf-item{cursor:pointer}
+.wf-item:last-child{border-bottom:1px solid rgba(20,18,16,.1)}
+.wf-item__media{border-radius:6px;overflow:hidden;margin-bottom:22px;background:rgba(20,18,16,.06)}
 .wf-item__media img,.wf-item__media video{display:block;width:100%;height:auto}
-.wf-item__num{font-size:10px;letter-spacing:.3em;color:var(--cream-55)}
-.wf-item__name{display:block;font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(24px,4vw,34px);margin:6px 0 14px}
-.wf-item__copy{font-size:15px;line-height:1.7;color:var(--cream-70)}
-.wf-item__copy b{color:var(--cream);font-weight:500}
+.wf-item__num{font-size:10px;letter-spacing:.3em;color:rgba(20,18,16,.4)}
+.wf-item__name{display:block;font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(24px,4vw,34px);margin:6px 0 14px;color:var(--paper-ink)}
+.wf-item__copy{font-size:15px;line-height:1.7;color:rgba(20,18,16,.68)}
+.wf-item__copy b{color:var(--paper-ink);font-weight:500}
 .wf-item__link{display:inline-flex;align-items:center;gap:10px;margin-top:18px;font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:lowercase;color:var(--accent);border-bottom:1px solid currentColor;padding-bottom:6px}
 .wf-item__link::after{content:"↗";font-size:12px}
 
 @media (max-width:760px), (hover:none){
-  .carousel,.carousel__nav,.carousel__detail{display:none}
+  .gallery{display:none}
   .work-flat{display:block}
 }
-html.static .carousel,html.static .carousel__nav,html.static .carousel__detail{display:none}
-html.static .work-flat{display:block}
+html.static .gallery,html.no-webgl .gallery{display:none}
+html.static .work-flat,html.no-webgl .work-flat{display:block}
 
 /* ————— 02 about ————— */
 #about{max-width:1400px;margin:0 auto}
 .about-grid{display:grid;grid-template-columns:minmax(0,.7fr) minmax(0,1fr);gap:clamp(40px,6vw,110px)}
-.about-copy p{font-size:clamp(17px,1.7vw,24px);line-height:1.7;font-weight:300;color:var(--cream-70);margin-bottom:1.1em}
+.about-copy p{font-size:clamp(17px,1.7vw,24px);line-height:1.7;font-weight:300;color:rgba(20,18,16,.68);margin-bottom:1.1em}
 .about-copy p:last-child{margin-bottom:0}
-.about-copy b{color:var(--cream);font-weight:500}
+.about-copy b{color:var(--paper-ink);font-weight:500}
 @media (max-width:860px){.about-grid{grid-template-columns:1fr;gap:36px}}
 
 /* ————— 03 start a project — the one bold beat ————— */
 #cta{min-height:82vh;display:flex;align-items:center;justify-content:center;text-align:center;padding-top:14vh;padding-bottom:14vh}
 .cta-inner{max-width:900px}
-.cta-h{font-family:var(--sans);font-weight:600;text-transform:lowercase;font-size:clamp(48px,9vw,132px);line-height:.92;letter-spacing:-.01em}
-.cta-sub{margin-top:4vh;font-size:clamp(16px,1.5vw,21px);line-height:1.7;color:rgba(255,255,255,.82);max-width:48ch;margin-left:auto;margin-right:auto}
-.cta-btn{display:inline-flex;align-items:center;gap:18px;margin-top:7vh;font-weight:500;font-size:13px;letter-spacing:.32em;text-transform:lowercase;color:#e5352b;padding:24px 42px;border-radius:99px;background:#fff;position:relative;overflow:hidden;will-change:transform}
+.cta-h{font-family:var(--sans);font-weight:600;text-transform:lowercase;font-size:clamp(48px,9vw,132px);line-height:.92;letter-spacing:-.01em;color:var(--paper-ink)}
+.cta-sub{margin-top:4vh;font-size:clamp(16px,1.5vw,21px);line-height:1.7;color:rgba(20,18,16,.68);max-width:48ch;margin-left:auto;margin-right:auto}
+.cta-btn{display:inline-flex;align-items:center;gap:18px;margin-top:7vh;font-weight:500;font-size:13px;letter-spacing:.32em;text-transform:lowercase;color:var(--paper);padding:24px 42px;border-radius:99px;background:var(--paper-ink);position:relative;overflow:hidden;will-change:transform}
 .cta-btn .arrow{width:24px;height:1px;background:currentColor;position:relative;transition:width .5s var(--ease-out)}
 .cta-btn .arrow::after{content:"";position:absolute;right:0;top:-3px;width:6px;height:6px;border-top:1px solid currentColor;border-right:1px solid currentColor;transform:rotate(45deg)}
 .cta-btn:hover .arrow{width:36px}
-.cta-avail{margin-top:3vh;font-size:11px;font-weight:400;letter-spacing:.2em;text-transform:lowercase;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;gap:10px}
-.cta-avail::before{content:"";width:6px;height:6px;border-radius:50%;background:#fff;flex:none;animation:pulse-dot 2.6s ease-in-out infinite}
+.cta-avail{margin-top:3vh;font-size:11px;font-weight:400;letter-spacing:.2em;text-transform:lowercase;color:rgba(20,18,16,.5);display:flex;align-items:center;justify-content:center;gap:10px}
+.cta-avail::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--red);flex:none;animation:pulse-dot 2.6s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){.cta-avail::before{animation:none}}
 
 /* ————— footer ————— */
@@ -324,9 +305,8 @@ footer{position:relative;padding:14vh var(--pad) 40px;max-width:1400px;margin:0 
 .fnews .fn-done{display:none;font-size:13px;color:rgba(20,18,16,.55)}
 .fnews.is-sent .fn-done{display:inline}
 .fbottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;padding-top:6vh;font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:lowercase;color:rgba(20,18,16,.4)}
-.flogo-spacer{height:min(30vh,320px)}
 .fwordmark{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:min(14vh,140px) 0 min(8vh,70px);position:relative;z-index:1}
-.fwordmark span{display:block;font-family:var(--sans);font-weight:900;text-transform:lowercase;letter-spacing:-.02em;line-height:.92;font-size:clamp(48px,10vw,160px);color:var(--paper-ink);opacity:.92}
+.fwordmark span{display:block;font-family:var(--sans);font-weight:600;text-transform:lowercase;letter-spacing:-.02em;line-height:.92;font-size:clamp(48px,10vw,160px);color:var(--paper-ink);opacity:.92}
 .fwordmark span:last-child{opacity:.16}
 @media (max-width:760px){.fcols{grid-template-columns:1fr 1fr}.fcol:nth-child(4){grid-column:1/-1}}
 
@@ -344,24 +324,21 @@ footer{position:relative;padding:14vh var(--pad) 40px;max-width:1400px;margin:0 
 html.static .pinwrap{height:auto;min-height:70vh;padding:18vh 0}
 html.static [data-rest]{opacity:1!important;transform:none!important;filter:none!important}
 html.static #ch0.hero-mask{--hero-bg:0}
-html.static .hero-static{display:none}
+html.static .hero-mark-wrap{opacity:1!important;transform:translate(-50%,-50%) scale(1)!important}
 html.static .hero-caption{opacity:1!important}
-html.static .hero-tag{color:var(--cream-70)}
-html.static .hero-sub{color:var(--cream)}
+html.static .hero-tag{color:rgba(20,18,16,.6)}
+html.static .hero-sub{color:var(--paper-ink)}
 html.static .hero-heading{opacity:1!important}
-html.static .hero-heading h1{color:var(--cream)}
+html.static .hero-heading h1{color:var(--paper-ink)}
 html.static [data-io],html.static [data-io-end]{opacity:1!important;transform:none!important}
-html.static #bg-field{display:none}
-html.static #cta{background:var(--red)}
-html.static footer{background:var(--paper)}
 a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid var(--red);outline-offset:6px}
 
 /* ————— single-typeface tuning ————— */
 /* Geist carries both display and UI duty across the whole rebuild — light
    weight on the quieter editorial lines, a heavier beat reserved for the
    one bold cta headline so there's still real contrast in the type. */
-.hero-heading h1,.hero-sub,.sec-head h2,.pcard__name,.wf-item__name,
-.pd__title,.fkicker,.about-copy p{font-weight:300}
+.sec-head h2,.wf-item__name,
+.fkicker,.about-copy p{font-weight:300}
 .cta-h{font-weight:600}
 
 </style></head>
@@ -369,10 +346,8 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
 
 <!-- atmosphere -->
 <div id="bg-wash"><span class="wash wash--1"></span><span class="wash wash--2"></span><span class="wash wash--3"></span><span class="wash wash--4"></span><span class="wash wash--5"></span></div>
-<div id="vignette"></div>
 <div id="grain"></div>
 
-<div id="bg-field"></div>
 
 <!-- preloader -->
 <div id="veil" aria-hidden="true">
@@ -411,15 +386,30 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
 <!-- 00 · the dark -->
   <section id="ch0" data-chapter="0" class="hero-mask">
     <div class="pinwrap">
-      <div class="hero-heading">
-        <h1 data-rest>come closer<span class="rd">.</span></h1>
+      <span class="hero-idx" aria-hidden="true">(00)</span>
+      <div class="hero-mark-wrap" id="hero-mark-wrap">
+        <div class="hero-blob hero-blob--1" aria-hidden="true"></div>
+        <div class="hero-blob hero-blob--2" aria-hidden="true"></div>
+        <div class="hero-blob hero-blob--3" aria-hidden="true"></div>
+        <svg class="hero-mark-svg" viewBox="0 0 32 32" aria-hidden="true">
+          <defs>
+            <clipPath id="heroMarkClip" clipPathUnits="userSpaceOnUse">
+              <path d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/>
+            </clipPath>
+          </defs>
+          <g clip-path="url(#heroMarkClip)">
+            <image href="assets/img/gorjup-01.jpg" x="-2" y="-2" width="18" height="18" preserveAspectRatio="xMidYMid slice"/>
+            <image href="assets/img/santera-01.jpg" x="15" y="-2" width="19" height="17" preserveAspectRatio="xMidYMid slice"/>
+            <image href="assets/img/kosovel-01.jpg" x="-2" y="14" width="17" height="20" preserveAspectRatio="xMidYMid slice"/>
+            <image href="assets/img/ronki-01.jpg" x="14" y="15" width="20" height="19" preserveAspectRatio="xMidYMid slice"/>
+          </g>
+        </svg>
       </div>
-      <div class="hero-static" aria-hidden="true">
-        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/></svg>
-      </div>
-      <canvas id="hero-canvas" aria-hidden="true"></canvas>
       <div class="hero-caption">
         <p class="hero-sub" data-rest>domen markeljc</p>
+        <div class="hero-heading">
+          <h1 data-rest>come closer<span class="rd">.</span></h1>
+        </div>
         <p class="hero-tag" data-rest>identity, web, motion — for the second look, not the first glance</p>
       </div>
     </div>
@@ -427,26 +417,13 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
 
   
   <!-- 01 · work -->
-  <section id="work" data-chapter="1" class="sec sec--dark">
-    <div class="sec-head" data-io>
-      <span class="sec-idx">01</span>
-      <h2>selected work</h2>
-      <span class="rule"></span>
-    </div>
-
-    <div class="work-pin" id="work-pin">
-      <div class="carousel" id="carousel" aria-hidden="true">
-        <div class="carousel__stage" id="carousel-stage"></div>
-      </div>
-      <div class="carousel__nav" aria-hidden="true">
-        <button type="button" data-dir="-1" data-hover>prev</button>
-        <button type="button" data-dir="1" data-hover>next</button>
-      </div>
-      <div class="carousel__detail" id="carousel-detail" aria-live="polite">
-        <p class="pd__tags" id="pd-tags"></p>
-        <h3 class="pd__title" id="pd-title"></h3>
-        <p class="pd__copy" id="pd-copy"></p>
-        <a class="pd__link" id="pd-link" href="#" target="_blank" rel="noopener" data-hover hidden>visit site</a>
+  <section id="work" data-chapter="1" class="sec sec--gallery">
+    <div class="gallery" id="gallery">
+      <canvas id="gallery-canvas" aria-hidden="true"></canvas>
+      <span class="gallery-idx" data-io>(01)</span>
+      <span class="gallery-label" data-io>gallery</span>
+      <div class="gallery-copy" data-io>
+        <p>each project starts as a question — how small can <em>a mark</em> be, how quiet can <em>an interface</em> stay — and ends as an answer worth keeping.</p>
       </div>
     </div>
 
@@ -454,7 +431,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
   </section>
 
   <!-- 02 · about -->
-  <section id="about" data-chapter="2" class="sec sec--dark">
+  <section id="about" data-chapter="2" class="sec">
     <div class="sec-head" data-io>
       <span class="sec-idx">02</span>
       <h2>about</h2>
@@ -471,7 +448,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
   </section>
 
   <!-- 03 · start a project -->
-  <section id="cta" data-chapter="3" class="sec sec--red">
+  <section id="cta" data-chapter="3" class="sec">
     <div class="cta-inner">
       <span class="sec-idx" data-io>03 — start a project</span>
       <h2 class="cta-h" data-io>start a<br>project</h2>
@@ -485,7 +462,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
 
 </main>
 
-<footer id="site-footer" data-chapter="4" class="sec sec--paper">
+<footer id="site-footer" data-chapter="4" class="sec">
   <canvas id="footer-canvas" aria-hidden="true"></canvas>
   <div class="fwordmark" aria-hidden="true"><span>domen</span><span>markeljc</span></div>
   <div class="fhead" data-io>
@@ -652,334 +629,6 @@ if (!isTouch){
 }
 
 
-/* ————————————————— hero — the mark as a window —————————————————
-   shape/shader ported from podium.global's hero effect: an SDF-blended
-   shape mask (circle -> mark morph) with mouse-trail fluid displacement
-   and scroll-tied barrel pinch. GLSL below is carried over near-verbatim
-   from their shipped bundle; the shape source (their KTX2 podium-shape
-   texture) is swapped for an SDF baked from our own mark, and the flat
-   fill color is ours. The pinned-chapter zoom/dissolve on scroll is this
-   site's own addition (uReveal), grafted on to keep the existing scroll
-   choreography working with the new shader. */
-const heroU = { reveal: 0, scrollP: 0, scrollV: 0, scrollZoom: 0 };
-const heroShape = { shapeReveal: 0, pulseReveal: 0 };
-let heroRenderer = null, heroUniforms = null, heroTouch = null;
-// once you've genuinely scrolled past the hero, its WebGL loop stops
-// rendering entirely rather than just being hidden by CSS — visibility
-// alone doesn't stop the GPU work, and with the footer's own WebGL scene
-// running too, two permanently-rendering contexts is exactly the kind of
-// sustained load that reads as "the page almost crashes" near the bottom
-let heroActive = true;
-
-// generic two-pass 8-neighbour signed-distance-field bake from a filled
-// Path2D — not target-specific, stands in for the KTX2 SDF asset podium
-// ships and bakes at load instead of build time
-function buildHeroSDF(size){
-  const cv = document.createElement('canvas'); cv.width = cv.height = size;
-  const ctx = cv.getContext('2d');
-  const p = new Path2D('M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z');
-  ctx.translate(size*0.14, size*0.14); ctx.scale(size*0.72/32, size*0.72/32);
-  ctx.fillStyle = '#fff'; ctx.fill(p);
-
-  const n = size*size;
-  const img = ctx.getImageData(0,0,size,size).data;
-  const inside = new Uint8Array(n);
-  for (let i=0;i<n;i++) inside[i] = img[i*4+3] > 127 ? 1 : 0;
-
-  const INF = 1e6;
-  const passFor = sign => {
-    const dx = new Float32Array(n).fill(INF), dy = new Float32Array(n).fill(INF);
-    for (let i=0;i<n;i++) if (inside[i]===sign){ dx[i]=0; dy[i]=0; }
-    const cmp = (i,x,y,ox,oy) => {
-      const nx=x+ox, ny=y+oy;
-      if (nx<0||nx>=size||ny<0||ny>=size) return;
-      const j = ny*size+nx, ndx=dx[j]+ox, ndy=dy[j]+oy;
-      if (ndx*ndx+ndy*ndy < dx[i]*dx[i]+dy[i]*dy[i]){ dx[i]=ndx; dy[i]=ndy; }
-    };
-    for (let y=0;y<size;y++) for (let x=0;x<size;x++){ const i=y*size+x;
-      cmp(i,x,y,-1,0); cmp(i,x,y,0,-1); cmp(i,x,y,-1,-1); cmp(i,x,y,1,-1); }
-    for (let y=size-1;y>=0;y--) for (let x=size-1;x>=0;x--){ const i=y*size+x;
-      cmp(i,x,y,1,0); cmp(i,x,y,0,1); cmp(i,x,y,1,1); cmp(i,x,y,-1,1); }
-    const out = new Float32Array(n);
-    for (let i=0;i<n;i++) out[i] = Math.sqrt(dx[i]*dx[i]+dy[i]*dy[i]);
-    return out;
-  };
-  const distIn = passFor(0), distOut = passFor(1);
-  const spread = size * 0.22;
-  const out = ctx.createImageData(size,size);
-  for (let i=0;i<n;i++){
-    const signed = inside[i] ? distIn[i] : -distOut[i];
-    const g = Math.max(0, Math.min(1, 0.5 + (signed/spread)*0.5));
-    out.data[i*4] = out.data[i*4+1] = out.data[i*4+2] = (g*255)|0;
-    out.data[i*4+3] = 255;
-  }
-  ctx.putImageData(out,0,0);
-  const tex = new THREE.CanvasTexture(cv);
-  tex.minFilter = THREE.LinearFilter; tex.magFilter = THREE.LinearFilter;
-  tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
-  tex.needsUpdate = true;
-  return { tex, size };
-}
-
-// ported near-verbatim from podium.global's TouchTexture: a canvas2d
-// radial-gradient trail sampled by the shader as uMouseTexture
-class HeroTouchTexture {
-  constructor({ size=256, maxAge=750, radius=.3, intensity=.2, interpolate=0, smoothing=0, minForce=.3, blend='screen', ease=t=>Math.sqrt(1-Math.pow(t-1,2)) } = {}){
-    this.size=size; this.maxAge=maxAge; this.radius=radius; this.intensity=intensity;
-    this.ease=ease; this.interpolate=interpolate; this.smoothing=smoothing;
-    this.minForce=minForce; this.blend=blend; this.trail=[]; this.force=0;
-    this.canvas = document.createElement('canvas');
-    this.canvas.width = this.canvas.height = this.size;
-    this.ctx = this.canvas.getContext('2d');
-    this.ctx.fillStyle = 'black'; this.ctx.fillRect(0,0,this.size,this.size);
-    this.texture = new THREE.CanvasTexture(this.canvas);
-  }
-  update(dt){
-    this.clear();
-    this.trail = this.trail.filter(t => (t.age += 1000*dt) <= this.maxAge);
-    if (!this.trail.length) this.force = 0;
-    this.trail.forEach(t => this.drawTouch(t));
-    this.texture.needsUpdate = true;
-  }
-  clear(){ this.ctx.globalCompositeOperation='source-over'; this.ctx.fillStyle='black'; this.ctx.fillRect(0,0,this.size,this.size); }
-  addTouch(pt){
-    const prev = this.trail[this.trail.length-1];
-    if (prev){
-      const dx=prev.x-pt.x, dy=prev.y-pt.y, d2=dx*dx+dy*dy;
-      const f = Math.max(this.minForce, Math.min(1e4*d2, 1));
-      this.force = f*(1-this.smoothing) + this.force*this.smoothing;
-      if (this.interpolate){
-        const steps = Math.ceil(d2/Math.pow(.5*this.radius/this.interpolate,2));
-        for (let i=1;i<steps;i++) this.trail.push({ x: pt.x-dx/steps*i, y: pt.y-dy/steps*i, age:0, force:f });
-      }
-    }
-    this.trail.push({ x:pt.x, y:pt.y, age:0, force:this.force });
-  }
-  drawTouch(t){
-    const x = t.x*this.size, y = (1-t.y)*this.size;
-    const r = (t.age < .3*this.maxAge ? this.ease(t.age/(.3*this.maxAge)) : this.ease(1-(t.age-.3*this.maxAge)/(.7*this.maxAge))) * t.force;
-    this.ctx.globalCompositeOperation = this.blend;
-    const rad = Math.max(0, this.size*this.radius*r);
-    const grad = this.ctx.createRadialGradient(x,y,Math.max(0,.25*rad), x,y,rad);
-    grad.addColorStop(0, `rgba(255,255,255,${this.intensity})`);
-    grad.addColorStop(1, 'rgba(0,0,0,0)');
-    this.ctx.beginPath(); this.ctx.fillStyle = grad; this.ctx.arc(x,y,rad,0,Math.PI*2); this.ctx.fill();
-  }
-}
-
-function initHero(){
-  const canvas = $('#hero-canvas');
-  const section = $('#ch0');
-  if (!canvas || !section) return;
-
-  heroRenderer = new THREE.WebGLRenderer({ canvas, antialias:!isTouch, alpha:true, powerPreference:'high-performance' });
-  heroRenderer.setPixelRatio(isTouch ? Math.min(devicePixelRatio, 1.25) : Math.min(devicePixelRatio, 1.75));
-  const size0 = section.getBoundingClientRect();
-  const w0 = size0.width || innerWidth, h0 = size0.height || innerHeight;
-  heroRenderer.setSize(w0, h0, false);
-
-  const scene = new THREE.Scene();
-  const camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
-  const geo = new THREE.PlaneGeometry(2,2);
-
-  const shape = buildHeroSDF(512);
-  heroTouch = new HeroTouchTexture({ size:1024, maxAge:600, blend:'difference', radius:.095, intensity:.1, minForce:.5, interpolate:0, smoothing:0 });
-
-  heroUniforms = {
-    uIsMobile:          { value: isTouch },
-    uTime:              { value: 0 },
-    uShapeReveal:       { value: 0 },
-    uScrollProgress:    { value: 0 },
-    uPulseReveal:       { value: 0 },
-    uScrollZoom:        { value: 0 },
-    uBackgroundPodiumShapeTexture: { value: shape.tex },
-    uTextureShapeSize:  { value: new THREE.Vector2(shape.size, shape.size) },
-    uMouseTexture:      { value: heroTouch.texture },
-    uResolution:        { value: new THREE.Vector2(w0, h0) },
-    uColorBeige:        { value: new THREE.Color(0x141210) },
-    uMeshSize:          { value: new THREE.Vector2(w0, h0) },
-    uScrollVelocity:    { value: 0 },
-    uFluidIntensity:    { value: 0.6 },
-    uNoiseIntensity:    { value: 0.6 },
-    uUvScale:           { value: 1.4 },
-    uPulseMult:         { value: 0.2 },
-    uReveal:            { value: 0 }
-  };
-
-  const mat = new THREE.ShaderMaterial({
-    uniforms: heroUniforms, transparent:true, depthWrite:false,
-    vertexShader:`
-      varying vec2 vUv;
-      void main(){ vUv = uv; gl_Position = vec4(position, 1.0); }`,
-    fragmentShader:`
-      precision highp float;
-      uniform bool uIsMobile;
-      uniform float uTime;
-      uniform float uShapeReveal;
-      uniform float uScrollProgress;
-      uniform float uPulseReveal;
-      uniform float uScrollZoom;
-      uniform sampler2D uBackgroundPodiumShapeTexture;
-      uniform vec2 uTextureShapeSize;
-      uniform sampler2D uMouseTexture;
-      uniform vec2 uResolution;
-      uniform vec3 uColorBeige;
-      uniform vec2 uMeshSize;
-      uniform float uScrollVelocity;
-      uniform float uFluidIntensity;
-      uniform float uNoiseIntensity;
-      uniform float uUvScale;
-      uniform float uPulseMult;
-      uniform float uReveal;
-      varying vec2 vUv;
-
-      float hash(vec2 p) {
-        return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x))));
-      }
-      float noise(vec2 x) {
-        vec2 i = floor(x);
-        vec2 f = fract(x);
-        float a = hash(i);
-        float b = hash(i + vec2(1.0, 0.0));
-        float c = hash(i + vec2(0.0, 1.0));
-        float d = hash(i + vec2(1.0, 1.0));
-        vec2 u = f * f * (3.0 - 2.0 * f);
-        return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
-      }
-      float sdCircle(in vec2 p, in float r) {
-        return length(p) - r;
-      }
-
-      void main() {
-        float FLUID_INTENSITY = uFluidIntensity;
-        float NOISE_INTENSITY = uNoiseIntensity;
-
-        /** Ratio */
-        float textureShapeRatio = uTextureShapeSize.x / uTextureShapeSize.y;
-        float meshRatio = uMeshSize.x / uMeshSize.y;
-        float resolutionRatio = uResolution.x / uResolution.y;
-
-        /** Pulse */
-        float pulse = uPulseReveal * uPulseMult;
-
-        /** UV — scroll shrinks the sampled window toward its centre, so the
-            mark's own silhouette balloons past the frame edges: a single
-            clean dive through the shape, not a radial warp. No barrel/
-            pincushion term here on purpose — that read as an unwanted
-            twirl during the scroll-out and fought the fade for the same
-            transition window. */
-        float uvScale = max(0.045, uUvScale - pulse - uScrollZoom);
-        vec2 uv = (vUv - 0.5) * uvScale + 0.5;
-
-        if (meshRatio > textureShapeRatio) {
-          uv.x = (uv.x - 0.5) * (meshRatio / textureShapeRatio) + 0.5;
-        } else {
-          uv.y = (uv.y - 0.5) * (textureShapeRatio / meshRatio) + 0.5;
-        }
-
-        vec2 uvMouseTrail;
-        vec3 mouseColor = vec3(0.0);
-
-        if (uIsMobile) {
-          uvMouseTrail = uv;
-        } else {
-          float fnoise = pow((1.0 - uScrollProgress), 4.0) * noise(uv * 1000.0) * NOISE_INTENSITY;
-          mouseColor = texture2D(uMouseTexture, vUv).rgb * fnoise;
-          uvMouseTrail = uv - vec2(mouseColor) * FLUID_INTENSITY;
-        }
-
-        vec2 podiumUv = uvMouseTrail;
-
-        if (resolutionRatio < 1.0) {
-          podiumUv.y += (1.0 - uScrollProgress) * (1.0 - resolutionRatio) * 0.3;
-        }
-
-        /** Texture Map */
-        vec3 textureMap = texture2D(uBackgroundPodiumShapeTexture, podiumUv).rgb;
-
-        /** Circle SDF */
-        vec2 circleUv = vUv - 0.5;
-        circleUv.x *= uMeshSize.x / uMeshSize.y;
-        float sdf_circle = sdCircle(circleUv, 0.01);
-
-        /** Texture shape SDF */
-        float sdf_texture = 0.5 - textureMap.g;
-
-        /** Blend SDFs */
-        float sdf_final = mix(sdf_texture, sdf_circle, 1.0 - uShapeReveal);
-
-        float edgeDist = abs(sdf_final);
-        float edgeGuard = smoothstep(0.0, 0.05, edgeDist);
-        float sdf_clean = mix(sdf_texture, sdf_final, edgeGuard);
-        float sdf_guarded = mix(sdf_clean, sdf_final, edgeGuard);
-        sdf_final = mix(sdf_final, sdf_guarded, uShapeReveal);
-
-        float mask = mix(
-          smoothstep(0.001, 0.003, sdf_final),
-          smoothstep(0.0, 0.003, sdf_final),
-          pow(uShapeReveal, 4.0)
-        );
-
-        if (!uIsMobile) {
-          float mask_scale_and_blur = length(circleUv) + smoothstep(-1.0, 1.0, sdf_final) + 0.3;
-          mask = mix(mask, mask_scale_and_blur, uPulseReveal);
-          mask = pow(mask, 4.0);
-        }
-
-        vec3 color = vec3(uColorBeige);
-        // podium's mask is a hole cut into a full-bleed overlay (it reveals
-        // a video layer sitting behind the shape plane); we have no such
-        // layer to reveal, and this site's own hero has always been "the
-        // mark as a solid window", so we invert: the shape itself paints
-        // in, everything outside stays transparent.
-        gl_FragColor = vec4(color, (1.0 - mask) * uReveal);
-      }`
-  });
-
-  scene.add(new THREE.Mesh(geo, mat));
-
-  // feed the mouse trail only when the pointer has actually moved, same
-  // as podium's discrete addTouch-on-move (not a per-frame sample)
-  let lastTx = null, lastTy = null;
-  let visible = true;
-  document.addEventListener('visibilitychange', () => visible = !document.hidden);
-  const clock = new THREE.Clock();
-  let prevT = clock.getElapsedTime();
-  const tick = () => {
-    requestAnimationFrame(tick);
-    if (!visible || !heroActive || !heroRenderer) return;
-    const now = clock.getElapsedTime();
-    const dt = Math.max(0, now - prevT); prevT = now;
-    heroUniforms.uTime.value = now;
-    heroUniforms.uShapeReveal.value = heroShape.shapeReveal;
-    heroUniforms.uPulseReveal.value = heroShape.pulseReveal;
-    heroUniforms.uScrollProgress.value = heroU.scrollP;
-    heroUniforms.uScrollZoom.value = heroU.scrollZoom;
-    heroUniforms.uScrollVelocity.value = heroU.scrollV;
-    heroUniforms.uReveal.value = heroU.reveal;
-
-    const mx = (mouse.nx + 1) / 2, my = 1 - (mouse.ny + 1) / 2;
-    if (mx !== lastTx || my !== lastTy){
-      heroTouch.addTouch({ x: mx, y: my });
-      lastTx = mx; lastTy = my;
-    }
-    heroTouch.update(dt);
-
-    heroRenderer.render(scene, camera);
-  };
-  tick();
-
-  const resizeHero = () => {
-    const r = section.getBoundingClientRect();
-    const w = r.width || innerWidth, h = r.height || innerHeight;
-    heroRenderer.setSize(w, h, false);
-    heroUniforms.uResolution.value.set(w, h);
-    heroUniforms.uMeshSize.value.set(w, h);
-  };
-  addEventListener('resize', resizeHero);
-}
-if (GL) initHero();
-
 
 /* ————————————————— work — data ————————————————— */
 const PROJECTS = [
@@ -1027,87 +676,108 @@ const PROJECTS = [
     ] }
 ];
 
-/* ————————————————— work — orbital carousel (desktop) ————————————————— */
-let carouselApi = null;
-function buildCarousel(){
-  const stage = $('#carousel-stage');
-  if (!stage) return;
-  const n = PROJECTS.length;
-  const step = 360 / n;
-  stage.innerHTML = PROJECTS.map((p,i) => `
-    <article class="pcard" data-i="${i}" data-hover>
-      <div class="pcard__media"><img src="${p.cover}" alt="${p.title}" loading="lazy"></div>
-      <div class="pcard__meta"><span class="pcard__num">${p.num}</span><span class="pcard__name">${p.title}</span></div>
-    </article>`).join('');
-  const cards = $$('.pcard', stage);
-  // a DNA-strand tunnel, not a flat ring: cards alternate onto two strands
-  // (even indices sit high, odd low) around the same axis, and each card's
-  // own depth pulls toward the camera as it nears the active angle — so
-  // scrolling reads as travelling forward through a helix, not spinning a
-  // carousel in place
-  const radius = Math.max(280, Math.min(innerWidth, 900) * 0.5);
-  const strandY = Math.min(120, innerWidth * 0.08);
-  const tunnelPull = 220;
-  cards.forEach((c,i) => {
-    const y = (i % 2 === 0 ? 1 : -1) * strandY;
-    c.style.transform = `rotateY(${i*step}deg) translateZ(${radius}px) translateY(${y}px)`;
+/* ————————————————— work — scattered gallery (three.js) ————————————————— */
+let galleryApi = null;
+function buildGallery(){
+  const canvas = $('#gallery-canvas');
+  const wrap = $('#gallery');
+  if (!canvas || !wrap || !GL){
+    document.documentElement.classList.add('no-webgl');
+    return;
+  }
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true, powerPreference:'low-power' });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+  let w = wrap.clientWidth || innerWidth, h = wrap.clientHeight || Math.round(innerHeight*.85);
+  renderer.setSize(w, h, false);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(42, w/h, 0.1, 100);
+  camera.position.set(0, 0, 7);
+
+  // a fixed, art-directed scatter — not random each load — five loose
+  // positions at varied depth and tilt, echoing the floating-device-mockup
+  // reference rather than a neat grid
+  const LAYOUT = [
+    { x:-2.7, y:0.55, z:0,    rz:-7, w:1.7, h:1.15 },
+    { x:-0.75,y:1.2,  z:-1.1, rz:5,  w:1.25,h:0.95 },
+    { x:1.55, y:0.7,  z:-0.3, rz:-6, w:1.55,h:1.1 },
+    { x:2.75, y:-0.55,z:0.35, rz:7,  w:1.5, h:1.05 },
+    { x:-1.85,y:-1.4, z:0.55, rz:4,  w:1.6, h:1.15 }
+  ];
+  const loader = new THREE.TextureLoader();
+  const planes = [];
+  PROJECTS.forEach((p, i) => {
+    const cfg = LAYOUT[i % LAYOUT.length];
+    const mat = new THREE.MeshBasicMaterial({ map:loader.load(p.cover), transparent:true });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(cfg.w, cfg.h), mat);
+    mesh.position.set(cfg.x, cfg.y, cfg.z);
+    mesh.rotation.z = cfg.rz * Math.PI/180;
+    mesh.userData.index = i;
+    mesh.userData.baseY = cfg.y;
+    mesh.userData.bob = i * 1.7;
+    scene.add(mesh);
+    planes.push(mesh);
   });
 
-  const detTags = $('#pd-tags'), detTitle = $('#pd-title'), detCopy = $('#pd-copy'), detLink = $('#pd-link');
-  function paintDetail(i){
-    const p = PROJECTS[i];
-    detTags.innerHTML = p.tags.map(t => `<span>${t}</span>`).join('');
-    detTitle.textContent = p.title;
-    detCopy.innerHTML = p.copy;
-    if (p.link){ detLink.href = p.link; detLink.hidden = false; detLink.textContent = 'visit site'; }
-    else detLink.hidden = true;
+  const raycaster = new THREE.Raycaster();
+  const ptr = new THREE.Vector2();
+  let hovered = null;
+  function setPtr(e){
+    const r = canvas.getBoundingClientRect();
+    ptr.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+    ptr.y = -((e.clientY - r.top) / r.height) * 2 + 1;
   }
-
-  let ambientSpin = 0;
-  let groupRot = 0;
-  function render(progress){
-    if (carouselApi) carouselApi.lastP = progress;
-    // settles exactly on the last card at progress = 1, no wrap-around
-    groupRot = -progress * step * (n - 1);
-    stage.style.transform = `rotateY(${groupRot + ambientSpin}deg)`;
-    let nearest = 0, nearestDist = Infinity;
-    cards.forEach((c,i) => {
-      let a = (i*step + groupRot) % 360;
-      if (a > 180) a -= 360; if (a < -180) a += 360;
-      const dist = Math.abs(a);
-      const t = clamp01(1 - dist/110);
-      const y = (i % 2 === 0 ? 1 : -1) * strandY;
-      c.style.opacity = 0.16 + t*0.84;
-      const s = 0.62 + t*0.4;
-      // the nearest card is pulled forward out of the strand toward the
-      // camera — the tunnel-depth cue — while the rest sit back at the
-      // strand's own radius
-      const z = radius - t*tunnelPull;
-      c.style.transform = `rotateY(${i*step}deg) translateZ(${z}px) translateY(${y*(1 - t*0.3)}px) scale(${s})`;
-      if (dist < nearestDist){ nearestDist = dist; nearest = i; }
-    });
-    if (nearest !== carouselApi.active){ carouselApi.active = nearest; paintDetail(nearest); }
-  }
-  paintDetail(0);
-
-  carouselApi = { render, active:0, n, radius: () => radius, rerender: () => render(carouselApi.lastP || 0) };
-
-  // a slow ambient turn keeps the helix quietly alive even when the
-  // visitor isn't scrolling — paused entirely under reduced motion
-  if (!prefersReduced){
-    let last = performance.now();
-    const spin = now => {
-      requestAnimationFrame(spin);
-      const dt = (now - last) / 1000; last = now;
-      ambientSpin += dt * 2.4;
-      render(carouselApi.lastP || 0);
-    };
-    requestAnimationFrame(spin);
-  }
-
-  $$('.pcard', stage).forEach(c => {
-    c.addEventListener('click', () => openProjectModal(+c.dataset.i));
+  canvas.addEventListener('pointermove', e => {
+    setPtr(e);
+    raycaster.setFromCamera(ptr, camera);
+    const hit = raycaster.intersectObjects(planes)[0];
+    const next = hit ? hit.object : null;
+    if (next !== hovered){
+      if (hovered) gsap.to(hovered.scale, { x:1, y:1, z:1, duration:.4, ease:'power2.out' });
+      hovered = next;
+      if (hovered) gsap.to(hovered.scale, { x:1.06, y:1.06, z:1.06, duration:.4, ease:'power2.out' });
+      canvas.style.cursor = hovered ? 'pointer' : '';
+    }
   });
+  canvas.addEventListener('click', e => {
+    setPtr(e);
+    raycaster.setFromCamera(ptr, camera);
+    const hit = raycaster.intersectObjects(planes)[0];
+    if (hit) openProjectModal(hit.object.userData.index);
+  });
+
+  // gentle mouse parallax on the whole scene, plus a slow independent
+  // bob per plane so the gallery stays quietly alive even at rest
+  let mx = 0, my = 0, tmx = 0, tmy = 0;
+  addEventListener('pointermove', e => {
+    tmx = (e.clientX / innerWidth - 0.5);
+    tmy = (e.clientY / innerHeight - 0.5);
+  }, { passive:true });
+
+  const clock = new THREE.Clock();
+  let visible = true;
+  document.addEventListener('visibilitychange', () => visible = !document.hidden);
+  function tick(){
+    requestAnimationFrame(tick);
+    if (!visible) return;
+    const t = clock.getElapsedTime();
+    mx += (tmx - mx) * 0.04;
+    my += (tmy - my) * 0.04;
+    camera.position.x = mx * 0.6;
+    camera.position.y = -my * 0.4;
+    camera.lookAt(0, 0, 0);
+    planes.forEach(m => { m.position.y = m.userData.baseY + Math.sin(t*0.5 + m.userData.bob) * 0.06; });
+    renderer.render(scene, camera);
+  }
+  if (!prefersReduced) tick(); else renderer.render(scene, camera);
+
+  addEventListener('resize', () => {
+    w = wrap.clientWidth || innerWidth; h = wrap.clientHeight || Math.round(innerHeight*.85);
+    camera.aspect = w/h; camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+  });
+
+  galleryApi = { planes };
 }
 
 /* ————————————————— project case modal ————————————————— */
@@ -1465,7 +1135,7 @@ function setFloatCta(on){
 
 /* ——————————————— the film — scroll choreography ——————————————— */
 function buildFilm(){
-  buildCarousel();
+  buildGallery();
   buildWorkFlat();
 
   /* chapter tracking */
@@ -1519,44 +1189,31 @@ function buildFilm(){
 
   
 
-/* 00 · the mark, as a window — grows until it swallows the white page,
-     then dissolves well before chapter 1 arrives. It does not linger.
-     Shorter pin than before (was +=130%, ~2.3 viewport-heights of scroll
-     before any chapter-1 content showed up) — the fade/zoom fractions
-     below are unchanged, so the whole handoff just plays out over less
-     physical scroll distance instead of dragging. */
-  const ch0El = $('#ch0');
-  const heroCanvasEl = $('#hero-canvas');
+/* 00 · the mark, as a window — the photo-collage mark scales up until its
+   silhouette has grown past the edges of the screen, so scrolling reads
+   as diving straight through it — then it fades out over the tail of the
+   pin, handing off cleanly to the work section right behind it. Much
+   simpler than the old shader version: everything here is a single
+   transform + opacity on one element, no WebGL, nothing that can
+   silently fail. */
+  const heroMarkWrap = $('#hero-mark-wrap');
   const nextTeaseEl = $('#next-tease');
   ScrollTrigger.create({
     trigger:'#ch0', start:'top top', end:'+=30%', pin:true, scrub:true,
     onUpdate: st => {
       const p = st.progress;
-      heroU.scrollV = p - heroU.scrollP;
-      heroU.scrollP = p;
-      const bg = Math.max(0, 1 - p * 1.35);
-      if (ch0El) ch0El.style.setProperty('--hero-bg', bg);
-      document.body.classList.toggle('chrome-light', bg > 0.5);
       // the heading and caption step aside early — they're read before the
       // growth begins
       gsap.set('.hero-heading', { opacity: Math.max(0, 1 - p * 6) });
       gsap.set('.hero-caption', { opacity: Math.max(0, 1 - p * 6) });
 
-      // the mark is the window: scrolling zooms straight through its own
-      // silhouette — a single clean dive, no radial warp — and the reveal
-      // fade owns the actual handoff into darkness right behind it. The
-      // zoom finishes a little ahead of the fade (by p=.5, fade by p=.6)
-      // so you're already "through" by the time it's gone, with a wide
-      // margin before the pin releases at p=1.
-      heroU.scrollZoom = easeInOutCubic(clamp01(p / 0.5)) * 1.35;
-      const revealP = clamp01(p / 0.6);
-      heroU.reveal = 1 - easeInOutCubic(revealP);
-
-      // hard failsafe: once scroll is effectively done, force the canvas
-      // fully invisible regardless of shader state — nothing can visibly
-      // persist into chapter 1 even if a uniform doesn't land exactly on
-      // zero
-      if (heroCanvasEl) heroCanvasEl.style.opacity = p >= 0.98 ? 0 : 1;
+      if (heroMarkWrap){
+        const growP = easeInOutCubic(clamp01(p / 0.7));
+        const scale = 1 + growP * 15;
+        const fadeP = clamp01((p - 0.62) / 0.3);
+        heroMarkWrap.style.transform = `scale(${scale})`;
+        heroMarkWrap.style.opacity = 1 - easeInOutCubic(fadeP);
+      }
 
       // the next section's own heading arrives before the pin even lets
       // go — fades in over the tail of the transition, then hands off to
@@ -1567,47 +1224,10 @@ function buildFilm(){
         nextTeaseEl.style.opacity = Math.max(0, teaseIn - teaseOut);
       }
     },
-    onLeaveBack: () => { if (heroCanvasEl) heroCanvasEl.style.opacity = 1; if (nextTeaseEl) nextTeaseEl.style.opacity = 0; }
-  });
-  // hard safety net: once you've genuinely left the hero, the canvas is
-  // switched off entirely rather than trusting opacity/reveal math alone
-  // — and the render loop itself stops, not just the CSS visibility
-  if (heroCanvasEl) ScrollTrigger.create({
-    trigger:'#ch0', start:'top top', end:'bottom top',
-    onLeave: () => { heroCanvasEl.style.visibility = 'hidden'; heroActive = false; },
-    onEnterBack: () => { heroCanvasEl.style.visibility = 'visible'; heroActive = true; }
+    onLeaveBack: () => { if (nextTeaseEl) nextTeaseEl.style.opacity = 0; }
   });
 
   
-
-  /* background field — the two colour beats after the hero's own black */
-  const bgField = $('#bg-field');
-  if (bgField && hasLibs){
-    gsap.to(bgField, { backgroundColor:'#e5352b', ease:'none',
-      scrollTrigger:{ trigger:'#cta', start:'top bottom', end:'top 25%', scrub:true } });
-    gsap.to(bgField, { backgroundColor:'#f5f1e8', ease:'none',
-      scrollTrigger:{ trigger:'#site-footer', start:'top bottom', end:'top 35%', scrub:true } });
-  }
-
-  /* work — pin the carousel unit and scrub its rotation against scroll */
-  if (carouselApi && $('#work-pin')){
-    const workST = ScrollTrigger.create({
-      trigger:'#work-pin', start:'top top', end:'+=' + (carouselApi.n * 70) + '%', pin:true, scrub:true,
-      onUpdate: st => carouselApi.render(st.progress)
-    });
-    carouselApi.goTo = i => {
-      const p = clamp01(i / (carouselApi.n - 1));
-      const y = workST.start + (workST.end - workST.start) * p;
-      if (lenis) lenis.scrollTo(y, { duration:1.2, easing:t=>1-Math.pow(1-t,4) }); else scrollTo({ top:y, behavior:'smooth' });
-    };
-    $$('.carousel__nav button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const dir = +btn.dataset.dir;
-        const next = Math.max(0, Math.min(carouselApi.n - 1, carouselApi.active + dir));
-        carouselApi.goTo(next);
-      });
-    });
-  }
 
   /* generic reveals — every [data-io] element rises in once it's in view */
   $$('[data-io]').forEach(el => {
@@ -1638,7 +1258,7 @@ ScrollTrigger.refresh();
 
 /* ——————————————— static fallback content ——————————————— */
 function buildStatic(){
-  buildCarousel(); buildWorkFlat();
+  buildGallery(); buildWorkFlat();
   setChapter(0);
   $$('#chapter, #hint, .mark, .chrome-cta, #float-cta, #rail').forEach(el => el && (el.style.opacity = 1));
   const railFillStatic = $('#rail-fill'); if (railFillStatic) railFillStatic.style.transform = 'scaleY(1)';
@@ -1667,26 +1287,18 @@ function openVeil(){
     .to('#veil-word', { opacity:0, duration:.4 }, '-=.2')
     .to(veil, { clipPath:'inset(0 0 100% 0)', duration:1.25, ease:'expo.inOut' })
     .set(veil, { display:'none' })
-    /* the mark opens its eyes — the window comes alive before anything else */
-    .to(heroU, { reveal:1, duration:1.6, ease:'power1.inOut' }, '-=1.1')
-    /* circle morphs into the mark, then blooms into the soft pulsed rim —
-       podium's own load-in curve: cubic in/out reveal, pulse eased^12.
-       podium decays the pulse continuously via a scroll-velocity threshold
-       we don't have the source for, so this settle-back is our own
-       disclosed stand-in rather than a sourced value, keeping the resting
-       mark crisp instead of stuck mid-bloom. */
-    .to(heroShape, { shapeReveal:1, duration:.9, ease:'power3.inOut',
-        onUpdate(){ heroShape.pulseReveal = Math.pow(heroShape.shapeReveal, 12); } }, '<')
-    .to(heroShape, { pulseReveal:0, duration:.7, ease:'power2.out' })
+    /* the mark opens its eyes — a plain scale+fade reveal now, no shader
+       uniforms involved */
+    .fromTo('#hero-mark-wrap', { opacity:0, scale:.92 }, { opacity:1, scale:1, duration:1.3, ease:'power2.out' }, '-=1.1')
     .to('.hero-heading', { opacity:1, duration:1.1 }, '-=.9')
     .to('.hero-caption', { opacity:1, duration:1.1 }, '-=.9')
+    .to('.hero-idx', { opacity:1, duration:1 }, '-=.9')
     .to('.mark', { opacity:1, duration:1 }, '-=.9')
     .to('.chrome-cta', { opacity:1, duration:1 }, '-=.85')
     .to('#chapter', { opacity:1, duration:1 }, '-=.8')
     .to('#rail', { opacity:1, duration:1 }, '-=.8')
     .add(() => document.body.classList.add('chrome-light'), '-=.8')
     .to('#hint', { opacity:1, duration:1, onComplete: () => { if (lenis) lenis.start(); ScrollTrigger.refresh(); } }, '-=.8');
-  if (!GL) tl.to('.hero-static', { opacity:.94, duration:1.2 }, '-=1.6');
 
   try { buildFilm(); }
   catch (err) {
