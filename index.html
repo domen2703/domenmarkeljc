@@ -331,14 +331,7 @@ footer{position:relative;padding:14vh var(--pad) 40px;max-width:1400px;margin:0 
 @media (max-width:760px){.fcols{grid-template-columns:1fr 1fr}.fcol:nth-child(4){grid-column:1/-1}}
 
 /* ————— floating 3d logo canvas (module script owns the drawing) ————— */
-#logo-field{position:fixed;inset:0;z-index:40;pointer-events:none}
-html.static #logo-field,html.no-webgl #logo-field{display:none}
-.static-mark{display:none}
-html.static .static-mark,html.no-webgl .static-mark{display:block}
-.static-mark--corner{position:fixed;top:var(--pad);right:var(--pad);width:26px;height:26px;opacity:.85;z-index:41}
-.static-mark--corner path{fill:var(--cream)}
-.static-mark--footer{width:min(46vw,260px);margin:0 auto 4vh}
-.static-mark--footer path{fill:var(--paper-ink)}
+/* ————— floating 3d logo canvas — removed for now ————— */
 
 /* ————— responsive ————— */
 @media (max-width:860px){
@@ -380,8 +373,6 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
 <div id="grain"></div>
 
 <div id="bg-field"></div>
-<svg class="static-mark static-mark--corner" viewBox="0 0 32 32" aria-hidden="true"><path d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/></svg>
-
 
 <!-- preloader -->
 <div id="veil" aria-hidden="true">
@@ -497,7 +488,6 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
 <footer id="site-footer" data-chapter="4" class="sec sec--paper">
   <canvas id="footer-canvas" aria-hidden="true"></canvas>
   <div class="fwordmark" aria-hidden="true"><span>domen</span><span>markeljc</span></div>
-  <svg class="static-mark static-mark--footer" viewBox="0 0 32 32" aria-hidden="true"><path d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/></svg>
   <div class="fhead" data-io>
     <p class="fkicker">let's build something worth picking up.</p>
     <a class="fmail" href="mailto:info@domenmarkeljc.com" data-hover>info@domenmarkeljc.com</a>
@@ -1715,152 +1705,6 @@ Promise.all([document.fonts.ready, minWait, new Promise(r => {
 })();
 </script>
 
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-  }
-}
-</script>
-<script type="module">
-import * as THREE from 'three';
-import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
-
-/* the floating mark — the logo's own outline, extruded into a solid with
-   softly rounded edges and an iridescent glass material, animated by
-   hand (plain requestAnimationFrame, no scroll-math pathway) so it's a
-   small, self-contained, easy-to-reason-about piece: a slow constant
-   spin plus a gentle drift, nothing tied to fragile scroll timing. Fully
-   decoupled from the classic script — if anything here throws, the rest
-   of the site is unaffected. */
-
-const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-let hasGL = false;
-try { const c = document.createElement('canvas'); hasGL = !!(c.getContext('webgl2') || c.getContext('webgl')); } catch (e) {}
-
-if (prefersReduced || !hasGL) {
-  document.documentElement.classList.add('no-webgl');
-} else {
-  try { initFloatingLogo(); }
-  catch (err) {
-    console.error('floating logo failed to initialise — falling back to the static mark.', err);
-    document.documentElement.classList.add('no-webgl');
-  }
-}
-
-function initFloatingLogo() {
-  const wrap = document.createElement('div');
-  wrap.id = 'logo-field';
-  const canvas = document.createElement('canvas');
-  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
-  wrap.appendChild(canvas);
-  document.body.appendChild(wrap);
-
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'low-power' });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
-  renderer.setSize(innerWidth, innerHeight, false);
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, 0.1, 100);
-  camera.position.set(0, 0, 9);
-
-  // simple three-point light rig — enough for an iridescent clearcoat to
-  // catch highlights without needing a baked environment map/HDR asset
-  scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-  const key = new THREE.DirectionalLight(0xffffff, 1.4); key.position.set(4, 5, 6); scene.add(key);
-  const rim = new THREE.DirectionalLight(0xbcd4ff, 0.9); rim.position.set(-5, -2, 3); scene.add(rim);
-  const fill = new THREE.DirectionalLight(0xffd9c2, 0.6); fill.position.set(2, -4, -4); scene.add(fill);
-
-  // the logo's own outline (identical path to assets/dm-logo.svg), turned
-  // into a real 3D solid: extruded with a bevel for the rounded-edge look
-  const MARK_PATH = 'M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z';
-
-  const shapes = SVGLoader.createShapes(new SVGLoader().parse(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="${MARK_PATH}"/></svg>`
-  ).paths[0]);
-
-  const geometry = new THREE.ExtrudeGeometry(shapes, {
-    depth: 3.2,
-    bevelEnabled: true,
-    bevelThickness: 0.9,
-    bevelSize: 0.7,
-    bevelSegments: 6,
-    curveSegments: 16
-  });
-  geometry.center();
-  // SVG space is Y-down and ~32 units across — flip and normalise to a
-  // predictable ~2-unit-tall object in world space
-  geometry.rotateX(Math.PI);
-  geometry.computeBoundingBox();
-  const bb = geometry.boundingBox;
-  const span = Math.max(bb.max.x - bb.min.x, bb.max.y - bb.min.y) || 1;
-  geometry.scale(2 / span, 2 / span, 2 / span);
-  geometry.computeVertexNormals();
-
-  const material = new THREE.MeshPhysicalMaterial({
-    color: 0xffffff,
-    metalness: 0.1,
-    roughness: 0.18,
-    transmission: 0.55,
-    thickness: 1.2,
-    ior: 1.4,
-    iridescence: 1,
-    iridescenceIOR: 1.3,
-    iridescenceThicknessRange: [100, 400],
-    clearcoat: 0.8,
-    clearcoatRoughness: 0.15,
-    reflectivity: 0.6
-  });
-
-  const mesh = new THREE.Mesh(geometry, material);
-  scene.add(mesh);
-
-  // manual animation — a constant slow spin plus a gentle figure-eight
-  // drift and a scale/position nudge keyed to scroll, kept deliberately
-  // simple: no multi-keyframe pathway, just a few plain sine waves and
-  // one linear term driven by scroll progress
-  const isNarrow = () => innerWidth < 760;
-  let t0 = performance.now();
-  function frame(now) {
-    requestAnimationFrame(frame);
-    if (document.hidden) return;
-    const dt = Math.min(0.05, (now - t0) / 1000); t0 = now;
-    const t = now / 1000;
-    const p = Math.max(0, Math.min(1, scrollY / Math.max(1, document.documentElement.scrollHeight - innerHeight)));
-
-    mesh.rotation.y += dt * 0.4;
-    mesh.rotation.x = Math.sin(t * 0.35) * 0.18;
-
-    // drifts from the upper-right in the hero, across and down through
-    // the middle of the page, settling centred and largest in the footer
-    const driftX = (0.30 - p * 0.30) + Math.sin(t * 0.6) * 0.06;
-    const driftY = (0.30 - p * 0.66) + Math.cos(t * 0.5) * 0.05;
-    const scale = 0.55 + p * 1.3;
-
-    const vFOV = camera.fov * Math.PI / 180;
-    const worldH = 2 * Math.tan(vFOV / 2) * camera.position.z;
-    const worldW = worldH * camera.aspect;
-    mesh.position.set(driftX * worldW, driftY * worldH, 0);
-    mesh.scale.setScalar(scale);
-
-    // on narrow viewports it steps out of the way through the dense
-    // work/about/cta stretch and returns for the hero and footer beats
-    const midPage = p > 0.14 && p < 0.68;
-    wrap.style.opacity = (isNarrow() && midPage) ? 0 : 1;
-
-    renderer.render(scene, camera);
-  }
-  requestAnimationFrame(frame);
-
-  addEventListener('resize', () => {
-    camera.aspect = innerWidth / innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(innerWidth, innerHeight, false);
-  });
-}
-</script>
 
 </body>
 </html>
