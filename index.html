@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>domen markeljc — the archive</title>
+<meta name="description" content="domen markeljc — visual identities, websites, memory systems. some brands are seen. others are remembered.">
+<meta property="og:title" content="domen markeljc — the archive">
+<meta property="og:description" content="visual identities . websites . memory systems. some brands are seen. others are remembered.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#0a0908">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230a0908'/%3E%3Cpath fill='%23ece5d8' d='M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z'/%3E%3C/svg%3E"><style>
+/* ————— embedded type — Geist (self-hosted, linked not inlined for load perf) ————— */
+@font-face{font-family:'Geist';font-weight:100;font-style:normal;font-display:swap;src:url(assets/fonts/Geist-Thin.woff2) format('woff2')}
+@font-face{font-family:'Geist';font-weight:100;font-style:italic;font-display:swap;src:url(assets/fonts/Geist-ThinItalic.woff2) format('woff2')}
+@font-face{font-family:'Geist';font-weight:300;font-style:normal;font-display:swap;src:url(assets/fonts/Geist-Light.woff2) format('woff2')}
+@font-face{font-family:'Geist';font-weight:400;font-style:normal;font-display:swap;src:url(assets/fonts/Geist-Regular.woff2) format('woff2')}
+@font-face{font-family:'Geist';font-weight:400;font-style:italic;font-display:swap;src:url(assets/fonts/Geist-Italic.woff2) format('woff2')}
+@font-face{font-family:'Geist';font-weight:500;font-style:normal;font-display:swap;src:url(assets/fonts/Geist-Medium.woff2) format('woff2')}
+@font-face{font-family:'Geist';font-weight:600;font-style:normal;font-display:swap;src:url(assets/fonts/Geist-SemiBold.woff2) format('woff2')}
+@font-face{font-family:'Geist';font-weight:700;font-style:normal;font-display:swap;src:url(assets/fonts/Geist-Bold.woff2) format('woff2')}
+@font-face{font-family:'Geist';font-weight:900;font-style:normal;font-display:swap;src:url(assets/fonts/Geist-Black.woff2) format('woff2')}
+
+/* ————— tokens ————— */
+:root{
+  --ink:#0a0908;          /* warm near-black */
+  --ink-2:#12100e;
+  --cream:#ece5d8;        /* warm light cream */
+  --cream-70:rgba(236,229,216,.82);
+  --cream-55:rgba(236,229,216,.64);
+  --cream-40:rgba(236,229,216,.4);
+  --cream-24:rgba(236,229,216,.24);
+  --cream-10:rgba(236,229,216,.10);
+  --cream-06:rgba(236,229,216,.06);
+  --red:#e5352b;          /* blood red — precious */
+  --paper:#f5f1e8;        /* gallery white — the hero's inversion */
+  --paper-ink:#141210;    /* near-black used for content ON paper */
+  /* fixed chrome (logo/cta/chapter/hint/rail) reads in cream by default,
+     flips to ink while body.chrome-light is set (over the white hero) */
+  --chrome-c:var(--cream);
+  --chrome-c-55:var(--cream-55);
+  --chrome-c-40:var(--cream-40);
+  --chrome-c-24:var(--cream-24);
+  --chrome-c-10:var(--cream-10);
+  --kuevy:'Geist',-apple-system,sans-serif;
+  --sans:'Geist',-apple-system,sans-serif;
+  --accent:#3971ff;      /* leeroy-blue — a second, cooler accent alongside red */
+  --accent-2:#ffb020;    /* warm amber — third accent, used sparingly */
+  --pad:clamp(20px,4vw,64px);
+  --ease-out:cubic-bezier(.19,1,.22,1);
+  --ease-io:cubic-bezier(.77,0,.18,1);
+  /* transitions-dev token pass — button press/release feedback */
+  --btn-press-dur:120ms;
+  --btn-press-ease:cubic-bezier(.4,0,.2,1);
+  --btn-release-dur:420ms;
+  --btn-release-ease:cubic-bezier(.34,1.45,.64,1);
+  --btn-press-scale:.96;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body.chrome-light{
+  --chrome-c:var(--paper-ink);
+  --chrome-c-55:rgba(20,18,16,.6);
+  --chrome-c-40:rgba(20,18,16,.42);
+  --chrome-c-24:rgba(20,18,16,.24);
+  --chrome-c-10:rgba(20,18,16,.12);
+}
+html{scrollbar-width:none}
+html::-webkit-scrollbar{display:none}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+
+body{
+  background:var(--ink);
+  color:var(--cream);
+  font-family:var(--sans);
+  font-weight:400;
+  overflow-x:hidden;
+  cursor:none;
+}
+body.touch{cursor:auto}
+::selection{background:var(--red);color:var(--ink)}
+a{color:inherit;text-decoration:none}
+a,button,[data-hover]{cursor:none}
+body.touch a,body.touch button{cursor:pointer}
+
+/* ————— atmosphere ————— */
+/* the body is near-black by default, but nothing past the hero should
+   read as flat/off — each chapter tints the same fixed wash a different
+   colour, so the film stays "warm dark" the whole way down instead of
+   just going black once the hero's paper background ends.
+   Each chapter is its OWN fixed layer with a permanent gradient, and only
+   opacity ever animates between them — cross-fading the `background`
+   value directly (different gradient shapes/stops) doesn't interpolate
+   smoothly in browsers and was reading as a jump/snap on scroll. */
+#bg-wash{position:fixed;inset:0;z-index:1;pointer-events:none}
+html.static #bg-wash{display:none}
+#bg-wash .wash{position:absolute;inset:0;opacity:0;transition:opacity 1.6s ease}
+#bg-wash .wash--1{background:radial-gradient(ellipse 90% 70% at 50% 20%,rgba(57,113,255,.16) 0%,transparent 65%)}
+#bg-wash .wash--2{background:radial-gradient(ellipse 100% 60% at 20% 0%,rgba(229,53,43,.14) 0%,transparent 60%),radial-gradient(ellipse 80% 60% at 90% 40%,rgba(57,113,255,.1) 0%,transparent 65%)}
+#bg-wash .wash--3{background:radial-gradient(ellipse 90% 70% at 80% 30%,rgba(255,176,32,.14) 0%,transparent 65%)}
+#bg-wash .wash--4{background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(57,113,255,.12) 0%,transparent 65%)}
+#bg-wash .wash--5{background:radial-gradient(ellipse 110% 80% at 50% 80%,rgba(229,53,43,.18) 0%,transparent 60%),radial-gradient(ellipse 70% 50% at 15% 20%,rgba(255,176,32,.1) 0%,transparent 65%)}
+body.chapter-1 #bg-wash .wash--1{opacity:1}
+body.chapter-2 #bg-wash .wash--2{opacity:1}
+body.chapter-3 #bg-wash .wash--3{opacity:1}
+body.chapter-4 #bg-wash .wash--4{opacity:1}
+body.chapter-5 #bg-wash .wash--5{opacity:1}
+#grain{position:fixed;inset:-100px;z-index:60;pointer-events:none;opacity:.07;mix-blend-mode:overlay}
+#vignette{position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(ellipse 120% 90% at 50% 45%,transparent 55%,rgba(5,4,3,.55) 100%)}
+
+/* ————— preloader ————— */
+#veil{position:fixed;inset:0;z-index:200;clip-path:inset(0 0 0 0);background:var(--ink);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:28px}
+#veil svg{width:52px;height:52px;overflow:visible}
+#veil svg path{fill:none;stroke:var(--cream);stroke-width:.8;stroke-linecap:round}
+#veil .veil-line{width:120px;height:1px;background:var(--cream-10);position:relative;overflow:hidden}
+#veil .veil-line i{position:absolute;inset:0;background:var(--cream-40);transform:scaleX(0);transform-origin:left}
+#veil .veil-word{font-family:var(--sans);font-weight:300;font-size:10px;letter-spacing:.42em;text-transform:lowercase;color:var(--cream-40);opacity:0}
+
+/* ————— cursor ————— */
+#cur-dot{position:fixed;top:0;left:0;z-index:150;pointer-events:none;will-change:transform;width:23px;height:24px;margin:-6px 0 0 -2px;transform-origin:10% 26%;mix-blend-mode:difference}
+#cur-dot svg{width:100%;height:100%;display:block}
+#cur-dot path{fill:#fff}
+body.touch #cur-dot{display:none}
+
+/* ————— fixed chrome ————— */
+#chrome{position:fixed;inset:0;z-index:100;pointer-events:none}
+#chrome>*{pointer-events:auto}
+.mark{position:absolute;top:var(--pad);left:var(--pad);width:30px;height:30px;display:block;opacity:0}
+.mark svg{width:100%;height:100%;display:block}
+.mark path{fill:var(--chrome-c);transition:fill .6s var(--ease-out)}
+.mark:hover path{fill:var(--red)}
+.chrome-cta{position:absolute;top:calc(var(--pad) + 4px);right:var(--pad);font-weight:400;font-size:11px;letter-spacing:.34em;text-transform:lowercase;color:var(--chrome-c);opacity:0;overflow:hidden;padding-bottom:5px;transition:color .5s}
+.chrome-cta i{position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--chrome-c-40);font-style:normal;transition:background-color .5s}
+.chrome-cta i b{position:absolute;inset:0;background:var(--red);transform:scaleX(0);transform-origin:right;transition:transform .7s var(--ease-io)}
+.chrome-cta:hover i b{transform:scaleX(1);transform-origin:left}
+#chapter{position:absolute;bottom:var(--pad);left:var(--pad);font-size:11px;font-weight:400;letter-spacing:.34em;color:var(--chrome-c-55);text-transform:lowercase;opacity:0;display:flex;gap:14px;align-items:baseline;transition:color .5s}
+#chapter .num{color:var(--cream)}
+#chapter .name{position:relative;display:inline-block;min-width:150px;height:12px}
+#chapter .name span{position:absolute;left:0;top:0;white-space:nowrap;opacity:0;transition:opacity .6s}
+#chapter .name span.on{opacity:1}
+#hint{position:absolute;bottom:var(--pad);right:var(--pad);font-size:11px;font-weight:400;letter-spacing:.34em;color:var(--chrome-c-55);text-transform:lowercase;opacity:0;display:flex;align-items:center;gap:12px;transition:color .5s}
+#hint em{font-style:normal}
+#hint .tick{width:1px;height:34px;background:var(--cream-10);position:relative;overflow:hidden}
+#hint .tick i{position:absolute;left:0;top:-100%;width:100%;height:100%;background:var(--cream-40);animation:tickfall 2.1s var(--ease-io) infinite}
+@keyframes tickfall{0%{top:-100%}55%{top:0}100%{top:100%}}
+#rail{position:fixed;top:16vh;bottom:16vh;right:22px;width:1px;z-index:90;opacity:0;background:var(--chrome-c-10);transition:background-color .5s}
+#rail-fill{position:absolute;left:0;top:0;width:100%;height:100%;background:linear-gradient(180deg,var(--cream-55) 0%,var(--red) 100%);transform:scaleY(0);transform-origin:top}
+@media (max-width:860px){#rail{display:none}}
+#float-cta{position:absolute;bottom:var(--pad);right:var(--pad);display:inline-flex;align-items:center;gap:12px;opacity:0;pointer-events:none;padding:14px 20px 14px 16px;border:1px solid var(--cream-24);border-radius:99px;background:rgba(10,9,8,.55);backdrop-filter:blur(6px);font-size:10px;font-weight:400;letter-spacing:.3em;text-transform:lowercase;color:var(--cream);transition:border-color .5s,background-color .5s;will-change:transform}
+#float-cta:hover{border-color:var(--cream-40);background:rgba(10,9,8,.8)}
+#float-cta.on{pointer-events:auto}
+#float-cta .dot{width:6px;height:6px;border-radius:50%;background:var(--red);flex:none;animation:pulse-dot 2.6s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.7);opacity:.55}}
+@media (prefers-reduced-motion:reduce){#float-cta .dot{animation:none}}
+@media (max-width:640px){#float-cta .ftxt{display:none}#float-cta{padding:14px;gap:0}}
+
+/* ————— layout / chapters ————— */
+main{position:relative;z-index:10}
+section{position:relative}
+.pinwrap{height:100vh;width:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}
+
+/* ch0 — the dark */
+#ch0.hero-mask{background-color:rgba(245,241,232,var(--hero-bg,1))}
+#ch0 .pinwrap{position:relative}
+.hero-static{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(55vh,73vw);aspect-ratio:1;z-index:1;opacity:0}
+.hero-static svg{width:100%;height:100%;display:block}
+.hero-static path{fill:var(--paper-ink)}
+#hero-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;touch-action:pan-y}
+.hero-heading{position:absolute;left:50%;top:11vh;transform:translateX(-50%);z-index:2;opacity:0;text-align:center;padding:0 var(--pad)}
+.hero-heading h1{font-family:var(--kuevy);font-weight:400;font-size:clamp(30px,5.4vw,72px);line-height:1;letter-spacing:-.01em;color:var(--paper-ink);text-transform:lowercase}
+.hero-heading .rd{color:var(--red)}
+.hero-caption{position:absolute;left:50%;bottom:12vh;transform:translateX(-50%);z-index:2;opacity:0;text-align:center;padding:0 var(--pad)}
+.hero-sub{font-family:var(--kuevy);font-weight:400;font-size:clamp(15px,1.6vw,20px);letter-spacing:-.005em;color:var(--paper-ink);text-transform:lowercase;margin-bottom:14px;opacity:.92}
+.hero-tag{font-size:clamp(11px,1vw,13px);font-weight:400;letter-spacing:.42em;color:var(--paper-ink);text-transform:lowercase;opacity:.7}
+.hero-tag .dot{color:var(--red)}
+
+/* ch1 — the trace */
+#ch1 .stack{position:relative;text-align:center;padding:0 var(--pad);width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+#ch1 .line{font-family:var(--kuevy);text-transform:lowercase;font-size:clamp(38px,7vw,116px);line-height:1.04;letter-spacing:-.008em}
+#ch1 .seen{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%)}
+#ch1 .seen .ch{display:inline-block;will-change:transform,opacity,filter}
+#ch1 .rem{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);opacity:0;filter:blur(18px)}
+#ch1 .rem .stop{color:var(--red)}
+#ch1 .markline{position:absolute;left:50%;bottom:18vh;transform:translateX(-50%);width:min(240px,40vw);height:1px;background:var(--cream-10);overflow:hidden;opacity:0}
+#ch1 .markline i{position:absolute;inset:0;background:var(--red);transform:scaleX(0)}
+
+/* shared chapter head */
+.chead{display:flex;align-items:baseline;gap:22px;padding:0 var(--pad);margin-bottom:clamp(48px,7vh,90px)}
+.chead .idx{font-size:11px;font-weight:400;letter-spacing:.34em;color:var(--cream-55)}
+.chead .rule{flex:1;height:1px;background:var(--cream-10);transform:scaleX(0);transform-origin:left}
+.chead h2{font-family:var(--kuevy);text-transform:lowercase;font-weight:400;font-size:clamp(30px,4.6vw,72px);line-height:1;white-space:nowrap}
+.chead h2 .word{display:inline-block;overflow:hidden;vertical-align:bottom}
+.chead h2 .word>span{display:inline-block;transform:translateY(110%)}
+
+/* ch2 — the archive — a row list (lamalama.com's cases-list pattern: no
+   shader there either, it's a plain accordion row list — title + tags +
+   a cropped thumbnail strip, a hover-only "view case" reveal, click to
+   expand in place). Expand/collapse uses the CSS grid 0fr->1fr trick,
+   not a JS-measured height tween — that was the actual source of the
+   "buggy" feeling before, not the visual design. */
+#ch2{padding:22vh 0 20vh}
+#ch2 .intro{padding:0 var(--pad);max-width:640px;margin-bottom:9vh;font-size:clamp(17px,1.6vw,23px);line-height:1.6;color:var(--cream-70);font-weight:400}
+#ch2 .intro b{color:var(--cream);font-weight:500}
+.plist{border-top:1px solid var(--cream-10)}
+.prow{border-bottom:1px solid var(--cream-10)}
+.prow__head{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:clamp(16px,2.4vw,32px);width:100%;padding:clamp(20px,3.2vh,34px) var(--pad);cursor:none;transition:background-color .5s,transform .15s cubic-bezier(0.4,0,0.2,1)}
+body.touch .prow__head{cursor:pointer}
+.prow__head:hover{background:var(--cream-06)}
+.prow__head:active{transform:scale(.995)}
+.prow__num{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.3em;color:var(--cream-40);flex:none;width:28px}
+.prow__name{font-family:var(--kuevy);text-transform:lowercase;font-weight:400;font-size:clamp(26px,3.6vw,52px);line-height:1;flex:none;width:clamp(160px,22vw,340px);transition:color .4s}
+.prow__head:hover .prow__name{color:var(--accent)}
+.prow__tags{display:flex;flex-wrap:wrap;gap:8px;flex:1 1 auto;-lg:hidden}
+.prow__tags span{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--cream-70);border:1px solid var(--cream-24);padding:6px 12px;border-radius:99px;white-space:nowrap}
+.prow__strip{flex:none;display:flex;gap:6px;width:clamp(160px,18vw,260px);height:64px;overflow:hidden;border-radius:3px}
+.prow__strip img{flex:1 1 0;min-width:0;width:100%;height:100%;object-fit:cover;transform:scale(1.08);transition:transform .8s var(--ease-out)}
+.prow__head:hover .prow__strip img{transform:scale(1.16)}
+.prow__cta{flex:none;display:flex;align-items:center;gap:10px;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:lowercase;color:var(--accent);opacity:0;transform:translateX(-6px);transition:opacity .35s,transform .35s}
+@media (hover:hover) and (pointer:fine){ .prow__head:hover .prow__cta{opacity:1;transform:translateX(0)} }
+.prow__toggle{flex:none;font-family:var(--sans);font-size:12px;font-weight:600;color:var(--cream-40);width:34px;text-align:right;transition:color .4s}
+.prow__head:hover .prow__toggle{color:var(--cream)}
+/* asymmetric open/close: opening is the deliberate, "arriving" motion
+   (ease-out, slightly longer) while closing builds momentum and gets out
+   of the way quicker (ease-in, shorter) — CSS reads the transition off
+   the state being entered, so the two rules below apply independently */
+.prow__body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s cubic-bezier(0.4,0,1,1)}
+.prow.is-open .prow__body{grid-template-rows:1fr;transition:grid-template-rows .48s cubic-bezier(0.22,1,0.36,1)}
+.prow__body-in{overflow:hidden;min-height:0}
+.prow__body-content{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.45fr);gap:clamp(28px,4.5vw,80px);padding:8px var(--pad) clamp(48px,7vh,88px) calc(var(--pad) + 62px)}
+.prow__copy{font-size:clamp(15px,1.3vw,18px);line-height:1.75;color:var(--cream-70);max-width:44ch}
+.prow__copy b{color:var(--cream);font-weight:500}
+.prow__link{display:inline-flex;align-items:center;gap:12px;margin-top:22px;font-family:var(--sans);font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:lowercase;color:var(--accent);border-bottom:1px solid currentColor;padding-bottom:6px}
+.prow__link::after{content:"↗";font-size:12px}
+.prow__gallery{display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,1.4vw,20px);align-items:start}
+.pgal{position:relative;margin:0}
+.pgal.wide{grid-column:1/-1}
+.pgal .frame{display:block;overflow:hidden;background:var(--ink)}
+.pgal img,.pgal video{display:block;width:100%;height:auto}
+.pgal figcaption{margin-top:10px;font-family:var(--sans);font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:lowercase;color:var(--cream-55)}
+@media (max-width:860px){
+  .prow__head{flex-wrap:wrap}
+  .prow__tags{display:none}
+  .prow__cta{display:none}
+  .prow__strip{width:120px;height:48px}
+  .prow__body-content{grid-template-columns:1fr;padding-left:var(--pad)}
+  .prow__gallery{grid-template-columns:1fr}
+}
+
+/* ch3 — behind the work */
+#ch3{padding:16vh 0 22vh}
+#ch3 .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:clamp(40px,6vw,110px);padding:0 var(--pad);align-items:stretch}
+#ch3 .portrait{position:relative;width:100%;height:100%}
+#ch3 .portrait img{display:block;width:100%;height:100%;object-fit:contain;object-position:bottom;filter:contrast(1.03)}
+#ch3 .who{font-size:11px;font-weight:400;letter-spacing:.34em;color:var(--cream-55);text-transform:lowercase;margin-bottom:26px}
+#ch3 .name{font-family:var(--kuevy);text-transform:lowercase;font-weight:400;font-size:clamp(40px,5vw,80px);line-height:1.04;margin-bottom:7vh}
+#ch3 .about p{font-size:clamp(16px,1.5vw,21px);line-height:1.8;font-weight:400;color:var(--cream-70);margin-bottom:2.6em;max-width:52ch}
+#ch3 .about p:last-child{margin-bottom:0}
+#ch3 .about p b{color:var(--cream);font-weight:400}
+#ch3 .about p .rd{color:var(--red)}
+#ch3 .about .ln{display:block;overflow:hidden}
+#ch3 .about .ln>span{display:block;transform:translateY(105%)}
+
+/* ch4 — the fade — small, contained connective beat (not a second climax) */
+#ch4{padding:18vh 0}
+#ch4 .fadewrap{text-align:center;padding:0 var(--pad);max-width:900px;margin:0 auto}
+#ch4 .fades{font-family:var(--kuevy);text-transform:lowercase;font-size:clamp(34px,5.4vw,72px);line-height:1.15}
+#ch4 .fades .ch{display:inline-block;will-change:transform,opacity}
+#ch4 .stays{font-family:var(--kuevy);text-transform:lowercase;font-size:clamp(34px,5.4vw,72px);line-height:1.15;opacity:0;filter:blur(8px);margin-top:.3em}
+#ch4 .stays .stop{color:var(--red);display:inline-block}
+
+/* ch5 — the invitation */
+#ch5{padding:26vh 0 0}
+#ch5 .inv{text-align:center;padding:0 var(--pad)}
+#ch5 .ready{font-size:11px;font-weight:400;letter-spacing:.42em;color:var(--cream-55);text-transform:lowercase;margin-bottom:5vh}
+#ch5 h2{font-family:var(--kuevy);text-transform:lowercase;font-weight:400;font-size:clamp(42px,7.6vw,124px);line-height:.86;letter-spacing:-.01em}
+#ch5 h2 .word{display:inline-block;overflow:hidden;vertical-align:bottom;margin:0 .1em;padding-bottom:.1em;margin-bottom:-.1em}
+#ch5 h2 .word>span{display:inline-block;transform:translateY(112%)}
+#ch5 h2 .tk{margin-left:-.045em}
+#ch5 h2 .accent{position:relative}
+#ch5 h2 .accent::after{content:"";position:absolute;left:2%;right:2%;bottom:.06em;height:2px;background:var(--red);transform:scaleX(0);transform-origin:left;transition:transform 1s var(--ease-io) .1s}
+#ch5 h2.lit .accent::after{transform:scaleX(1)}
+#ch5 .invsub{margin-top:5vh;font-size:clamp(15px,1.3vw,19px);line-height:1.8;color:var(--cream-70);font-weight:400}
+#ch5 .bigcta{display:inline-flex;align-items:center;gap:20px;margin-top:8vh;font-weight:400;font-size:13px;letter-spacing:.4em;text-transform:lowercase;color:var(--cream);position:relative;padding:28px 48px;border:1px solid rgba(236,229,216,.45);border-radius:99px;overflow:hidden;background:rgba(10,9,8,.38);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:color .6s .05s;will-change:transform;animation-name:cta-stroke;animation-duration:5s;animation-timing-function:ease-in-out;animation-iteration-count:infinite;animation-play-state:paused}
+#ch5 .bigcta.in-view{animation-play-state:running}
+@keyframes cta-stroke{0%,100%{border-color:rgba(236,229,216,.45)}50%{border-color:rgba(229,53,43,.75)}}
+@media (prefers-reduced-motion:reduce){#ch5 .bigcta{animation:none}}
+#ch5 .bigcta::after{content:"";position:absolute;left:26px;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:var(--red);z-index:1}
+#ch5 .bigcta::before{content:"";position:absolute;inset:0;background:var(--cream);border-radius:99px;transform:scale(0,1);transform-origin:right;transition:transform .8s var(--ease-io)}
+#ch5 .bigcta:hover::before{transform:scale(1,1);transform-origin:left}
+#ch5 .bigcta:hover{color:var(--ink);border-color:var(--cream);animation-play-state:paused}
+#ch5 .bigcta span{position:relative;z-index:1}
+#ch5 .bigcta>span:first-of-type{margin-left:14px}
+#ch5 .bigcta .arrow{width:26px;height:1px;background:currentColor;position:relative;z-index:1;transition:width .6s var(--ease-out)}
+#ch5 .bigcta:hover .arrow{width:40px}
+#ch5 .bigcta .arrow::after{content:"";position:absolute;right:0;top:-3px;width:7px;height:7px;border-top:1px solid currentColor;border-right:1px solid currentColor;transform:rotate(45deg)}
+#ch5 .avail{margin-top:2.6vh;font-size:11px;font-weight:400;letter-spacing:.2em;text-transform:lowercase;color:var(--cream-55);display:flex;align-items:center;justify-content:center;gap:10px}
+#ch5 .avail::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--red);flex:none;animation:pulse-dot 2.6s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){#ch5 .avail::before{animation:none}}
+/* footer — the last colour moment on the page: an animated gradient-mesh
+   WebGL background (lazy-initialised only once it's near view), a mega
+   wordmark for scale contrast against the small nav columns, and the
+   copy-email affordance kept from before */
+footer{position:relative;margin-top:26vh;padding:9vh var(--pad) 40px;overflow:hidden;isolation:isolate}
+/* the canvas stays contained inside the footer's own box — an earlier
+   version bled it upward past the footer boundary to blend into chapter
+   5, but since footer comes after ch5 in DOM order and the negative
+   offset put it visually over ch5's own content, it painted on top of
+   (hid) the tail of chapter 5 instead of behind it. The soft top-edge
+   fade now happens entirely inside the shader (see uFadeIn) so nothing
+   needs to escape the footer's own stacking context. */
+#footer-canvas{position:absolute;inset:0;z-index:-1;width:100%;height:100%;display:block;touch-action:pan-y;opacity:0;transition:opacity 1.2s var(--ease-out)}
+#footer-canvas.is-in{opacity:1}
+
+.fhead{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px;padding-bottom:8vh;border-bottom:1px solid var(--cream-10)}
+.fkicker{font-family:var(--kuevy);text-transform:lowercase;font-weight:400;font-size:clamp(24px,3.2vw,44px);line-height:1.15;max-width:14ch;color:var(--cream)}
+.fmail{font-family:var(--sans);font-weight:500;font-size:clamp(15px,1.6vw,20px);letter-spacing:-.01em;color:var(--cream);border-bottom:1px solid var(--cream-40);padding-bottom:4px;transition:color .4s,border-color .4s}
+.fmail:hover{color:var(--accent);border-color:var(--accent)}
+
+.fcols{display:grid;grid-template-columns:repeat(4,auto);justify-content:space-between;gap:40px;padding:7vh 0;border-bottom:1px solid var(--cream-10)}
+.fnews{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--cream-24);padding-bottom:6px;transition:border-color .35s}
+.fnews:focus-within{border-color:var(--accent)}
+.fnews input{appearance:none;background:none;border:none;outline:none;font:inherit;font-family:var(--sans);font-size:13px;letter-spacing:-.005em;color:var(--cream);width:132px;padding:2px 0}
+.fnews input::placeholder{color:var(--cream-40)}
+.fnews button{appearance:none;background:none;border:none;font:inherit;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:lowercase;color:var(--cream-55);cursor:pointer;white-space:nowrap;transition:color .3s}
+body.touch .fnews button{cursor:pointer}
+.fnews button:hover{color:var(--accent)}
+.fnews.is-sent input,.fnews.is-sent button.fn-submit{display:none}
+.fnews .fn-done{display:none;font-size:13px;color:var(--cream-55)}
+.fnews.is-sent .fn-done{display:inline}
+.fcol__note{font-size:11px;color:var(--cream-40);letter-spacing:.01em;margin-top:-6px}
+.fcol{display:flex;flex-direction:column;gap:14px}
+.fcol__label{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--cream-40);margin-bottom:6px}
+.fcol a{font-family:var(--sans);font-size:14px;font-weight:500;letter-spacing:-.005em;text-transform:lowercase;color:var(--cream-70);position:relative;width:fit-content;padding-bottom:2px;transition:color .35s}
+.fcol a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .45s var(--ease-io)}
+.fcol a:hover{color:var(--cream)}
+.fcol a:hover::after{transform:scaleX(1);transform-origin:left}
+.fcol .copy-email{appearance:none;background:none;border:1px solid var(--cream-24);border-radius:99px;color:var(--cream-55);font:inherit;font-family:var(--sans);font-size:12px;letter-spacing:.05em;padding:8px 16px;width:fit-content;position:relative;transition:border-color .4s,color .4s,background-color .4s,transform .15s cubic-bezier(0.4,0,0.2,1)}
+.fcol .copy-email:hover{border-color:var(--accent);color:var(--cream)}
+.fcol .copy-email:active{transform:scale(.97)}
+.fcol .copy-email.is-copied{border-color:var(--red);color:var(--red)}
+/* P6 text-swap (transitions.dev): .ce-a stays in flow (sets the button's
+   own width), .ce-b sits on top absolutely — both cross-fade with a
+   slight blur+lift so "copy email" -> "copied" reads as one continuous
+   label, not a hard content swap */
+.fcol .copy-email .ce-label{display:inline-block;transition:opacity .2s ease-out,filter .2s ease-out,transform .2s ease-out}
+.fcol .copy-email .ce-a{opacity:1;filter:blur(0);transform:translateY(0)}
+.fcol .copy-email .ce-b{position:absolute;top:8px;left:16px;opacity:0;filter:blur(4px);transform:translateY(8px)}
+.fcol .copy-email[data-state="b"] .ce-a{opacity:0;filter:blur(4px);transform:translateY(-8px)}
+.fcol .copy-email[data-state="b"] .ce-b{opacity:1;filter:blur(0);transform:translateY(0)}
+@media (prefers-reduced-motion:reduce){
+  .fcol .copy-email .ce-label{transition:opacity .12s ease !important;transform:none !important;filter:none !important}
+  .fcol .copy-email{transition:border-color .4s,color .4s,background-color .4s}
+}
+
+.fmarkwrap{padding:6vh 0 4vh;overflow:hidden}
+.fmarktext{display:block;font-family:var(--kuevy);text-transform:lowercase;font-weight:400;line-height:.86;letter-spacing:-.02em;font-size:clamp(64px,13vw,220px);background:linear-gradient(100deg,var(--accent) 0%,var(--cream) 40%,var(--cream) 60%,var(--red) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+.fbottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;padding-top:4vh;font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:lowercase;color:var(--cream-40)}
+@media (max-width:760px){
+  .fcols{grid-template-columns:1fr 1fr}
+  .fcol:last-child{grid-column:1/-1}
+}
+
+/* ————— responsive ————— */
+@media (max-width:860px){
+  #ch3 .grid{grid-template-columns:1fr;gap:52px}
+  #ch3 .portrait{height:52vh;max-width:100%}
+  #chapter .name{display:none}
+}
+/* ————— reduced motion / fallback ————— */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+html.static .pinwrap{height:auto;min-height:70vh;padding:18vh 0}
+html.static [data-rest]{opacity:1!important;transform:none!important;filter:none!important}
+html.static #ch0.hero-mask{--hero-bg:0}
+html.static .hero-static{display:none}
+html.static .hero-caption{opacity:1!important}
+html.static .hero-tag{color:var(--cream-70)}
+html.static .hero-sub{color:var(--cream)}
+html.static .hero-heading{opacity:1!important}
+html.static .hero-heading h1{color:var(--cream)}
+a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid var(--red);outline-offset:6px}
+/* ————— single-typeface tuning ————— */
+/* Geist now carries both display and UI duty. Rather than one flat weight
+   everywhere, the big editorial lines lean light (300) for the "come
+   closer" hero/about/fade moments, and the two hardest-working display
+   lines — the invitation headline and the giant footer wordmark — lean
+   into 600 so the site still has a real weight-contrast finish, the same
+   way the two-typeface system used to carry that contrast. */
+.hero-heading h1,.hero-sub,#ch1 .line,.chead h2,.prow__name,#ch3 .name,
+#ch4 .fades,#ch4 .stays,.fkicker{font-weight:300}
+#ch5 h2,.fmarktext{font-weight:600}
+</style>
+</head>
+<body>
+
+<!-- atmosphere -->
+<div id="bg-wash"><span class="wash wash--1"></span><span class="wash wash--2"></span><span class="wash wash--3"></span><span class="wash wash--4"></span><span class="wash wash--5"></span></div>
+<div id="vignette"></div>
+<div id="grain"></div>
+
+<!-- preloader -->
+<div id="veil" aria-hidden="true">
+  <svg viewBox="0 0 32 32"><path id="veil-path" d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/></svg>
+  <div class="veil-line"><i id="veil-fill"></i></div>
+  <div class="veil-word" id="veil-word">the archive is opening</div>
+</div>
+
+<!-- cursor -->
+<div id="cur-dot" aria-hidden="true"><svg viewBox="0 0 962 1008" xmlns="http://www.w3.org/2000/svg"><path d="M106.715 315.132C106.707 315.124 106.7 315.115 106.694 315.105C96.2298 296.95 104.213 275.255 121.019 266.69C125.782 264.173 131.274 262.718 137.271 262.716C137.277 262.716 137.283 262.717 137.288 262.719C137.293 262.722 137.299 262.724 137.305 262.724L856.938 262.727C865.866 262.918 871.324 272.609 866.859 280.343L832.325 340.157C825.18 352.533 811.975 360.157 797.684 360.157L306.864 360.155C306.859 360.155 306.853 360.153 306.848 360.15C306.843 360.148 306.836 360.147 306.831 360.147C300.834 360.149 295.342 361.604 290.579 364.121C273.773 372.686 265.79 394.381 276.254 412.536C276.26 412.546 276.267 412.555 276.275 412.563C276.283 412.571 276.29 412.58 276.296 412.59L521.855 837.907C529 850.283 529.001 865.531 521.855 877.907L487.082 938.135C485.248 941.312 482.284 943.182 479.118 943.748C474.489 944.752 469.338 942.968 466.546 938.364L106.736 315.159C106.73 315.149 106.723 315.14 106.715 315.132Z"/></svg></div>
+
+<!-- fixed chrome -->
+<div id="chrome">
+  <a class="mark" href="#top" data-hover aria-label="domen markeljc — back to the beginning">
+    <svg viewBox="0 0 32 32"><path d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/></svg>
+  </a>
+  <a class="chrome-cta" href="mailto:info@domenmarkeljc.com" data-hover>start a project<i><b></b></i></a>
+  <div id="chapter" aria-hidden="true">
+    <span class="num" id="chapter-num">00</span>
+    <span class="name" id="chapter-name">
+      <span data-ch="0" class="on">the dark</span>
+      <span data-ch="1">the trace</span>
+      <span data-ch="2">the archive</span>
+      <span data-ch="3">behind the work</span>
+      <span data-ch="4">the fade</span>
+      <span data-ch="5">the invitation</span>
+    </span>
+  </div>
+  <div id="rail" aria-hidden="true"><i id="rail-fill"></i></div>
+  <div id="hint" aria-hidden="true"><em>scroll to remember</em><span class="tick"><i></i></span></div>
+  <a id="float-cta" href="mailto:info@domenmarkeljc.com" data-hover aria-label="start a project">
+    <span class="dot"></span><span class="ftxt">start a project</span>
+  </a>
+</div>
+
+<main id="top">
+
+  <!-- 00 · the dark -->
+  <section id="ch0" data-chapter="0" class="hero-mask">
+    <div class="pinwrap">
+      <div class="hero-heading">
+        <h1 data-rest>come closer<span class="rd">.</span></h1>
+      </div>
+      <div class="hero-static" aria-hidden="true">
+        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/></svg>
+      </div>
+      <canvas id="hero-canvas" aria-hidden="true"></canvas>
+      <div class="hero-caption">
+        <p class="hero-sub" data-rest>domen markeljc</p>
+        <p class="hero-tag" data-rest>identity, web, motion — for the second look, not the first glance</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 · the trace -->
+  <section id="ch1" data-chapter="1">
+    <div class="pinwrap">
+      <div class="stack">
+        <p class="line seen" id="seen" data-rest>most things get a glance.</p>
+        <p class="line rem" id="rem" data-rest>the good ones get looked at twice<span class="stop">.</span></p>
+        <div class="markline" id="markline" data-rest><i id="markline-fill"></i></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · the archive -->
+  <section id="ch2" data-chapter="2">
+    <div class="chead" data-chead>
+      <span class="idx">02</span>
+      <h2><span class="word"><span>the</span></span> <span class="word"><span>work</span></span> <span class="word"><span>remains</span></span></h2>
+      <span class="rule"></span>
+    </div>
+    <p class="intro" data-io>a glance is free. <b>a second look has to be earned.</b> here's what earned it.</p>
+
+    <div class="plist" id="plist"></div>
+  </section>
+
+  <!-- 03 · behind the work -->
+  <section id="ch3" data-chapter="3">
+    <div class="chead" data-chead>
+      <span class="idx">03</span>
+      <h2><span class="word"><span>behind</span></span> <span class="word"><span>the</span></span> <span class="word"><span>work</span></span></h2>
+      <span class="rule"></span>
+    </div>
+    <div class="grid">
+      <figure class="portrait" id="portrait">
+        <img id="portrait-img" src="assets/img/domen-portrait.png" alt="Domen Markeljc, portrait" onerror="this.closest('figure').style.display='none'">
+      </figure>
+      <div>
+        <p class="who" data-io>the second look, from the other side</p>
+        <h3 class="name" data-io>domen markeljc</h3>
+        <div class="about" id="about">
+          <p>i don't design for the first glance. anyone can make something that gets noticed once. <b>i design for the version of a brand that gets looked at twice</b> — and then gets remembered without trying to be.</p>
+          <p>that means strategy, typography, image, motion and interaction stop being separate jobs. <b>they become one decision, made once, held all the way through</b> — so nothing about a brand feels like it was finished by a different person than the one who started it.</p>
+          <p>i'm not interested in work that looks good for a week. i'm interested in <b>the mark someone draws from memory a year later, without meaning to<span class="rd">.</span></b></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · the fade — small, contained, no shader -->
+  <section id="ch4" data-chapter="4">
+    <div class="fadewrap">
+      <p class="fades" id="fades" data-rest>the first glance fades.</p>
+      <p class="stays" id="stays" data-rest>the second look stays<span class="stop">.</span></p>
+    </div>
+  </section>
+
+  <!-- 05 · the invitation -->
+  <section id="ch5" data-chapter="5">
+    <div class="inv">
+      <p class="ready" data-io>still here? good.</p>
+      <h2 id="inv-title"><span class="word"><span>le<span class="tk">t</span></span></span> <span class="word"><span>us</span></span> <span class="word"><span>make</span></span> <span class="word"><span>your</span></span> <span class="word"><span>br<span class="tk">a</span>nd</span></span><br><span class="word accent"><span>remember<span class="tk">ed</span>.</span></span></h2>
+      <p class="invsub" data-io>come closer. let's build something worth a second look.</p>
+      <a class="bigcta" href="mailto:info@domenmarkeljc.com" data-hover data-io><span>start a project</span><span class="arrow"></span></a>
+      <p class="avail" data-io>open for new projects · replies within 2 days</p>
+    </div>
+    <footer>
+      <canvas id="footer-canvas" aria-hidden="true"></canvas>
+      <div class="fhead" data-io-end>
+        <p class="fkicker">still here? let's build something worth a second look.</p>
+        <a class="fmail" href="mailto:info@domenmarkeljc.com" data-hover>info@domenmarkeljc.com</a>
+      </div>
+      <div class="fcols" data-io-end>
+        <div class="fcol">
+          <span class="fcol__label">menu</span>
+          <a href="#top" data-hover>back to top</a>
+          <a href="#ch2" data-hover>the work</a>
+          <a href="#ch3" data-hover>behind the work</a>
+          <a href="#ch5" data-hover>start a project</a>
+        </div>
+        <div class="fcol">
+          <span class="fcol__label">follow</span>
+          <a href="https://www.instagram.com/domen_markeljc/" data-hover target="_blank" rel="noopener">instagram</a>
+          <a href="https://www.facebook.com/domen.markeljc.98" data-hover target="_blank" rel="noopener">facebook</a>
+          <a href="https://x.com/DMarkeljc" data-hover target="_blank" rel="noopener">x</a>
+        </div>
+        <div class="fcol">
+          <span class="fcol__label">get in touch</span>
+          <a href="mailto:info@domenmarkeljc.com" data-hover>email</a>
+          <button type="button" class="copy-email" id="copy-email" data-hover data-email="info@domenmarkeljc.com" aria-label="copy email address to clipboard" data-state="a">
+            <span class="ce-a ce-label">copy email</span>
+            <span class="ce-b ce-label">copied</span>
+          </button>
+        </div>
+        <div class="fcol">
+          <span class="fcol__label">occasional notes</span>
+          <span class="fcol__note">new work, no noise</span>
+          <form class="fnews" id="fnews" novalidate>
+            <input type="email" name="email" placeholder="your email" aria-label="email address for occasional updates" required>
+            <button type="submit" class="fn-submit" data-hover>join</button>
+            <span class="fn-done">thanks — you're in</span>
+          </form>
+        </div>
+      </div>
+      <div class="fmarkwrap" aria-hidden="true"><span class="fmarktext">domen markeljc</span></div>
+      <div class="fbottom" data-io-end>
+        <span>© 2026 domen markeljc</span>
+        <span>identity · web · motion, made one decision at a time</span>
+        <span><span id="clock">--:--</span> cet</span>
+      </div>
+    </footer>
+  </section>
+
+</main>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/lenis@1.3.23/dist/lenis.css">
+<script src="https://unpkg.com/lenis@1.3.23/dist/lenis.min.js"></script>
+<script>
+(() => {
+'use strict';
+
+/* ————————————————— environment ————————————————— */
+const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isTouch = matchMedia('(hover: none)').matches || 'ontouchstart' in window;
+const hasLibs = !!(window.gsap && window.ScrollTrigger);
+const hasThree = !!window.THREE;
+let hasGL = false;
+try { const c = document.createElement('canvas'); hasGL = !!(c.getContext('webgl') || c.getContext('experimental-webgl')); } catch(e){}
+
+if (isTouch) document.body.classList.add('touch');
+const CINEMA = hasLibs && !prefersReduced;           // full film
+const GL = CINEMA && hasThree && hasGL;              // particle stage
+if (!CINEMA) document.documentElement.classList.add('static');
+
+const $  = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const lerp = (a,b,t)=>a+(b-a)*t;
+const clamp01 = t => Math.max(0, Math.min(1, t));
+const easeInOutCubic = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+
+/* ————————————————— film grain ————————————————— */
+(() => {
+  const g = document.createElement('canvas'); g.width = g.height = 160;
+  const ctx = g.getContext('2d'); const id = ctx.createImageData(160,160);
+  for (let i=0;i<id.data.length;i+=4){ const v = Math.random()*255|0; id.data[i]=id.data[i+1]=id.data[i+2]=v; id.data[i+3]=255; }
+  ctx.putImageData(id,0,0);
+  const el = $('#grain'); el.style.backgroundImage = `url(${g.toDataURL()})`;
+  if (!prefersReduced){
+    let grainTimer = null;
+    const startGrain = () => { if (!grainTimer) grainTimer = setInterval(() =>
+      el.style.backgroundPosition = `${Math.random()*160|0}px ${Math.random()*160|0}px`, 84); };
+    const stopGrain = () => { clearInterval(grainTimer); grainTimer = null; };
+    document.addEventListener('visibilitychange', () => document.hidden ? stopGrain() : startGrain());
+    startGrain();
+  }
+})();
+
+/* ————————————————— text splitting ————————————————— */
+function splitChars(el){
+  if (el.querySelector('.ch')) return [...el.querySelectorAll('.ch')];
+  const walk = node => {
+    if (node.nodeType === 3){
+      const frag = document.createDocumentFragment();
+      for (const ch of node.textContent){
+        if (ch === ' '){ frag.appendChild(document.createTextNode(' ')); continue; }
+        const s = document.createElement('span'); s.className='ch'; s.textContent = ch; frag.appendChild(s);
+      }
+      node.replaceWith(frag);
+    } else if (node.nodeType === 1) [...node.childNodes].forEach(walk);
+  };
+  [...el.childNodes].forEach(walk);
+  return [...el.querySelectorAll('.ch')];
+}
+
+/* ————————————————— smooth scroll ————————————————— */
+if (hasLibs){ gsap.registerPlugin(ScrollTrigger); ScrollTrigger.config({ ignoreMobileResize: true }); }
+
+let lenis = null;
+if (CINEMA && window.Lenis){
+  lenis = new Lenis({ lerp: 0.085, smoothWheel: true, syncTouch: false });
+  lenis.on('scroll', () => ScrollTrigger.update());
+  gsap.ticker.add(t => lenis.raf(t*1000));
+  gsap.ticker.lagSmoothing(0);
+}
+
+/* ————————————————— cursor ————————————————— */
+const mouse = { x: innerWidth/2, y: innerHeight/2, nx: 0, ny: 0 };
+if (!isTouch){
+  const dot = $('#cur-dot');
+  let dx=mouse.x, dy=mouse.y, rot=0, scale=1;
+  const scaleState = { v: 1 };
+  const setScale = (target, dur, ease) => {
+    if (hasLibs) gsap.to(scaleState, { v: target, duration: dur, ease, onUpdate: () => scale = scaleState.v });
+    else scale = target;
+  };
+  addEventListener('mousemove', e => {
+    mouse.x = e.clientX; mouse.y = e.clientY;
+    mouse.nx = e.clientX/innerWidth*2-1; mouse.ny = e.clientY/innerHeight*2-1;
+  }, {passive:true});
+  addEventListener('mousedown', () => setScale(.7, .18, 'power2.out'));
+  addEventListener('mouseup', () => setScale(1, .5, 'back.out(3)'));
+  const loop = () => {
+    const pdx = dx;
+    dx = lerp(dx, mouse.x, .55); dy = lerp(dy, mouse.y, .55);
+    // the mark leans into the direction of travel, like a weathervane —
+    // a small, steady tilt rather than a full spin
+    const targetRot = Math.max(-14, Math.min(14, (dx - pdx) * 1.1));
+    rot = lerp(rot, targetRot, .15);
+    dot.style.transform = `translate3d(${dx}px,${dy}px,0) rotate(${rot.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
+    requestAnimationFrame(loop);
+  };
+  loop();
+  document.addEventListener('mouseover', e => {
+    const cta = e.target.closest('.bigcta, .chrome-cta, #float-cta');
+    const hoverable = e.target.closest('a,button,[data-hover]');
+    // the mark itself grows to say "interactive" — no separate badge or
+    // popup, difference-blend already keeps it legible on any background
+    if (cta){ document.body.classList.add('cur-cta'); setScale(1.65, .4, 'back.out(2)'); }
+    else if (hoverable){ document.body.classList.add('cur-hover'); setScale(1.32, .35, 'back.out(2)'); }
+  });
+  document.addEventListener('mouseout', e => {
+    if (e.target.closest('.bigcta, .chrome-cta, #float-cta')){ document.body.classList.remove('cur-cta'); setScale(1, .35, 'power2.out'); }
+    else if (e.target.closest('a,button,[data-hover]')){ document.body.classList.remove('cur-hover'); setScale(1, .35, 'power2.out'); }
+  });
+} else {
+  addEventListener('touchmove', e => {
+    const t = e.touches[0]; if(!t) return;
+    mouse.nx = t.clientX/innerWidth*2-1; mouse.ny = t.clientY/innerHeight*2-1;
+  }, {passive:true});
+}
+
+
+/* ————————————————— hero — the mark as a window —————————————————
+   shape/shader ported from podium.global's hero effect: an SDF-blended
+   shape mask (circle -> mark morph) with mouse-trail fluid displacement
+   and scroll-tied barrel pinch. GLSL below is carried over near-verbatim
+   from their shipped bundle; the shape source (their KTX2 podium-shape
+   texture) is swapped for an SDF baked from our own mark, and the flat
+   fill color is ours. The pinned-chapter zoom/dissolve on scroll is this
+   site's own addition (uReveal), grafted on to keep the existing scroll
+   choreography working with the new shader. */
+const heroU = { reveal: 0, scrollP: 0, scrollV: 0, scrollZoom: 0 };
+const heroShape = { shapeReveal: 0, pulseReveal: 0 };
+let heroRenderer = null, heroUniforms = null, heroTouch = null;
+// once you've genuinely scrolled past the hero, its WebGL loop stops
+// rendering entirely rather than just being hidden by CSS — visibility
+// alone doesn't stop the GPU work, and with the footer's own WebGL scene
+// running too, two permanently-rendering contexts is exactly the kind of
+// sustained load that reads as "the page almost crashes" near the bottom
+let heroActive = true;
+
+// generic two-pass 8-neighbour signed-distance-field bake from a filled
+// Path2D — not target-specific, stands in for the KTX2 SDF asset podium
+// ships and bakes at load instead of build time
+function buildHeroSDF(size){
+  const cv = document.createElement('canvas'); cv.width = cv.height = size;
+  const ctx = cv.getContext('2d');
+  const p = new Path2D('M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z');
+  ctx.translate(size*0.14, size*0.14); ctx.scale(size*0.72/32, size*0.72/32);
+  ctx.fillStyle = '#fff'; ctx.fill(p);
+
+  const n = size*size;
+  const img = ctx.getImageData(0,0,size,size).data;
+  const inside = new Uint8Array(n);
+  for (let i=0;i<n;i++) inside[i] = img[i*4+3] > 127 ? 1 : 0;
+
+  const INF = 1e6;
+  const passFor = sign => {
+    const dx = new Float32Array(n).fill(INF), dy = new Float32Array(n).fill(INF);
+    for (let i=0;i<n;i++) if (inside[i]===sign){ dx[i]=0; dy[i]=0; }
+    const cmp = (i,x,y,ox,oy) => {
+      const nx=x+ox, ny=y+oy;
+      if (nx<0||nx>=size||ny<0||ny>=size) return;
+      const j = ny*size+nx, ndx=dx[j]+ox, ndy=dy[j]+oy;
+      if (ndx*ndx+ndy*ndy < dx[i]*dx[i]+dy[i]*dy[i]){ dx[i]=ndx; dy[i]=ndy; }
+    };
+    for (let y=0;y<size;y++) for (let x=0;x<size;x++){ const i=y*size+x;
+      cmp(i,x,y,-1,0); cmp(i,x,y,0,-1); cmp(i,x,y,-1,-1); cmp(i,x,y,1,-1); }
+    for (let y=size-1;y>=0;y--) for (let x=size-1;x>=0;x--){ const i=y*size+x;
+      cmp(i,x,y,1,0); cmp(i,x,y,0,1); cmp(i,x,y,1,1); cmp(i,x,y,-1,1); }
+    const out = new Float32Array(n);
+    for (let i=0;i<n;i++) out[i] = Math.sqrt(dx[i]*dx[i]+dy[i]*dy[i]);
+    return out;
+  };
+  const distIn = passFor(0), distOut = passFor(1);
+  const spread = size * 0.22;
+  const out = ctx.createImageData(size,size);
+  for (let i=0;i<n;i++){
+    const signed = inside[i] ? distIn[i] : -distOut[i];
+    const g = Math.max(0, Math.min(1, 0.5 + (signed/spread)*0.5));
+    out.data[i*4] = out.data[i*4+1] = out.data[i*4+2] = (g*255)|0;
+    out.data[i*4+3] = 255;
+  }
+  ctx.putImageData(out,0,0);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.minFilter = THREE.LinearFilter; tex.magFilter = THREE.LinearFilter;
+  tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+  tex.needsUpdate = true;
+  return { tex, size };
+}
+
+// ported near-verbatim from podium.global's TouchTexture: a canvas2d
+// radial-gradient trail sampled by the shader as uMouseTexture
+class HeroTouchTexture {
+  constructor({ size=256, maxAge=750, radius=.3, intensity=.2, interpolate=0, smoothing=0, minForce=.3, blend='screen', ease=t=>Math.sqrt(1-Math.pow(t-1,2)) } = {}){
+    this.size=size; this.maxAge=maxAge; this.radius=radius; this.intensity=intensity;
+    this.ease=ease; this.interpolate=interpolate; this.smoothing=smoothing;
+    this.minForce=minForce; this.blend=blend; this.trail=[]; this.force=0;
+    this.canvas = document.createElement('canvas');
+    this.canvas.width = this.canvas.height = this.size;
+    this.ctx = this.canvas.getContext('2d');
+    this.ctx.fillStyle = 'black'; this.ctx.fillRect(0,0,this.size,this.size);
+    this.texture = new THREE.CanvasTexture(this.canvas);
+  }
+  update(dt){
+    this.clear();
+    this.trail = this.trail.filter(t => (t.age += 1000*dt) <= this.maxAge);
+    if (!this.trail.length) this.force = 0;
+    this.trail.forEach(t => this.drawTouch(t));
+    this.texture.needsUpdate = true;
+  }
+  clear(){ this.ctx.globalCompositeOperation='source-over'; this.ctx.fillStyle='black'; this.ctx.fillRect(0,0,this.size,this.size); }
+  addTouch(pt){
+    const prev = this.trail[this.trail.length-1];
+    if (prev){
+      const dx=prev.x-pt.x, dy=prev.y-pt.y, d2=dx*dx+dy*dy;
+      const f = Math.max(this.minForce, Math.min(1e4*d2, 1));
+      this.force = f*(1-this.smoothing) + this.force*this.smoothing;
+      if (this.interpolate){
+        const steps = Math.ceil(d2/Math.pow(.5*this.radius/this.interpolate,2));
+        for (let i=1;i<steps;i++) this.trail.push({ x: pt.x-dx/steps*i, y: pt.y-dy/steps*i, age:0, force:f });
+      }
+    }
+    this.trail.push({ x:pt.x, y:pt.y, age:0, force:this.force });
+  }
+  drawTouch(t){
+    const x = t.x*this.size, y = (1-t.y)*this.size;
+    const r = (t.age < .3*this.maxAge ? this.ease(t.age/(.3*this.maxAge)) : this.ease(1-(t.age-.3*this.maxAge)/(.7*this.maxAge))) * t.force;
+    this.ctx.globalCompositeOperation = this.blend;
+    const rad = Math.max(0, this.size*this.radius*r);
+    const grad = this.ctx.createRadialGradient(x,y,Math.max(0,.25*rad), x,y,rad);
+    grad.addColorStop(0, `rgba(255,255,255,${this.intensity})`);
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    this.ctx.beginPath(); this.ctx.fillStyle = grad; this.ctx.arc(x,y,rad,0,Math.PI*2); this.ctx.fill();
+  }
+}
+
+function initHero(){
+  const canvas = $('#hero-canvas');
+  const section = $('#ch0');
+  if (!canvas || !section) return;
+
+  heroRenderer = new THREE.WebGLRenderer({ canvas, antialias:!isTouch, alpha:true, powerPreference:'high-performance' });
+  heroRenderer.setPixelRatio(isTouch ? Math.min(devicePixelRatio, 1.25) : Math.min(devicePixelRatio, 1.75));
+  const size0 = section.getBoundingClientRect();
+  const w0 = size0.width || innerWidth, h0 = size0.height || innerHeight;
+  heroRenderer.setSize(w0, h0, false);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+  const geo = new THREE.PlaneGeometry(2,2);
+
+  const shape = buildHeroSDF(512);
+  heroTouch = new HeroTouchTexture({ size:1024, maxAge:600, blend:'difference', radius:.095, intensity:.1, minForce:.5, interpolate:0, smoothing:0 });
+
+  heroUniforms = {
+    uIsMobile:          { value: isTouch },
+    uTime:              { value: 0 },
+    uShapeReveal:       { value: 0 },
+    uScrollProgress:    { value: 0 },
+    uPulseReveal:       { value: 0 },
+    uScrollZoom:        { value: 0 },
+    uBackgroundPodiumShapeTexture: { value: shape.tex },
+    uTextureShapeSize:  { value: new THREE.Vector2(shape.size, shape.size) },
+    uMouseTexture:      { value: heroTouch.texture },
+    uResolution:        { value: new THREE.Vector2(w0, h0) },
+    uColorBeige:        { value: new THREE.Color(0x141210) },
+    uMeshSize:          { value: new THREE.Vector2(w0, h0) },
+    uScrollVelocity:    { value: 0 },
+    uFluidIntensity:    { value: 0.6 },
+    uNoiseIntensity:    { value: 0.6 },
+    uUvScale:           { value: 1.4 },
+    uPulseMult:         { value: 0.2 },
+    uReveal:            { value: 0 }
+  };
+
+  const mat = new THREE.ShaderMaterial({
+    uniforms: heroUniforms, transparent:true, depthWrite:false,
+    vertexShader:`
+      varying vec2 vUv;
+      void main(){ vUv = uv; gl_Position = vec4(position, 1.0); }`,
+    fragmentShader:`
+      precision highp float;
+      uniform bool uIsMobile;
+      uniform float uTime;
+      uniform float uShapeReveal;
+      uniform float uScrollProgress;
+      uniform float uPulseReveal;
+      uniform float uScrollZoom;
+      uniform sampler2D uBackgroundPodiumShapeTexture;
+      uniform vec2 uTextureShapeSize;
+      uniform sampler2D uMouseTexture;
+      uniform vec2 uResolution;
+      uniform vec3 uColorBeige;
+      uniform vec2 uMeshSize;
+      uniform float uScrollVelocity;
+      uniform float uFluidIntensity;
+      uniform float uNoiseIntensity;
+      uniform float uUvScale;
+      uniform float uPulseMult;
+      uniform float uReveal;
+      varying vec2 vUv;
+
+      float hash(vec2 p) {
+        return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x))));
+      }
+      float noise(vec2 x) {
+        vec2 i = floor(x);
+        vec2 f = fract(x);
+        float a = hash(i);
+        float b = hash(i + vec2(1.0, 0.0));
+        float c = hash(i + vec2(0.0, 1.0));
+        float d = hash(i + vec2(1.0, 1.0));
+        vec2 u = f * f * (3.0 - 2.0 * f);
+        return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+      }
+      float sdCircle(in vec2 p, in float r) {
+        return length(p) - r;
+      }
+
+      void main() {
+        float FLUID_INTENSITY = uFluidIntensity;
+        float NOISE_INTENSITY = uNoiseIntensity;
+
+        /** Ratio */
+        float textureShapeRatio = uTextureShapeSize.x / uTextureShapeSize.y;
+        float meshRatio = uMeshSize.x / uMeshSize.y;
+        float resolutionRatio = uResolution.x / uResolution.y;
+
+        /** Pulse */
+        float pulse = uPulseReveal * uPulseMult;
+
+        /** UV — scroll shrinks the sampled window toward its centre, so the
+            mark's own silhouette balloons past the frame edges: a single
+            clean dive through the shape, not a radial warp. No barrel/
+            pincushion term here on purpose — that read as an unwanted
+            twirl during the scroll-out and fought the fade for the same
+            transition window. */
+        float uvScale = max(0.045, uUvScale - pulse - uScrollZoom);
+        vec2 uv = (vUv - 0.5) * uvScale + 0.5;
+
+        if (meshRatio > textureShapeRatio) {
+          uv.x = (uv.x - 0.5) * (meshRatio / textureShapeRatio) + 0.5;
+        } else {
+          uv.y = (uv.y - 0.5) * (textureShapeRatio / meshRatio) + 0.5;
+        }
+
+        vec2 uvMouseTrail;
+        vec3 mouseColor = vec3(0.0);
+
+        if (uIsMobile) {
+          uvMouseTrail = uv;
+        } else {
+          float fnoise = pow((1.0 - uScrollProgress), 4.0) * noise(uv * 1000.0) * NOISE_INTENSITY;
+          mouseColor = texture2D(uMouseTexture, vUv).rgb * fnoise;
+          uvMouseTrail = uv - vec2(mouseColor) * FLUID_INTENSITY;
+        }
+
+        vec2 podiumUv = uvMouseTrail;
+
+        if (resolutionRatio < 1.0) {
+          podiumUv.y += (1.0 - uScrollProgress) * (1.0 - resolutionRatio) * 0.3;
+        }
+
+        /** Texture Map */
+        vec3 textureMap = texture2D(uBackgroundPodiumShapeTexture, podiumUv).rgb;
+
+        /** Circle SDF */
+        vec2 circleUv = vUv - 0.5;
+        circleUv.x *= uMeshSize.x / uMeshSize.y;
+        float sdf_circle = sdCircle(circleUv, 0.01);
+
+        /** Texture shape SDF */
+        float sdf_texture = 0.5 - textureMap.g;
+
+        /** Blend SDFs */
+        float sdf_final = mix(sdf_texture, sdf_circle, 1.0 - uShapeReveal);
+
+        float edgeDist = abs(sdf_final);
+        float edgeGuard = smoothstep(0.0, 0.05, edgeDist);
+        float sdf_clean = mix(sdf_texture, sdf_final, edgeGuard);
+        float sdf_guarded = mix(sdf_clean, sdf_final, edgeGuard);
+        sdf_final = mix(sdf_final, sdf_guarded, uShapeReveal);
+
+        float mask = mix(
+          smoothstep(0.001, 0.003, sdf_final),
+          smoothstep(0.0, 0.003, sdf_final),
+          pow(uShapeReveal, 4.0)
+        );
+
+        if (!uIsMobile) {
+          float mask_scale_and_blur = length(circleUv) + smoothstep(-1.0, 1.0, sdf_final) + 0.3;
+          mask = mix(mask, mask_scale_and_blur, uPulseReveal);
+          mask = pow(mask, 4.0);
+        }
+
+        vec3 color = vec3(uColorBeige);
+        // podium's mask is a hole cut into a full-bleed overlay (it reveals
+        // a video layer sitting behind the shape plane); we have no such
+        // layer to reveal, and this site's own hero has always been "the
+        // mark as a solid window", so we invert: the shape itself paints
+        // in, everything outside stays transparent.
+        gl_FragColor = vec4(color, (1.0 - mask) * uReveal);
+      }`
+  });
+
+  scene.add(new THREE.Mesh(geo, mat));
+
+  // feed the mouse trail only when the pointer has actually moved, same
+  // as podium's discrete addTouch-on-move (not a per-frame sample)
+  let lastTx = null, lastTy = null;
+  let visible = true;
+  document.addEventListener('visibilitychange', () => visible = !document.hidden);
+  const clock = new THREE.Clock();
+  let prevT = clock.getElapsedTime();
+  const tick = () => {
+    requestAnimationFrame(tick);
+    if (!visible || !heroActive || !heroRenderer) return;
+    const now = clock.getElapsedTime();
+    const dt = Math.max(0, now - prevT); prevT = now;
+    heroUniforms.uTime.value = now;
+    heroUniforms.uShapeReveal.value = heroShape.shapeReveal;
+    heroUniforms.uPulseReveal.value = heroShape.pulseReveal;
+    heroUniforms.uScrollProgress.value = heroU.scrollP;
+    heroUniforms.uScrollZoom.value = heroU.scrollZoom;
+    heroUniforms.uScrollVelocity.value = heroU.scrollV;
+    heroUniforms.uReveal.value = heroU.reveal;
+
+    const mx = (mouse.nx + 1) / 2, my = 1 - (mouse.ny + 1) / 2;
+    if (mx !== lastTx || my !== lastTy){
+      heroTouch.addTouch({ x: mx, y: my });
+      lastTx = mx; lastTy = my;
+    }
+    heroTouch.update(dt);
+
+    heroRenderer.render(scene, camera);
+  };
+  tick();
+
+  const resizeHero = () => {
+    const r = section.getBoundingClientRect();
+    const w = r.width || innerWidth, h = r.height || innerHeight;
+    heroRenderer.setSize(w, h, false);
+    heroUniforms.uResolution.value.set(w, h);
+    heroUniforms.uMeshSize.value.set(w, h);
+  };
+  addEventListener('resize', resizeHero);
+}
+if (GL) initHero();
+
+/* ————————————————— projects — data + card reveal + modal ————————————————— */
+const PROJECTS = [
+  { num:'01', title:'gorjup', meta:'identity &amp; packaging · wine · 2025',
+    copy:"a wine label built to survive being picked up. the shadow of a leaf, cast on stone, became the illustration. <b>the illustration became a mark you can find with your thumb</b> before you've read a word.",
+    tags:['logotype','illustration','label design','packaging design'], link:null,
+    gallery:[
+      { src:'assets/img/gorjup-01.jpg', wide:true, alt:'Gorjup wine bottles with green labels standing on weathered wood', cap:'the vintage — rebula on the shelf' },
+      { src:'assets/img/gorjup-02.jpg', alt:'Gorjup logotype embossed into textured paper', cap:'the mark, pressed' },
+      { src:'assets/img/gorjup-03.jpg', alt:'Leaf illustration cast as a shadow on a sunlit wall', cap:'the illustration, as a shadow' },
+      { src:'assets/img/gorjup-04.jpg', wide:true, alt:'Close-up of the numbered Rebula label on the bottle', cap:'label 43 of 250' }
+    ] },
+  { num:'02', title:'kosovel', meta:'editorial design · booklet · 2025',
+    copy:"a hundred years is long enough for a poet to be forgotten. this booklet was built so srečko kosovel's constructivist work wouldn't be — <b>his kons poems set back into motion through typography built to be read twice:</b> once for the words, once for the shape they make.",
+    tags:['editorial design','typography','print design'], link:null,
+    gallery:[
+      { src:'assets/img/kosovel-01.jpg', wide:true, alt:'Open red spread of the Kosovel booklet with archive material', cap:'the archive spread' },
+      { src:'assets/img/kosovel-02.jpg', wide:true, alt:'Blue and red covers of the booklet, kons-trukcija and kozmos', cap:'kons — trukcija · kozmos' },
+      { src:'assets/img/kosovel-03.jpg', alt:'Close-up of a red typographic page', cap:'idejna zasnova, close' },
+      { src:'assets/img/kosovel-04.jpg', alt:'Close-up of a white typographic page with handwritten traces', cap:'šestih kaligramov, close' }
+    ] },
+  { num:'03', title:'santera', meta:'identity &amp; packaging · aperitif · 2026',
+    copy:"not a drink you finish quickly. an arch on the label, a sun-warmed palette, <b>a bottle shaped for the second pour more than the first.</b> built for the part of the evening nobody's in a hurry to end.",
+    tags:['brand identity','label design','packaging design'], link:null,
+    gallery:[
+      { src:'assets/img/santera-01.jpg', wide:true, alt:'Frosted Santera bottle beside a filled glass, olive branches behind', cap:'the ritual — bottle and pour' },
+      { src:'assets/img/santera-02.jpg', wide:true, alt:'Santera brand board with logo, labels and colour palette', cap:'the system — mark, labels, palette' }
+    ] },
+  { num:'04', title:'ronki', meta:'identity &amp; packaging · olive oil · 2026',
+    copy:"two olives, drawn close enough together that they start to look like a face watching you back. that's the whole brief in one mark — <b>generations of careful selection, pressed into something you'd notice</b> on a shelf full of oil that all looks the same at a glance.",
+    tags:['brand identity','packaging design','logo design'], link:null,
+    gallery:[
+      { src:'assets/img/ronki-01.jpg', alt:'Two dark Ronki olive oil bottles with acid green labels', cap:'extra deviško, bottled' },
+      { src:'assets/img/ronki-04.jpg', alt:'The Ronki symbol — two olives forming a gaze', cap:'the gaze — two olives' },
+      { src:'assets/img/ronki-02.jpg', wide:true, alt:'Ronki business cards on textured fabric', cap:'the cards, in hand' },
+      { src:'assets/img/ronki-03.jpg', wide:true, alt:'Front label design for Ronki extra virgin olive oil', cap:'the label, flat' }
+    ] },
+  { num:'05', title:'2fit2fail', meta:'identity &amp; website · personal training · 2026',
+    copy:"a training system doesn't need to look loud to feel serious. this one does anyway, on purpose — <b>sharp type, acid accents, a site built with the same discipline</b> the training plans are. built to move, not just to load.",
+    tags:['brand identity','website design','web development','motion design'], link:'https://zhp.vercel.app/',
+    gallery:[
+      { src:'assets/video/zhp-anim.webm', video:true, wide:true, cap:'the site, in motion' },
+      { src:'assets/img/zhp-01.jpg', wide:true, alt:'2fit2fail website screenshot', cap:'the homepage' },
+      { src:'assets/img/zhp-02.jpg', wide:true, alt:'2fit2fail website screenshot, detail view', cap:'the site, in detail' }
+    ] }
+];
+
+/* rows are built from PROJECTS — title, tags, a cropped thumbnail strip,
+   a hover-only "view case" reveal, and a click-to-expand body using the
+   CSS grid 0fr->1fr trick instead of a JS-measured height tween. That
+   JS-measured height (the old `height: open ? 0 : 'auto'` GSAP tween)
+   was the actual source of the "buggy" feeling, not the row design. */
+function galleryHTML(p){
+  return p.gallery.map(g => {
+    const media = g.video
+      ? `<video src="${g.src}" muted loop playsinline autoplay preload="metadata"></video>`
+      : `<img src="${g.src}" alt="${g.alt || ''}" loading="lazy">`;
+    return `<figure class="pgal${g.wide ? ' wide' : ''}"><span class="frame">${media}</span><figcaption>${g.cap}</figcaption></figure>`;
+  }).join('');
+}
+function stripHTML(p){
+  return p.gallery.filter(g => !g.video).slice(0, 3)
+    .map(g => `<img src="${g.src}" alt="" loading="lazy">`).join('');
+}
+
+const plist = $('#plist');
+if (plist){
+  plist.innerHTML = PROJECTS.map((p, i) => `
+    <div class="prow" data-proj="${i}">
+      <button class="prow__head" data-toggle data-hover aria-expanded="false" aria-controls="prow-body-${i}">
+        <span class="prow__num">${p.num}</span>
+        <h3 class="prow__name">${p.title}</h3>
+        <span class="prow__tags">${p.tags.map(t => `<span>${t}</span>`).join('')}</span>
+        <span class="prow__strip" aria-hidden="true">${stripHTML(p)}</span>
+        <span class="prow__cta">view case</span>
+        <span class="prow__toggle" aria-hidden="true">(<i>+</i>)</span>
+      </button>
+      <div class="prow__body" id="prow-body-${i}">
+        <div class="prow__body-in"><div class="prow__body-content">
+          <div>
+            <p class="prow__copy">${p.copy}</p>
+            ${p.link ? `<a class="prow__link" href="${p.link}" target="_blank" rel="noopener" data-hover>visit the live site</a>` : ''}
+          </div>
+          <div class="prow__gallery">${galleryHTML(p)}</div>
+        </div></div>
+      </div>
+    </div>`).join('');
+
+  /* rows rise in as they scroll into view — plain opacity/transform,
+     no particle system, no per-character blur */
+  $$('.prow').forEach((row, i) => {
+    gsap.fromTo(row, { opacity:0, y:36 }, { opacity:1, y:0, duration:1, delay:i*.04, ease:'expo.out',
+      scrollTrigger:{ trigger:row, start:'top 92%' } });
+  });
+
+  $$('.prow__head').forEach(head => {
+    const row = head.closest('.prow');
+    const toggleIcon = head.querySelector('.prow__toggle i');
+    head.addEventListener('click', () => {
+      const open = row.classList.contains('is-open');
+      row.classList.toggle('is-open', !open);
+      head.setAttribute('aria-expanded', String(!open));
+      toggleIcon.textContent = open ? '+' : '−';
+      row.querySelectorAll('video').forEach(v => { if (!open && v.play) v.play().catch(()=>{}); else v.pause(); });
+      // the grid-rows transition (~650ms) changes document height once it
+      // settles — one scheduled refresh keeps every pinned section's
+      // scroll math honest, same pattern already used for image loads
+      if (hasLibs) setTimeout(() => ScrollTrigger.refresh(), 700);
+    });
+  });
+}
+
+/* magnetic pull on the primary actions (desktop only — needs a real cursor) */
+if (!isTouch && hasLibs){
+  $$('.chrome-cta, .bigcta, .mark, #float-cta').forEach(el => {
+    const sx = gsap.quickTo(el, 'x', { duration:.55, ease:'power3.out' });
+    const sy = gsap.quickTo(el, 'y', { duration:.55, ease:'power3.out' });
+    el.addEventListener('mousemove', e => {
+      const r = el.getBoundingClientRect();
+      sx((e.clientX - (r.left + r.width/2)) * .22);
+      sy((e.clientY - (r.top + r.height/2)) * .22);
+    });
+    el.addEventListener('mouseleave', () => { sx(0); sy(0); });
+  });
+}
+
+/* press feedback on every button-like control (all devices) — timings match
+   the site's transitions-dev token pass: a quick, near-linear press-down
+   (--btn-press) and a springy release (--btn-release) */
+if (hasLibs && !prefersReduced){
+  $$('.chrome-cta, .bigcta, .mark, #float-cta').forEach(el => {
+    // magnetic elements already own their transform via GSAP's x/y quickTo —
+    // adding a separate scale quickTo composes into the same matrix rather
+    // than fighting it, which a plain CSS :active transform would
+    const ss = gsap.quickTo(el, 'scale', { duration:.12, ease:'cubic-bezier(.4,0,.2,1)' });
+    el.addEventListener('pointerdown', () => ss(.94));
+    el.addEventListener('pointerup', () => gsap.to(el, { scale:1, duration:.42, ease:'cubic-bezier(.34,1.45,.64,1)' }));
+    el.addEventListener('pointerleave', () => gsap.to(el, { scale:1, duration:.3, ease:'power2.out' }));
+  });
+}
+
+/* the tab remembers you were here */
+{
+  const homeTitle = document.title;
+  document.addEventListener('visibilitychange', () => {
+    document.title = document.hidden ? 'the archive remembers\u2026' : homeTitle;
+  });
+}
+
+/* ljubljana keeps the time */
+const clockEl = $('#clock');
+if (clockEl){
+  const tickClock = () => {
+    try { clockEl.textContent = new Date().toLocaleTimeString('en-GB', { timeZone:'Europe/Ljubljana', hour:'2-digit', minute:'2-digit' }); }
+    catch(e){ clockEl.textContent = new Date().toTimeString().slice(0,5); }
+  };
+  tickClock(); setInterval(tickClock, 15000);
+}
+
+/* copy the email straight to the clipboard — no mail client detour */
+{
+  const copyBtn = $('#copy-email');
+  const copyBtnAlt = copyBtn && copyBtn.querySelector('.ce-b');
+  if (copyBtn){
+    let revertTimer = null;
+    copyBtn.addEventListener('click', async () => {
+      const email = copyBtn.dataset.email;
+      try {
+        if (navigator.clipboard) await navigator.clipboard.writeText(email);
+        else {
+          // clipboard API unavailable (non-secure context, old browser) —
+          // fall back to a hidden, selected textarea and execCommand
+          const ta = document.createElement('textarea');
+          ta.value = email; ta.style.position = 'fixed'; ta.style.opacity = '0';
+          document.body.appendChild(ta); ta.select();
+          document.execCommand('copy'); ta.remove();
+        }
+        if (copyBtnAlt) copyBtnAlt.textContent = 'copied';
+        copyBtn.dataset.state = 'b';
+        copyBtn.classList.add('is-copied');
+      } catch (e) {
+        if (copyBtnAlt) copyBtnAlt.textContent = email;
+        copyBtn.dataset.state = 'b';
+      }
+      clearTimeout(revertTimer);
+      revertTimer = setTimeout(() => {
+        copyBtn.dataset.state = 'a';
+        copyBtn.classList.remove('is-copied');
+      }, 1600);
+    });
+  }
+}
+
+/* newsletter — quiet footer signup, no modal, no interstitial. This only
+   swaps the field for a confirmation state client-side; wire the fetch()
+   below to a real provider (Resend/Mailchimp/ConvertKit/etc.) before
+   launch — nothing is actually persisted yet. */
+{
+  const form = $('#fnews');
+  if (form){
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = form.email.value.trim();
+      if (!email) return;
+      // TODO: replace with a real subscribe call, e.g.
+      // await fetch('/api/subscribe', { method:'POST', body: JSON.stringify({ email }) });
+      form.classList.add('is-sent');
+    });
+  }
+}
+
+/* footer — a small animated gradient-mesh shader, the one colour moment
+   reserved for the very end of the page. Lazily initialised only once the
+   footer is close to view (IntersectionObserver), same pattern already
+   used for the invitation CTA's stroke animation — no reason to run a
+   render loop for something sitting off-screen for the whole rest of the
+   page. */
+function initFooterGradient(){
+  const canvas = $('#footer-canvas');
+  const footerEl = $('footer');
+  if (!canvas || !footerEl || !GL) return;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias:false, alpha:true, powerPreference:'low-power' });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+  const size0 = footerEl.getBoundingClientRect();
+  renderer.setSize(size0.width || innerWidth, Math.max(size0.height, innerHeight), false);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+  const geo = new THREE.PlaneGeometry(2,2);
+  const uniforms = {
+    uTime: { value: 0 },
+    uResolution: { value: new THREE.Vector2(size0.width||innerWidth, size0.height||innerHeight) },
+    uMouse: { value: new THREE.Vector2(0.5, 0.4) },
+    uMouseActive: { value: 0 },
+    uMouseEnergy: { value: 0 }
+  };
+  const mat = new THREE.ShaderMaterial({
+    uniforms,
+    vertexShader:`varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position,1.0); }`,
+    fragmentShader:`
+      precision highp float;
+      uniform float uTime;
+      uniform vec2 uResolution;
+      uniform vec2 uMouse;
+      uniform float uMouseActive;
+      uniform float uMouseEnergy;
+      varying vec2 vUv;
+      // generic soft-blob gradient mesh — not target-specific
+      float blob(vec2 uv, vec2 center, float radius){
+        return smoothstep(radius, 0.0, length(uv - center));
+      }
+      void main(){
+        float aspect = uResolution.x / max(uResolution.y, 1.0);
+        vec2 uv = vUv * vec2(aspect, 1.0);
+        float t = uTime * 0.04;
+
+        // the ambient blobs drift on their own, but the pointer gently
+        // pulls them toward it — the whole mesh leans into your cursor
+        // rather than just adding a spot on top of it
+        vec2 m = uMouse * vec2(aspect, 1.0);
+        vec2 pull = (m - vec2(0.5*aspect, 0.45)) * 0.06 * uMouseActive;
+
+        vec2 c1 = vec2(0.25 + sin(t*1.3)*0.16, 0.55 + cos(t*1.05)*0.18) * vec2(aspect,1.0) + pull;
+        vec2 c2 = vec2(0.75 + cos(t*0.85)*0.18, 0.65 + sin(t*1.35)*0.16) * vec2(aspect,1.0) + pull*0.6;
+        vec2 c3 = vec2(0.5 + sin(t*0.65+2.1)*0.22, 0.25 + cos(t*0.55)*0.16) * vec2(aspect,1.0) + pull*0.8;
+        vec2 c4 = vec2(0.18 + cos(t*1.1+1.3)*0.12, 0.2 + sin(t*0.75)*0.14) * vec2(aspect,1.0) + pull*0.5;
+
+        // kept deliberately subtle — this read as too bold/obvious twice
+        // already; intensities are roughly a third of the original now,
+        // so it sits as a faint ambient tint well underneath the content
+        vec3 col = vec3(0.039, 0.035, 0.031);
+        col += blob(uv, c1, 0.5) * vec3(0.898, 0.208, 0.169) * 0.13;
+        col += blob(uv, c2, 0.44) * vec3(0.224, 0.443, 1.0) * 0.12;
+        col += blob(uv, c3, 0.56) * vec3(1.0, 0.69, 0.125) * 0.08;
+        col += blob(uv, c4, 0.4) * vec3(0.224, 0.443, 1.0) * 0.07;
+
+        // a fifth blob that IS the cursor — brightens and swells with how
+        // fast you're moving, fades out entirely once the pointer leaves
+        float mr = 0.26 + uMouseEnergy * 0.14;
+        float mGlow = blob(uv, m, mr) * uMouseActive;
+        vec3 mColor = mix(vec3(1.0, 0.69, 0.125), vec3(1.0, 0.87, 0.6), uMouseEnergy);
+        col += mGlow * mColor * (0.1 + uMouseEnergy * 0.14);
+
+        // a soft fade across the footer's own top edge — keeps the
+        // hand-off from chapter 5 gentle without the canvas needing to
+        // escape the footer's box (that caused it to paint over ch5's
+        // own content instead of blending behind it)
+        float edgeFade = smoothstep(0.78, 1.0, vUv.y);
+        vec3 addedColor = col - vec3(0.039, 0.035, 0.031);
+        col = vec3(0.039, 0.035, 0.031) + addedColor * (1.0 - edgeFade * 0.85);
+
+        gl_FragColor = vec4(col, 1.0);
+      }`
+  });
+  scene.add(new THREE.Mesh(geo, mat));
+
+  // pointer tracking, footer-local: lerped position + a decaying "energy"
+  // term driven by how fast the pointer is actually moving right now
+  let targetMouse = { x: 0.5, y: 0.4 }, curMouse = { x: 0.5, y: 0.4 };
+  let targetActive = 0, curActive = 0;
+  let lastPX = null, lastPY = null, energy = 0;
+  const onPointerMove = e => {
+    const r = footerEl.getBoundingClientRect();
+    if (e.clientY < r.top - 40 || e.clientY > r.bottom + 40){ targetActive = 0; return; }
+    targetMouse.x = (e.clientX - r.left) / Math.max(r.width, 1);
+    targetMouse.y = 1 - (e.clientY - r.top) / Math.max(r.height, 1);
+    targetActive = 1;
+    if (lastPX !== null){
+      const d = Math.hypot(e.clientX - lastPX, e.clientY - lastPY);
+      energy = Math.min(1, energy + d * 0.012);
+    }
+    lastPX = e.clientX; lastPY = e.clientY;
+  };
+  addEventListener('pointermove', onPointerMove, { passive:true });
+  addEventListener('pointerleave', () => targetActive = 0);
+
+  let visible = true;
+  document.addEventListener('visibilitychange', () => visible = !document.hidden);
+  const clock = new THREE.Clock();
+  const tick = () => {
+    requestAnimationFrame(tick);
+    if (!visible) return;
+    uniforms.uTime.value = clock.getElapsedTime();
+    curMouse.x = lerp(curMouse.x, targetMouse.x, .07);
+    curMouse.y = lerp(curMouse.y, targetMouse.y, .07);
+    curActive = lerp(curActive, targetActive, .05);
+    energy = lerp(energy, 0, .04); // decays back to 0 when the pointer sits still
+    uniforms.uMouse.value.set(curMouse.x, curMouse.y);
+    uniforms.uMouseActive.value = curActive;
+    uniforms.uMouseEnergy.value = energy;
+    renderer.render(scene, camera);
+  };
+  tick();
+
+  addEventListener('resize', () => {
+    const r = footerEl.getBoundingClientRect();
+    const w = r.width || innerWidth, h = Math.max(r.height, innerHeight);
+    renderer.setSize(w, h, false);
+    uniforms.uResolution.value.set(w, h);
+  });
+
+  requestAnimationFrame(() => canvas.classList.add('is-in'));
+}
+if (GL){
+  const footerEl = $('footer');
+  if (footerEl && 'IntersectionObserver' in window){
+    const io = new IntersectionObserver((entries, obs) => {
+      if (entries.some(e => e.isIntersecting)){ initFooterGradient(); obs.disconnect(); }
+    }, { rootMargin:'50% 0px' });
+    io.observe(footerEl);
+  } else if (footerEl) initFooterGradient();
+}
+
+/* the film has chapters — arrow keys step between them, the way a director's
+   scrubber would, rather than fighting the pinned scroll pixel by pixel */
+{
+  const chapters = $$('section[data-chapter]');
+  addEventListener('keydown', e => {
+    if (!chapters.length) return;
+    if (document.activeElement && document.activeElement.matches('input,textarea,[contenteditable="true"]')) return;
+    const stepDown = e.key === 'ArrowDown' || e.key === 'PageDown';
+    const stepUp = e.key === 'ArrowUp' || e.key === 'PageUp';
+    if (!stepDown && !stepUp) return;
+    e.preventDefault();
+    const y = window.scrollY || window.pageYOffset;
+    let target;
+    if (stepDown) target = chapters.find(s => s.getBoundingClientRect().top + y > y + 4);
+    else { const above = chapters.filter(s => s.getBoundingClientRect().top + y < y - 4); target = above[above.length - 1]; }
+    if (!target) return;
+    if (lenis) lenis.scrollTo(target, { duration: 1.5, easing: t => 1 - Math.pow(1 - t, 4) });
+    else target.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth' });
+  }, { passive:false });
+}
+
+/* the mark returns you to the beginning */
+$('.mark').addEventListener('click', e => {
+  e.preventDefault();
+  if (lenis) lenis.scrollTo(0, { duration: 2.2, easing: t => 1-Math.pow(1-t,4) });
+  else scrollTo({ top:0, behavior: prefersReduced ? 'auto' : 'smooth' });
+});
+
+/* ————————————————— chapter indicator ————————————————— */
+function setChapter(n){
+  $('#chapter-num').textContent = '0' + n;
+  $$('#chapter-name span').forEach(s => s.classList.toggle('on', +s.dataset.ch === n));
+  // the background isn't flat black the whole way down — each chapter
+  // carries its own faint colour wash (see #bg-wash), so the film still
+  // reads as "warm dark" rather than "off"
+  document.body.className = document.body.className.replace(/\bchapter-\d\b/g, '').trim();
+  document.body.classList.add('chapter-' + n);
+}
+
+/* the floating cta picks up attention once the hero hint has faded,
+   and steps aside once the final invitation's own cta is on screen */
+function setFloatCta(on){
+  const el = $('#float-cta');
+  if (!el) return;
+  el.classList.toggle('on', on);
+  gsap.to(el, { opacity: on ? 1 : 0, duration:.5, ease:'power2.out' });
+}
+
+/* ————————————————— the film — scroll choreography ————————————————— */
+function buildFilm(){
+  const seenChars = splitChars($('#seen'));
+  const fadeChars = splitChars($('#fades'));
+
+  /* chapter tracking */
+  $$('section[data-chapter]').forEach(sec => {
+    ScrollTrigger.create({
+      trigger: sec, start: 'top 55%', end: 'bottom 55%',
+      onEnter: () => setChapter(+sec.dataset.chapter),
+      onEnterBack: () => setChapter(+sec.dataset.chapter)
+    });
+  });
+
+  ScrollTrigger.create({ trigger:'#ch1', start:'top 85%',
+    onEnter: () => setFloatCta(true), onLeaveBack: () => setFloatCta(false) });
+  ScrollTrigger.create({ trigger:'#ch5', start:'top 75%',
+    onEnter: () => setFloatCta(false), onLeaveBack: () => setFloatCta(true) });
+
+  /* the rail — a thin, precious line marking passage through the film.
+     also carries the fix for the fixed "scroll to remember" hint: it sits
+     bottom-right for the whole film, but the footer's own bottom-right
+     content (email, copy-email button) lands in that exact same corner
+     once you actually reach the end, and #chrome's children all take
+     pointer events — so the hint was silently eating every click meant for
+     the copy button underneath it. An onEnter/onLeaveBack trigger on the
+     footer looked right but proved unreliable this close to the very
+     bottom of the page: a late ScrollTrigger.refresh() (fired after a
+     lazy-loaded image resolves) can silently snap progress to 1 without
+     ever calling onEnter. This piggybacks on the rail's own onUpdate
+     instead — already proven reliable across this whole file — so the
+     hint is corrected continuously from live progress rather than a
+     one-shot event that can be skipped. */
+  const railFill = $('#rail-fill');
+  const hintEl = $('#hint');
+  let hintForcedHidden = false;
+  if (railFill) ScrollTrigger.create({ trigger:'main', start:'top top', end:'bottom bottom', scrub:true,
+    onUpdate: st => {
+      railFill.style.transform = `scaleY(${st.progress})`;
+      if (!hintEl) return;
+      if (st.progress > 0.985 && !hintForcedHidden){ hintForcedHidden = true; gsap.to(hintEl, { opacity:0, duration:.4, ease:'power2.out' }); }
+      else if (st.progress <= 0.985 && hintForcedHidden){ hintForcedHidden = false; gsap.to(hintEl, { opacity:1, duration:.4, ease:'power2.out' }); }
+    } });
+
+  /* 00 · the mark, as a window — grows until it swallows the white page,
+     then dissolves well before chapter 1 arrives. It does not linger.
+     Shorter pin than before (was +=130%, ~2.3 viewport-heights of scroll
+     before any chapter-1 content showed up) — the fade/zoom fractions
+     below are unchanged, so the whole handoff just plays out over less
+     physical scroll distance instead of dragging. */
+  const ch0El = $('#ch0');
+  const heroCanvasEl = $('#hero-canvas');
+  ScrollTrigger.create({
+    trigger:'#ch0', start:'top top', end:'+=20%', pin:true, scrub:true,
+    onUpdate: st => {
+      const p = st.progress;
+      heroU.scrollV = p - heroU.scrollP;
+      heroU.scrollP = p;
+      const bg = Math.max(0, 1 - p * 1.35);
+      if (ch0El) ch0El.style.setProperty('--hero-bg', bg);
+      document.body.classList.toggle('chrome-light', bg > 0.5);
+      // the heading and caption step aside early — they're read before the
+      // growth begins
+      gsap.set('.hero-heading', { opacity: Math.max(0, 1 - p * 6) });
+      gsap.set('.hero-caption', { opacity: Math.max(0, 1 - p * 6) });
+
+      // the mark is the window: scrolling zooms straight through its own
+      // silhouette — a single clean dive, no radial warp — and the reveal
+      // fade owns the actual handoff into darkness right behind it. The
+      // zoom finishes a little ahead of the fade (by p=.5, fade by p=.6)
+      // so you're already "through" by the time it's gone, with a wide
+      // margin before the pin releases at p=1.
+      heroU.scrollZoom = easeInOutCubic(clamp01(p / 0.5)) * 1.35;
+      const revealP = clamp01(p / 0.6);
+      heroU.reveal = 1 - easeInOutCubic(revealP);
+
+      // hard failsafe: once scroll is effectively done, force the canvas
+      // fully invisible regardless of shader state — nothing can visibly
+      // persist into chapter 1 even if a uniform doesn't land exactly on
+      // zero
+      if (heroCanvasEl) heroCanvasEl.style.opacity = p >= 0.98 ? 0 : 1;
+    },
+    onLeaveBack: () => { if (heroCanvasEl) heroCanvasEl.style.opacity = 1; }
+  });
+  // hard safety net: once you've genuinely left the hero, the canvas is
+  // switched off entirely rather than trusting opacity/reveal math alone
+  // — and the render loop itself stops, not just the CSS visibility
+  if (heroCanvasEl) ScrollTrigger.create({
+    trigger:'#ch0', start:'top top', end:'bottom top',
+    onLeave: () => { heroCanvasEl.style.visibility = 'hidden'; heroActive = false; },
+    onEnterBack: () => { heroCanvasEl.style.visibility = 'visible'; heroActive = true; }
+  });
+
+  /* 01 · the thesis — pure kinetic type, no particle system underneath it.
+     the ambient dust keeps doing its own quiet thing in the background
+     (untouched here); this chapter no longer drives it into a "coalesce
+     into the mark" moment of its own — that spectacle now belongs to the
+     hero and the closing chapter only. shorter pin than before, too: a
+     two-line beat doesn't need the runway a WebGL event did. */
+  const tl1 = gsap.timeline({
+    scrollTrigger: { trigger:'#ch1', start:'top top', end:'+=90%', pin:true, scrub:true }
+  });
+  tl1.fromTo(seenChars, { opacity:0, y:14 },
+      { opacity:1, y:0, stagger:.012, duration:.1, ease:'power2.out' }, 0)
+     .to(seenChars, { x: i => (Math.sin(i*7.3)*140), y: i => -30 - (Math.abs(Math.cos(i*3.1))*120),
+      opacity:0, rotation: i => Math.sin(i)*10,
+      stagger:{ each:.008, from:'center' }, duration:.3, ease:'power2.in' }, .22)
+     .fromTo('#rem', { opacity:0, filter:'blur(18px)', scale:.985 },
+      { opacity:1, filter:'blur(0px)', scale:1, duration:.32, ease:'power2.out' }, .38)
+     .fromTo('#markline', { opacity:0 }, { opacity:1, duration:.08 }, .74)
+     .fromTo('#markline-fill', { scaleX:0, transformOrigin:'left' }, { scaleX:1, duration:.18, ease:'none' }, .78)
+     .to({}, { duration:.04 });
+
+  /* leaving ch1 : keep text visible until pin releases, then it lifts away */
+  gsap.to('#ch1 .stack', {
+    scrollTrigger: { trigger:'#ch2', start:'top bottom', end:'top 45%', scrub:true },
+    opacity:0, y:-80, ease:'none'
+  });
+
+  /* the particle film (dust/mark/horizon ambience) has been pulled out
+     entirely for now — it was showing up as a spectacle in three places
+     when it should only ever be one. It's reserved for a reworked
+     appearance in the footer in a later pass, not reintroduced here. */
+
+  /* chapter heads */
+  $$('[data-chead]').forEach(head => {
+    gsap.timeline({ scrollTrigger:{ trigger:head, start:'top 82%' } })
+      .to(head.querySelectorAll('.word > span'), { y:0, duration:1.1, stagger:.09, ease:'expo.out' }, 0)
+      .to(head.querySelector('.rule'), { scaleX:1, duration:1.4, ease:'expo.out' }, .15)
+      .from(head.querySelector('.idx'), { opacity:0, duration:.8 }, .2);
+  });
+
+  /* generic reveals */
+  $$('[data-io]').forEach(el => {
+    gsap.fromTo(el, { opacity:0, y:44 }, { opacity:1, y:0, duration:1.3, ease:'expo.out',
+      scrollTrigger:{ trigger:el, start:'top 88%' } });
+  });
+
+  /* footer reveals — 'top 88%' can never fire for content this close to the
+     very end of the page: once the page runs out of scroll room, the
+     footer's top freezes wherever it lands, which may never reach 88% down
+     the viewport, leaving it stuck at opacity 0 forever. 'top bottom' fires
+     the moment the element starts entering the viewport at all, which is
+     always reachable regardless of how little scroll room is left below it. */
+  $$('[data-io-end]').forEach(el => {
+    gsap.fromTo(el, { opacity:0, y:24 }, { opacity:1, y:0, duration:1.1, ease:'expo.out',
+      scrollTrigger:{ trigger:el, start:'top bottom' } });
+  });
+
+  /* 03 · portrait — a quiet parallax bob, nothing else in the way of the image */
+  const pImg = $('#portrait-img');
+  if (pImg) gsap.fromTo(pImg, { y:22 }, { y:-22, ease:'none',
+    scrollTrigger:{ trigger:'#portrait', start:'top bottom', end:'bottom top', scrub:true } });
+  $$('#about p').forEach(p => {
+    gsap.fromTo(p, { opacity:0, y:36, filter:'blur(4px)' },
+      { opacity:1, y:0, filter:'blur(0px)', duration:1.4, ease:'expo.out',
+        scrollTrigger:{ trigger:p, start:'top 86%' } });
+  });
+
+  /* 04 · the fade — a small, contained, connective beat: two short lines,
+     restrained motion, no shader, not pinned. This used to be a full-screen
+     particle event (the dust rising toward its next formation); that was
+     the site's third "coalesce into the mark" moment and diluted the two
+     real spectacles either side of it. The ambient dust itself just holds
+     quietly here — same level it settled to in the archive — with no
+     phase/wobble driving of its own. */
+  gsap.timeline({
+    scrollTrigger: { trigger:'#ch4', start:'top 75%', end:'top 25%', scrub:true }
+  })
+  .fromTo(fadeChars, { opacity:0, y:10 }, { opacity:1, y:0, stagger:.02, duration:.15, ease:'power2.out' }, 0)
+  .to(fadeChars, { y:-24, opacity:0, stagger:{ each:.015, from:'start' }, duration:.25, ease:'power1.in' }, .3)
+  .fromTo('#stays', { opacity:0, filter:'blur(8px)' },
+      { opacity:1, filter:'blur(0px)', duration:.3, ease:'power2.out' }, .55)
+  .fromTo('#stays .stop', { scale:0, transformOrigin:'50% 70%' },
+      { scale:1, duration:.12, ease:'back.out(3)' }, .8)
+  .to({}, { duration:.1 });
+
+  gsap.to('#ch4 .fadewrap', {
+    scrollTrigger:{ trigger:'#ch5', start:'top bottom', end:'top 50%', scrub:true },
+    opacity:0, y:-30, ease:'none'
+  });
+
+  const invT = gsap.timeline({ scrollTrigger:{ trigger:'#inv-title', start:'top 80%' } });
+  invT.to('#inv-title .word > span', { y:0, duration:1.2, stagger:.08, ease:'expo.out' })
+      .add(() => $('#inv-title').classList.add('lit'), '-=.3');
+
+  // the CTA's infinite stroke-color cycle only costs anything while it's
+  // actually visible — no reason to animate a backdrop-filtered element
+  // sitting off-screen for the rest of the page
+  const bigCta = $('#ch5 .bigcta');
+  if (bigCta && 'IntersectionObserver' in window){
+    new IntersectionObserver(es => es.forEach(en =>
+      bigCta.classList.toggle('in-view', en.isIntersecting)), { threshold:.1 }).observe(bigCta);
+  } else if (bigCta) bigCta.classList.add('in-view');
+
+  ScrollTrigger.refresh();
+
+  // keep every pinned section's math honest as images/video load in later
+  let refreshPending = false;
+  const safeRefresh = () => {
+    if (refreshPending) return;
+    refreshPending = true;
+    requestAnimationFrame(() => requestAnimationFrame(() => { ScrollTrigger.refresh(); refreshPending = false; }));
+  };
+  $$('img, video').forEach(el => {
+    if (el.tagName === 'VIDEO'){
+      if (el.readyState < 2) el.addEventListener('loadeddata', safeRefresh, { once:true });
+    } else if (!el.complete){
+      el.addEventListener('load', safeRefresh, { once:true });
+      el.addEventListener('error', safeRefresh, { once:true });
+    }
+  });
+  addEventListener('resize', safeRefresh);
+}
+
+/* ————————————————— static fallback content ————————————————— */
+function buildStatic(){
+  setChapter(0);
+  $$('#chapter, #hint, .mark, .chrome-cta, #float-cta, #rail').forEach(el => el && (el.style.opacity = 1));
+  const railFillStatic = $('#rail-fill'); if (railFillStatic) railFillStatic.style.transform = 'scaleY(1)';
+  const fc = $('#float-cta'); if (fc) fc.classList.add('on');
+  $$('.chead .word > span').forEach(s => s.style.transform = 'none');
+  $$('.chead .rule').forEach(r => r.style.transform = 'scaleX(1)');
+  $$('#inv-title .word > span').forEach(s => s.style.transform = 'none');
+  $('#inv-title').classList.add('lit');
+  const rem = $('#rem'); rem.style.position='static'; rem.style.transform='none'; rem.style.opacity=1; rem.style.filter='none';
+  const seen = $('#seen'); seen.style.position='static'; seen.style.transform='none'; seen.style.marginBottom='0.2em';
+  $('#stays').style.opacity = 1; $('#stays').style.filter = 'none';
+  const ml = $('#markline'); ml.style.opacity = 1; ml.style.position='static'; ml.style.transform='none'; ml.style.margin='28px auto 0'; $('#markline-fill').style.transform = 'scaleX(1)';
+  const bigCtaStatic = $('#ch5 .bigcta'); if (bigCtaStatic) bigCtaStatic.classList.add('in-view');
+}
+
+/* ————————————————— overture ————————————————— */
+function openVeil(){
+  const veil = $('#veil');
+  if (!CINEMA){
+    veil.remove();
+    buildStatic();
+    return;
+  }
+  if (lenis) lenis.stop();
+  const path = $('#veil-path');
+  const len = path.getTotalLength();
+  path.style.strokeDasharray = len;
+  path.style.strokeDashoffset = len;
+
+  const tl = gsap.timeline({ defaults:{ ease:'power2.inOut' } });
+  tl.to(path, { strokeDashoffset:0, duration:1.7, ease:'power2.out' })
+    .to('#veil-fill', { scaleX:1, duration:1.5, ease:'power1.inOut' }, .15)
+    .to('#veil-word', { opacity:1, duration:.7 }, .5)
+    .to(path, { stroke:'#e5352b', duration:.28, yoyo:true, repeat:1, ease:'power1.inOut' }, '+=.1')
+    .to('#veil-word', { opacity:0, duration:.4 }, '-=.2')
+    .to(veil, { clipPath:'inset(0 0 100% 0)', duration:1.25, ease:'expo.inOut' })
+    .set(veil, { display:'none' })
+    /* the mark opens its eyes — the window comes alive before anything else */
+    .to(heroU, { reveal:1, duration:1.6, ease:'power1.inOut' }, '-=1.1')
+    /* circle morphs into the mark, then blooms into the soft pulsed rim —
+       podium's own load-in curve: cubic in/out reveal, pulse eased^12.
+       podium decays the pulse continuously via a scroll-velocity threshold
+       we don't have the source for, so this settle-back is our own
+       disclosed stand-in rather than a sourced value, keeping the resting
+       mark crisp instead of stuck mid-bloom. */
+    .to(heroShape, { shapeReveal:1, duration:.9, ease:'power3.inOut',
+        onUpdate(){ heroShape.pulseReveal = Math.pow(heroShape.shapeReveal, 12); } }, '<')
+    .to(heroShape, { pulseReveal:0, duration:.7, ease:'power2.out' })
+    .to('.hero-heading', { opacity:1, duration:1.1 }, '-=.9')
+    .to('.hero-caption', { opacity:1, duration:1.1 }, '-=.9')
+    .to('.mark', { opacity:1, duration:1 }, '-=.9')
+    .to('.chrome-cta', { opacity:1, duration:1 }, '-=.85')
+    .to('#chapter', { opacity:1, duration:1 }, '-=.8')
+    .to('#rail', { opacity:1, duration:1 }, '-=.8')
+    .add(() => document.body.classList.add('chrome-light'), '-=.8')
+    .to('#hint', { opacity:1, duration:1, onComplete: () => { if (lenis) lenis.start(); ScrollTrigger.refresh(); } }, '-=.8');
+  if (!GL) tl.to('.hero-static', { opacity:.94, duration:1.2 }, '-=1.6');
+
+  try { buildFilm(); }
+  catch (err) {
+    console.warn('the film fell back to the still edition:', err);
+    try { ScrollTrigger.getAll().forEach(t => t.kill()); } catch(e){}
+    document.documentElement.classList.add('static');
+    buildStatic();
+  }
+}
+
+const minWait = new Promise(r => setTimeout(r, 900));
+Promise.all([document.fonts.ready, minWait, new Promise(r => {
+  if (document.readyState === 'complete') r(); else addEventListener('load', r);
+})]).then(() => requestAnimationFrame(openVeil));
+
+})();
+</script>
+</body>
+</html>
