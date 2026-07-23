@@ -201,6 +201,8 @@ body.touch .modal-close{cursor:pointer}
    even releases, instead of waiting on a blank handoff ————— */
 #next-tease{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:15;opacity:0;pointer-events:none;text-align:center}
 #next-tease span{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(22px,3.4vw,40px);color:var(--cream)}
+
+/* ————— background field — the scroll-driven colour arc —————
    hero -> black happens for free (the hero's own opaque cream layer just
    fades to reveal the body's default ink beneath it — see --hero-bg).
    this field only needs to own the two colour beats after that: the dive
@@ -323,6 +325,9 @@ footer{position:relative;padding:14vh var(--pad) 40px;max-width:1400px;margin:0 
 .fnews.is-sent .fn-done{display:inline}
 .fbottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;padding-top:6vh;font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:lowercase;color:rgba(20,18,16,.4)}
 .flogo-spacer{height:min(30vh,320px)}
+.fwordmark{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:min(14vh,140px) 0 min(8vh,70px);position:relative;z-index:1}
+.fwordmark span{display:block;font-family:var(--sans);font-weight:900;text-transform:lowercase;letter-spacing:-.02em;line-height:.92;font-size:clamp(48px,10vw,160px);color:var(--paper-ink);opacity:.92}
+.fwordmark span:last-child{opacity:.16}
 @media (max-width:760px){.fcols{grid-template-columns:1fr 1fr}.fcol:nth-child(4){grid-column:1/-1}}
 
 /* ————— floating 3d logo canvas (module script owns the drawing) ————— */
@@ -366,7 +371,8 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
 .pd__title,.fkicker,.about-copy p{font-weight:300}
 .cta-h{font-weight:600}
 
-</style><body>
+</style></head>
+<body>
 
 <!-- atmosphere -->
 <div id="bg-wash"><span class="wash wash--1"></span><span class="wash wash--2"></span><span class="wash wash--3"></span><span class="wash wash--4"></span><span class="wash wash--5"></span></div>
@@ -490,7 +496,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
 
 <footer id="site-footer" data-chapter="4" class="sec sec--paper">
   <canvas id="footer-canvas" aria-hidden="true"></canvas>
-  <div class="flogo-spacer" aria-hidden="true"></div>
+  <div class="fwordmark" aria-hidden="true"><span>domen</span><span>markeljc</span></div>
   <svg class="static-mark static-mark--footer" viewBox="0 0 32 32" aria-hidden="true"><path d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/></svg>
   <div class="fhead" data-io>
     <p class="fkicker">let's build something worth picking up.</p>
@@ -1180,6 +1186,33 @@ function buildWorkFlat(){
   const y = $('#fyear'); if (y) y.textContent = new Date().getFullYear();
 }
 
+/* chrome-light baseline — works with plain browser APIs, independent of
+   whether GSAP/ScrollTrigger loaded, so the fixed nav (mark, "start a
+   project", chapter label, rail) never ends up light-on-light against
+   the hero or the cream footer even in a degraded/no-CDN state. Uses a
+   plain boundary check rather than IntersectionObserver ratio thresholds,
+   since the footer is much taller than one viewport and a ratio-based
+   check would rarely cross a meaningful threshold. The GSAP-driven
+   version inside buildFilm() layers the smooth hero crossfade on top of
+   this when it's available. */
+{
+  const ch0El2 = $('#ch0'), footerEl2 = $('#site-footer');
+  if (ch0El2 || footerEl2){
+    let ticking = false;
+    const evaluate = () => {
+      ticking = false;
+      const vh = innerHeight, mid = vh * 0.5;
+      const inHero = ch0El2 ? (ch0El2.getBoundingClientRect().bottom > mid && ch0El2.getBoundingClientRect().top < mid) : false;
+      const inFooter = footerEl2 ? footerEl2.getBoundingClientRect().top < mid : false;
+      document.body.classList.toggle('chrome-light', inHero || inFooter);
+    };
+    const onScroll = () => { if (!ticking){ ticking = true; requestAnimationFrame(evaluate); } };
+    addEventListener('scroll', onScroll, { passive:true });
+    addEventListener('resize', onScroll);
+    evaluate();
+  }
+}
+
 /* magnetic pull on the primary actions (desktop only — needs a real cursor) */
 if (!isTouch && hasLibs){
   $$('.chrome-cta, .cta-btn, .mark, #float-cta').forEach(el => {
@@ -1692,16 +1725,15 @@ Promise.all([document.fonts.ready, minWait, new Promise(r => {
 </script>
 <script type="module">
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
-import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
 
-/* the floating mark — a persistent, independent WebGL layer carrying the
-   3D logo along a predesigned path from hero to footer. Deliberately its
-   own module/script, decoupled from the classic script that runs the hero
-   shader and scroll choreography: if the glb fails to load, or this file
-   throws, the rest of the site is completely unaffected. */
+/* the floating mark — the logo's own outline, extruded into a solid with
+   softly rounded edges and an iridescent glass material, animated by
+   hand (plain requestAnimationFrame, no scroll-math pathway) so it's a
+   small, self-contained, easy-to-reason-about piece: a slow constant
+   spin plus a gentle drift, nothing tied to fragile scroll timing. Fully
+   decoupled from the classic script — if anything here throws, the rest
+   of the site is unaffected. */
 
 const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let hasGL = false;
@@ -1710,7 +1742,11 @@ try { const c = document.createElement('canvas'); hasGL = !!(c.getContext('webgl
 if (prefersReduced || !hasGL) {
   document.documentElement.classList.add('no-webgl');
 } else {
-  initFloatingLogo();
+  try { initFloatingLogo(); }
+  catch (err) {
+    console.error('floating logo failed to initialise — falling back to the static mark.', err);
+    document.documentElement.classList.add('no-webgl');
+  }
 }
 
 function initFloatingLogo() {
@@ -1730,125 +1766,86 @@ function initFloatingLogo() {
   const camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, 0.1, 100);
   camera.position.set(0, 0, 9);
 
-  // a small procedural room environment gives the transmissive/iridescent
-  // material something to reflect, without needing an external HDR asset
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-  const key = new THREE.DirectionalLight(0xffffff, 1.1);
-  key.position.set(3, 4, 5);
-  scene.add(key, new THREE.AmbientLight(0xffffff, 0.35));
+  // simple three-point light rig — enough for an iridescent clearcoat to
+  // catch highlights without needing a baked environment map/HDR asset
+  scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+  const key = new THREE.DirectionalLight(0xffffff, 1.4); key.position.set(4, 5, 6); scene.add(key);
+  const rim = new THREE.DirectionalLight(0xbcd4ff, 0.9); rim.position.set(-5, -2, 3); scene.add(rim);
+  const fill = new THREE.DirectionalLight(0xffd9c2, 0.6); fill.position.set(2, -4, -4); scene.add(fill);
 
-  let mesh = null;
-  let modelLoaded = false;
-  const draco = new DRACOLoader();
-  draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco/');
-  const gltfLoader = new GLTFLoader();
-  gltfLoader.setDRACOLoader(draco);
-  gltfLoader.setMeshoptDecoder(MeshoptDecoder);
-  gltfLoader.load('assets/models/logo3d.glb', gltf => {
-    const material = new THREE.MeshPhysicalMaterial({
-      color: 0xffffff,
-      metalness: 0.05,
-      roughness: 0.12,
-      transmission: 0.9,
-      thickness: 0.6,
-      ior: 1.4,
-      iridescence: 1,
-      iridescenceIOR: 1.3,
-      iridescenceThicknessRange: [120, 420],
-      clearcoat: 0.5,
-      clearcoatRoughness: 0.2,
-      envMapIntensity: 1.3
-    });
-    gltf.scene.traverse(o => { if (o.isMesh) o.material = material; });
+  // the logo's own outline (identical path to assets/dm-logo.svg), turned
+  // into a real 3D solid: extruded with a bevel for the rounded-edge look
+  const MARK_PATH = 'M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z';
 
-    // normalise scale/centre so any supplied model sits predictably at unit size
-    const box = new THREE.Box3().setFromObject(gltf.scene);
-    const size = new THREE.Vector3(); box.getSize(size);
-    const center = new THREE.Vector3(); box.getCenter(center);
-    const maxDim = Math.max(size.x, size.y, size.z) || 1;
-    const norm = 2 / maxDim;
-    gltf.scene.scale.setScalar(norm);
-    gltf.scene.position.sub(center.multiplyScalar(norm));
+  const shapes = SVGLoader.createShapes(new SVGLoader().parse(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="${MARK_PATH}"/></svg>`
+  ).paths[0]);
 
-    mesh = new THREE.Group();
-    mesh.add(gltf.scene);
-    scene.add(mesh);
-    modelLoaded = true;
-  }, undefined, err => {
-    // model failed to parse/load (e.g. served over file:// where module
-    // fetches are blocked by the browser, or an unsupported compression) —
-    // log it so it's debuggable, and fall back to the static mark rather
-    // than leaving an empty, silently-broken canvas
-    console.error('logo3d.glb failed to load — falling back to the static mark. ' +
-      'If you opened this file directly (file://…), serve it from a local ' +
-      'server instead (ES module + glTF fetches are blocked under file://).', err);
-    document.documentElement.classList.add('no-webgl');
-    wrap.remove();
+  const geometry = new THREE.ExtrudeGeometry(shapes, {
+    depth: 3.2,
+    bevelEnabled: true,
+    bevelThickness: 0.9,
+    bevelSize: 0.7,
+    bevelSegments: 6,
+    curveSegments: 16
+  });
+  geometry.center();
+  // SVG space is Y-down and ~32 units across — flip and normalise to a
+  // predictable ~2-unit-tall object in world space
+  geometry.rotateX(Math.PI);
+  geometry.computeBoundingBox();
+  const bb = geometry.boundingBox;
+  const span = Math.max(bb.max.x - bb.min.x, bb.max.y - bb.min.y) || 1;
+  geometry.scale(2 / span, 2 / span, 2 / span);
+  geometry.computeVertexNormals();
+
+  const material = new THREE.MeshPhysicalMaterial({
+    color: 0xffffff,
+    metalness: 0.1,
+    roughness: 0.18,
+    transmission: 0.55,
+    thickness: 1.2,
+    ior: 1.4,
+    iridescence: 1,
+    iridescenceIOR: 1.3,
+    iridescenceThicknessRange: [100, 400],
+    clearcoat: 0.8,
+    clearcoatRoughness: 0.15,
+    reflectivity: 0.6
   });
 
-  // belt-and-braces: if nothing has loaded within a few seconds (slow
-  // network, blocked request), degrade the same way rather than leaving a
-  // dead, invisible canvas on screen indefinitely
-  setTimeout(() => {
-    if (!modelLoaded){
-      console.warn('logo3d.glb did not resolve in time — falling back to the static mark.');
-      document.documentElement.classList.add('no-webgl');
-      wrap.remove();
-    }
-  }, 6000);
+  const mesh = new THREE.Mesh(geometry, material);
+  scene.add(mesh);
 
-  // the predesigned pathway: normalised screen-space keyframes the mark
-  // travels through as the visitor scrolls the whole document — smallest
-  // and off to the side in the hero, receding through work/about/cta,
-  // arriving centred and largest in the footer
-  const KEYFRAMES = [
-    { p: 0.00, x: 0.30, y: 0.46, scale: 0.30 },
-    { p: 0.12, x: -0.30, y: 0.28, scale: 0.44 },
-    { p: 0.32, x: 0.32, y: 0.64, scale: 0.55 },
-    { p: 0.55, x: -0.28, y: 0.36, scale: 0.60 },
-    { p: 0.72, x: 0.00, y: 0.82, scale: 0.48 },
-    { p: 1.00, x: 0.00, y: 0.36, scale: 1.55 }
-  ];
-  function sampleKeyframes(p) {
-    p = Math.max(0, Math.min(1, p));
-    let a = KEYFRAMES[0], b = KEYFRAMES[KEYFRAMES.length - 1];
-    for (let i = 0; i < KEYFRAMES.length - 1; i++) {
-      if (p >= KEYFRAMES[i].p && p <= KEYFRAMES[i + 1].p) { a = KEYFRAMES[i]; b = KEYFRAMES[i + 1]; break; }
-    }
-    const span = (b.p - a.p) || 1;
-    const t = Math.max(0, Math.min(1, (p - a.p) / span));
-    const ease = t * t * (3 - 2 * t);
-    const lerp = (x, y) => x + (y - x) * ease;
-    return { x: lerp(a.x, b.x), y: lerp(a.y, b.y), scale: lerp(a.scale, b.scale) };
-  }
-  function screenToWorld(nx, ny, depth) {
-    const vFOV = camera.fov * Math.PI / 180;
-    const h = 2 * Math.tan(vFOV / 2) * depth;
-    const w = h * camera.aspect;
-    return { x: (nx - 0.5) * w, y: -(ny - 0.5) * h };
-  }
-
+  // manual animation — a constant slow spin plus a gentle figure-eight
+  // drift and a scale/position nudge keyed to scroll, kept deliberately
+  // simple: no multi-keyframe pathway, just a few plain sine waves and
+  // one linear term driven by scroll progress
   const isNarrow = () => innerWidth < 760;
   let t0 = performance.now();
   function frame(now) {
     requestAnimationFrame(frame);
     if (document.hidden) return;
     const dt = Math.min(0.05, (now - t0) / 1000); t0 = now;
+    const t = now / 1000;
     const p = Math.max(0, Math.min(1, scrollY / Math.max(1, document.documentElement.scrollHeight - innerHeight)));
 
-    if (mesh) {
-      const k = sampleKeyframes(p);
-      const pos = screenToWorld(k.x, k.y, camera.position.z);
-      mesh.position.set(pos.x, pos.y, 0);
-      mesh.scale.setScalar(k.scale);
-      // ambient rotation never stops, even if scroll does — the mark is
-      // always faintly alive, not just a scroll-bound object
-      mesh.rotation.y += dt * 0.35;
-      mesh.rotation.x += dt * 0.14;
-    }
+    mesh.rotation.y += dt * 0.4;
+    mesh.rotation.x = Math.sin(t * 0.35) * 0.18;
 
-    // on narrow viewports the mark steps out of the way through the dense
+    // drifts from the upper-right in the hero, across and down through
+    // the middle of the page, settling centred and largest in the footer
+    const driftX = (0.30 - p * 0.30) + Math.sin(t * 0.6) * 0.06;
+    const driftY = (0.30 - p * 0.66) + Math.cos(t * 0.5) * 0.05;
+    const scale = 0.55 + p * 1.3;
+
+    const vFOV = camera.fov * Math.PI / 180;
+    const worldH = 2 * Math.tan(vFOV / 2) * camera.position.z;
+    const worldW = worldH * camera.aspect;
+    mesh.position.set(driftX * worldW, driftY * worldH, 0);
+    mesh.scale.setScalar(scale);
+
+    // on narrow viewports it steps out of the way through the dense
     // work/about/cta stretch and returns for the hero and footer beats
     const midPage = p > 0.14 && p < 0.68;
     wrap.style.opacity = (isNarrow() && midPage) ? 0 : 1;
