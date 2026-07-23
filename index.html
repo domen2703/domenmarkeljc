@@ -11,6 +11,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="theme-color" content="#0a0908">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230a0908'/%3E%3Cpath fill='%23ece5d8' d='M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z'/%3E%3C/svg%3E"><style>
+
 /* ————— embedded type — Geist (self-hosted, linked not inlined for load perf) ————— */
 @font-face{font-family:'Geist';font-weight:100;font-style:normal;font-display:swap;src:url(assets/fonts/Geist-Thin.woff2) format('woff2')}
 @font-face{font-family:'Geist';font-weight:100;font-style:italic;font-display:swap;src:url(assets/fonts/Geist-ThinItalic.woff2) format('woff2')}
@@ -94,19 +95,7 @@ body.touch a,body.touch button{cursor:pointer}
    opacity ever animates between them — cross-fading the `background`
    value directly (different gradient shapes/stops) doesn't interpolate
    smoothly in browsers and was reading as a jump/snap on scroll. */
-#bg-wash{position:fixed;inset:0;z-index:1;pointer-events:none}
-html.static #bg-wash{display:none}
-#bg-wash .wash{position:absolute;inset:0;opacity:0;transition:opacity 1.6s ease}
-#bg-wash .wash--1{background:radial-gradient(ellipse 90% 70% at 50% 20%,rgba(57,113,255,.16) 0%,transparent 65%)}
-#bg-wash .wash--2{background:radial-gradient(ellipse 100% 60% at 20% 0%,rgba(229,53,43,.14) 0%,transparent 60%),radial-gradient(ellipse 80% 60% at 90% 40%,rgba(57,113,255,.1) 0%,transparent 65%)}
-#bg-wash .wash--3{background:radial-gradient(ellipse 90% 70% at 80% 30%,rgba(255,176,32,.14) 0%,transparent 65%)}
-#bg-wash .wash--4{background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(57,113,255,.12) 0%,transparent 65%)}
-#bg-wash .wash--5{background:radial-gradient(ellipse 110% 80% at 50% 80%,rgba(229,53,43,.18) 0%,transparent 60%),radial-gradient(ellipse 70% 50% at 15% 20%,rgba(255,176,32,.1) 0%,transparent 65%)}
-body.chapter-1 #bg-wash .wash--1{opacity:1}
-body.chapter-2 #bg-wash .wash--2{opacity:1}
-body.chapter-3 #bg-wash .wash--3{opacity:1}
-body.chapter-4 #bg-wash .wash--4{opacity:1}
-body.chapter-5 #bg-wash .wash--5{opacity:1}
+
 #grain{position:fixed;inset:-100px;z-index:60;pointer-events:none;opacity:.07;mix-blend-mode:overlay}
 #vignette{position:fixed;inset:0;z-index:2;pointer-events:none;
   background:radial-gradient(ellipse 120% 90% at 50% 45%,transparent 55%,rgba(5,4,3,.55) 100%)}
@@ -177,197 +166,142 @@ section{position:relative}
 .hero-tag{font-size:clamp(11px,1vw,13px);font-weight:400;letter-spacing:.42em;color:var(--paper-ink);text-transform:lowercase;opacity:.7}
 .hero-tag .dot{color:var(--red)}
 
-/* ch1 — the trace */
-#ch1 .stack{position:relative;text-align:center;padding:0 var(--pad);width:100%;height:100%;display:flex;align-items:center;justify-content:center}
-#ch1 .line{font-family:var(--kuevy);text-transform:lowercase;font-size:clamp(38px,7vw,116px);line-height:1.04;letter-spacing:-.008em}
-#ch1 .seen{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%)}
-#ch1 .seen .ch{display:inline-block;will-change:transform,opacity,filter}
-#ch1 .rem{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);opacity:0;filter:blur(18px)}
-#ch1 .rem .stop{color:var(--red)}
-#ch1 .markline{position:absolute;left:50%;bottom:18vh;transform:translateX(-50%);width:min(240px,40vw);height:1px;background:var(--cream-10);overflow:hidden;opacity:0}
-#ch1 .markline i{position:absolute;inset:0;background:var(--red);transform:scaleX(0)}
 
-/* shared chapter head */
-.chead{display:flex;align-items:baseline;gap:22px;padding:0 var(--pad);margin-bottom:clamp(48px,7vh,90px)}
-.chead .idx{font-size:11px;font-weight:400;letter-spacing:.34em;color:var(--cream-55)}
-.chead .rule{flex:1;height:1px;background:var(--cream-10);transform:scaleX(0);transform-origin:left}
-.chead h2{font-family:var(--kuevy);text-transform:lowercase;font-weight:400;font-size:clamp(30px,4.6vw,72px);line-height:1;white-space:nowrap}
-.chead h2 .word{display:inline-block;overflow:hidden;vertical-align:bottom}
-.chead h2 .word>span{display:inline-block;transform:translateY(110%)}
+/* ————— background field — the scroll-driven colour arc —————
+   hero -> black happens for free (the hero's own opaque cream layer just
+   fades to reveal the body's default ink beneath it — see --hero-bg).
+   this field only needs to own the two colour beats after that: the dive
+   into red for the cta, and the return to cream for the footer. */
+#bg-field{position:fixed;inset:0;z-index:1;pointer-events:none;background:var(--ink)}
+html.static #bg-field{display:none}
 
-/* ch2 — the archive — a row list (lamalama.com's cases-list pattern: no
-   shader there either, it's a plain accordion row list — title + tags +
-   a cropped thumbnail strip, a hover-only "view case" reveal, click to
-   expand in place). Expand/collapse uses the CSS grid 0fr->1fr trick,
-   not a JS-measured height tween — that was the actual source of the
-   "buggy" feeling before, not the visual design. */
-#ch2{padding:22vh 0 20vh}
-#ch2 .intro{padding:0 var(--pad);max-width:640px;margin-bottom:9vh;font-size:clamp(17px,1.6vw,23px);line-height:1.6;color:var(--cream-70);font-weight:400}
-#ch2 .intro b{color:var(--cream);font-weight:500}
-.plist{border-top:1px solid var(--cream-10)}
-.prow{border-bottom:1px solid var(--cream-10)}
-.prow__head{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:clamp(16px,2.4vw,32px);width:100%;padding:clamp(20px,3.2vh,34px) var(--pad);cursor:none;transition:background-color .5s,transform .15s cubic-bezier(0.4,0,0.2,1)}
-body.touch .prow__head{cursor:pointer}
-.prow__head:hover{background:var(--cream-06)}
-.prow__head:active{transform:scale(.995)}
-.prow__num{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.3em;color:var(--cream-40);flex:none;width:28px}
-.prow__name{font-family:var(--kuevy);text-transform:lowercase;font-weight:400;font-size:clamp(26px,3.6vw,52px);line-height:1;flex:none;width:clamp(160px,22vw,340px);transition:color .4s}
-.prow__head:hover .prow__name{color:var(--accent)}
-.prow__tags{display:flex;flex-wrap:wrap;gap:8px;flex:1 1 auto;-lg:hidden}
-.prow__tags span{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--cream-70);border:1px solid var(--cream-24);padding:6px 12px;border-radius:99px;white-space:nowrap}
-.prow__strip{flex:none;display:flex;gap:6px;width:clamp(160px,18vw,260px);height:64px;overflow:hidden;border-radius:3px}
-.prow__strip img{flex:1 1 0;min-width:0;width:100%;height:100%;object-fit:cover;transform:scale(1.08);transition:transform .8s var(--ease-out)}
-.prow__head:hover .prow__strip img{transform:scale(1.16)}
-.prow__cta{flex:none;display:flex;align-items:center;gap:10px;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:lowercase;color:var(--accent);opacity:0;transform:translateX(-6px);transition:opacity .35s,transform .35s}
-@media (hover:hover) and (pointer:fine){ .prow__head:hover .prow__cta{opacity:1;transform:translateX(0)} }
-.prow__toggle{flex:none;font-family:var(--sans);font-size:12px;font-weight:600;color:var(--cream-40);width:34px;text-align:right;transition:color .4s}
-.prow__head:hover .prow__toggle{color:var(--cream)}
-/* asymmetric open/close: opening is the deliberate, "arriving" motion
-   (ease-out, slightly longer) while closing builds momentum and gets out
-   of the way quicker (ease-in, shorter) — CSS reads the transition off
-   the state being entered, so the two rules below apply independently */
-.prow__body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s cubic-bezier(0.4,0,1,1)}
-.prow.is-open .prow__body{grid-template-rows:1fr;transition:grid-template-rows .48s cubic-bezier(0.22,1,0.36,1)}
-.prow__body-in{overflow:hidden;min-height:0}
-.prow__body-content{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.45fr);gap:clamp(28px,4.5vw,80px);padding:8px var(--pad) clamp(48px,7vh,88px) calc(var(--pad) + 62px)}
-.prow__copy{font-size:clamp(15px,1.3vw,18px);line-height:1.75;color:var(--cream-70);max-width:44ch}
-.prow__copy b{color:var(--cream);font-weight:500}
-.prow__link{display:inline-flex;align-items:center;gap:12px;margin-top:22px;font-family:var(--sans);font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:lowercase;color:var(--accent);border-bottom:1px solid currentColor;padding-bottom:6px}
-.prow__link::after{content:"↗";font-size:12px}
-.prow__gallery{display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,1.4vw,20px);align-items:start}
-.pgal{position:relative;margin:0}
-.pgal.wide{grid-column:1/-1}
-.pgal .frame{display:block;overflow:hidden;background:var(--ink)}
-.pgal img,.pgal video{display:block;width:100%;height:auto}
-.pgal figcaption{margin-top:10px;font-family:var(--sans);font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:lowercase;color:var(--cream-55)}
-@media (max-width:860px){
-  .prow__head{flex-wrap:wrap}
-  .prow__tags{display:none}
-  .prow__cta{display:none}
-  .prow__strip{width:120px;height:48px}
-  .prow__body-content{grid-template-columns:1fr;padding-left:var(--pad)}
-  .prow__gallery{grid-template-columns:1fr}
+.sec{position:relative;z-index:10;padding:16vh var(--pad)}
+.sec--dark{color:var(--cream)}
+.sec--red{color:#fff}
+.sec--paper{color:var(--paper-ink)}
+.sec-head{display:flex;align-items:baseline;gap:22px;margin-bottom:clamp(48px,7vh,90px);max-width:1400px;margin-left:auto;margin-right:auto}
+.sec-idx{font-size:11px;font-weight:400;letter-spacing:.34em;color:var(--cream-55)}
+.sec--red .sec-idx{color:rgba(255,255,255,.6)}
+.sec-head h2{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(30px,4.4vw,68px);line-height:1}
+.sec-head .rule{flex:1;height:1px;background:var(--cream-10)}
+.sec--red .sec-head .rule{background:rgba(255,255,255,.18)}
+
+/* ————— 01 work — orbital carousel ————— */
+#work{padding-top:20vh;padding-bottom:6vh;min-height:100vh}
+.work-pin{min-height:100vh;display:flex;flex-direction:column;justify-content:center}
+.carousel{position:relative;height:44vh;min-height:320px;perspective:1500px;margin:0 auto 6vh}
+.carousel__stage{position:relative;width:100%;height:100%;transform-style:preserve-3d;will-change:transform}
+.pcard{position:absolute;top:50%;left:50%;width:min(320px,58vw);aspect-ratio:3/4;margin:calc(min(320px,58vw) * -0.667 / 2) 0 0 calc(min(320px,58vw) / -2);will-change:transform,opacity;cursor:none}
+body.touch .pcard{cursor:pointer}
+.pcard__media{position:relative;width:100%;height:100%;border-radius:6px;overflow:hidden;background:var(--ink-2)}
+.pcard__media img,.pcard__media video{display:block;width:100%;height:100%;object-fit:cover}
+.pcard__meta{position:absolute;left:0;right:0;bottom:0;padding:16px 18px;background:linear-gradient(0deg,rgba(10,9,8,.72) 0%,transparent 100%)}
+.pcard__num{font-size:10px;letter-spacing:.3em;color:var(--cream-55)}
+.pcard__name{display:block;font-family:var(--sans);font-weight:400;text-transform:lowercase;font-size:clamp(17px,1.8vw,22px);margin-top:2px}
+.carousel__nav{display:flex;justify-content:center;gap:18px;margin-bottom:8vh}
+.carousel__nav button{all:unset;cursor:none;font-size:11px;font-weight:600;letter-spacing:.28em;text-transform:lowercase;color:var(--cream-55);padding:10px 6px;transition:color .3s}
+body.touch .carousel__nav button{cursor:pointer}
+.carousel__nav button:hover{color:var(--cream)}
+
+.carousel__detail{max-width:760px;margin:0 auto;text-align:center}
+.pd__tags{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.pd__tags span{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--cream-70);border:1px solid var(--cream-24);padding:6px 12px;border-radius:99px}
+.pd__title{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(26px,3.2vw,44px);margin-bottom:20px}
+.pd__copy{font-size:clamp(15px,1.3vw,18px);line-height:1.75;color:var(--cream-70);max-width:56ch;margin:0 auto}
+.pd__copy b{color:var(--cream);font-weight:500}
+.pd__link{display:inline-flex;align-items:center;gap:10px;margin-top:24px;font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:lowercase;color:var(--accent);border-bottom:1px solid currentColor;padding-bottom:6px}
+.pd__link::after{content:"↗";font-size:12px}
+.pd__link[hidden]{display:none}
+
+/* mobile / reduced-motion fallback — a plain stacked list, no 3D */
+.work-flat{display:none;max-width:760px;margin:0 auto}
+.wf-item{padding:44px 0;border-top:1px solid var(--cream-10)}
+.wf-item:last-child{border-bottom:1px solid var(--cream-10)}
+.wf-item__media{border-radius:6px;overflow:hidden;margin-bottom:22px;background:var(--ink-2)}
+.wf-item__media img,.wf-item__media video{display:block;width:100%;height:auto}
+.wf-item__num{font-size:10px;letter-spacing:.3em;color:var(--cream-55)}
+.wf-item__name{display:block;font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(24px,4vw,34px);margin:6px 0 14px}
+.wf-item__copy{font-size:15px;line-height:1.7;color:var(--cream-70)}
+.wf-item__copy b{color:var(--cream);font-weight:500}
+.wf-item__link{display:inline-flex;align-items:center;gap:10px;margin-top:18px;font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:lowercase;color:var(--accent);border-bottom:1px solid currentColor;padding-bottom:6px}
+.wf-item__link::after{content:"↗";font-size:12px}
+
+@media (max-width:760px), (hover:none){
+  .carousel,.carousel__nav,.carousel__detail{display:none}
+  .work-flat{display:block}
 }
+html.static .carousel,html.static .carousel__nav,html.static .carousel__detail{display:none}
+html.static .work-flat{display:block}
 
-/* ch3 — behind the work */
-#ch3{padding:16vh 0 22vh}
-#ch3 .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:clamp(40px,6vw,110px);padding:0 var(--pad);align-items:stretch}
-#ch3 .portrait{position:relative;width:100%;height:100%}
-#ch3 .portrait img{display:block;width:100%;height:100%;object-fit:contain;object-position:bottom;filter:contrast(1.03)}
-#ch3 .who{font-size:11px;font-weight:400;letter-spacing:.34em;color:var(--cream-55);text-transform:lowercase;margin-bottom:26px}
-#ch3 .name{font-family:var(--kuevy);text-transform:lowercase;font-weight:400;font-size:clamp(40px,5vw,80px);line-height:1.04;margin-bottom:7vh}
-#ch3 .about p{font-size:clamp(16px,1.5vw,21px);line-height:1.8;font-weight:400;color:var(--cream-70);margin-bottom:2.6em;max-width:52ch}
-#ch3 .about p:last-child{margin-bottom:0}
-#ch3 .about p b{color:var(--cream);font-weight:400}
-#ch3 .about p .rd{color:var(--red)}
-#ch3 .about .ln{display:block;overflow:hidden}
-#ch3 .about .ln>span{display:block;transform:translateY(105%)}
+/* ————— 02 about ————— */
+#about{max-width:1400px;margin:0 auto}
+.about-grid{display:grid;grid-template-columns:minmax(0,.7fr) minmax(0,1fr);gap:clamp(40px,6vw,110px)}
+.about-copy p{font-size:clamp(17px,1.7vw,24px);line-height:1.7;font-weight:300;color:var(--cream-70);margin-bottom:1.1em}
+.about-copy p:last-child{margin-bottom:0}
+.about-copy b{color:var(--cream);font-weight:500}
+@media (max-width:860px){.about-grid{grid-template-columns:1fr;gap:36px}}
 
-/* ch4 — the fade — small, contained connective beat (not a second climax) */
-#ch4{padding:18vh 0}
-#ch4 .fadewrap{text-align:center;padding:0 var(--pad);max-width:900px;margin:0 auto}
-#ch4 .fades{font-family:var(--kuevy);text-transform:lowercase;font-size:clamp(34px,5.4vw,72px);line-height:1.15}
-#ch4 .fades .ch{display:inline-block;will-change:transform,opacity}
-#ch4 .stays{font-family:var(--kuevy);text-transform:lowercase;font-size:clamp(34px,5.4vw,72px);line-height:1.15;opacity:0;filter:blur(8px);margin-top:.3em}
-#ch4 .stays .stop{color:var(--red);display:inline-block}
+/* ————— 03 start a project — the one bold beat ————— */
+#cta{min-height:82vh;display:flex;align-items:center;justify-content:center;text-align:center;padding-top:14vh;padding-bottom:14vh}
+.cta-inner{max-width:900px}
+.cta-h{font-family:var(--sans);font-weight:600;text-transform:lowercase;font-size:clamp(48px,9vw,132px);line-height:.92;letter-spacing:-.01em}
+.cta-sub{margin-top:4vh;font-size:clamp(16px,1.5vw,21px);line-height:1.7;color:rgba(255,255,255,.82);max-width:48ch;margin-left:auto;margin-right:auto}
+.cta-btn{display:inline-flex;align-items:center;gap:18px;margin-top:7vh;font-weight:500;font-size:13px;letter-spacing:.32em;text-transform:lowercase;color:#e5352b;padding:24px 42px;border-radius:99px;background:#fff;position:relative;overflow:hidden;will-change:transform}
+.cta-btn .arrow{width:24px;height:1px;background:currentColor;position:relative;transition:width .5s var(--ease-out)}
+.cta-btn .arrow::after{content:"";position:absolute;right:0;top:-3px;width:6px;height:6px;border-top:1px solid currentColor;border-right:1px solid currentColor;transform:rotate(45deg)}
+.cta-btn:hover .arrow{width:36px}
+.cta-avail{margin-top:3vh;font-size:11px;font-weight:400;letter-spacing:.2em;text-transform:lowercase;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;gap:10px}
+.cta-avail::before{content:"";width:6px;height:6px;border-radius:50%;background:#fff;flex:none;animation:pulse-dot 2.6s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.cta-avail::before{animation:none}}
 
-/* ch5 — the invitation */
-#ch5{padding:26vh 0 0}
-#ch5 .inv{text-align:center;padding:0 var(--pad)}
-#ch5 .ready{font-size:11px;font-weight:400;letter-spacing:.42em;color:var(--cream-55);text-transform:lowercase;margin-bottom:5vh}
-#ch5 h2{font-family:var(--kuevy);text-transform:lowercase;font-weight:400;font-size:clamp(42px,7.6vw,124px);line-height:.86;letter-spacing:-.01em}
-#ch5 h2 .word{display:inline-block;overflow:hidden;vertical-align:bottom;margin:0 .1em;padding-bottom:.1em;margin-bottom:-.1em}
-#ch5 h2 .word>span{display:inline-block;transform:translateY(112%)}
-#ch5 h2 .tk{margin-left:-.045em}
-#ch5 h2 .accent{position:relative}
-#ch5 h2 .accent::after{content:"";position:absolute;left:2%;right:2%;bottom:.06em;height:2px;background:var(--red);transform:scaleX(0);transform-origin:left;transition:transform 1s var(--ease-io) .1s}
-#ch5 h2.lit .accent::after{transform:scaleX(1)}
-#ch5 .invsub{margin-top:5vh;font-size:clamp(15px,1.3vw,19px);line-height:1.8;color:var(--cream-70);font-weight:400}
-#ch5 .bigcta{display:inline-flex;align-items:center;gap:20px;margin-top:8vh;font-weight:400;font-size:13px;letter-spacing:.4em;text-transform:lowercase;color:var(--cream);position:relative;padding:28px 48px;border:1px solid rgba(236,229,216,.45);border-radius:99px;overflow:hidden;background:rgba(10,9,8,.38);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:color .6s .05s;will-change:transform;animation-name:cta-stroke;animation-duration:5s;animation-timing-function:ease-in-out;animation-iteration-count:infinite;animation-play-state:paused}
-#ch5 .bigcta.in-view{animation-play-state:running}
-@keyframes cta-stroke{0%,100%{border-color:rgba(236,229,216,.45)}50%{border-color:rgba(229,53,43,.75)}}
-@media (prefers-reduced-motion:reduce){#ch5 .bigcta{animation:none}}
-#ch5 .bigcta::after{content:"";position:absolute;left:26px;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:var(--red);z-index:1}
-#ch5 .bigcta::before{content:"";position:absolute;inset:0;background:var(--cream);border-radius:99px;transform:scale(0,1);transform-origin:right;transition:transform .8s var(--ease-io)}
-#ch5 .bigcta:hover::before{transform:scale(1,1);transform-origin:left}
-#ch5 .bigcta:hover{color:var(--ink);border-color:var(--cream);animation-play-state:paused}
-#ch5 .bigcta span{position:relative;z-index:1}
-#ch5 .bigcta>span:first-of-type{margin-left:14px}
-#ch5 .bigcta .arrow{width:26px;height:1px;background:currentColor;position:relative;z-index:1;transition:width .6s var(--ease-out)}
-#ch5 .bigcta:hover .arrow{width:40px}
-#ch5 .bigcta .arrow::after{content:"";position:absolute;right:0;top:-3px;width:7px;height:7px;border-top:1px solid currentColor;border-right:1px solid currentColor;transform:rotate(45deg)}
-#ch5 .avail{margin-top:2.6vh;font-size:11px;font-weight:400;letter-spacing:.2em;text-transform:lowercase;color:var(--cream-55);display:flex;align-items:center;justify-content:center;gap:10px}
-#ch5 .avail::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--red);flex:none;animation:pulse-dot 2.6s ease-in-out infinite}
-@media (prefers-reduced-motion:reduce){#ch5 .avail::before{animation:none}}
-/* footer — the last colour moment on the page: an animated gradient-mesh
-   WebGL background (lazy-initialised only once it's near view), a mega
-   wordmark for scale contrast against the small nav columns, and the
-   copy-email affordance kept from before */
-footer{position:relative;margin-top:26vh;padding:9vh var(--pad) 40px;overflow:hidden;isolation:isolate}
-/* the canvas stays contained inside the footer's own box — an earlier
-   version bled it upward past the footer boundary to blend into chapter
-   5, but since footer comes after ch5 in DOM order and the negative
-   offset put it visually over ch5's own content, it painted on top of
-   (hid) the tail of chapter 5 instead of behind it. The soft top-edge
-   fade now happens entirely inside the shader (see uFadeIn) so nothing
-   needs to escape the footer's own stacking context. */
-#footer-canvas{position:absolute;inset:0;z-index:-1;width:100%;height:100%;display:block;touch-action:pan-y;opacity:0;transition:opacity 1.2s var(--ease-out)}
-#footer-canvas.is-in{opacity:1}
-
-.fhead{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px;padding-bottom:8vh;border-bottom:1px solid var(--cream-10)}
-.fkicker{font-family:var(--kuevy);text-transform:lowercase;font-weight:400;font-size:clamp(24px,3.2vw,44px);line-height:1.15;max-width:14ch;color:var(--cream)}
-.fmail{font-family:var(--sans);font-weight:500;font-size:clamp(15px,1.6vw,20px);letter-spacing:-.01em;color:var(--cream);border-bottom:1px solid var(--cream-40);padding-bottom:4px;transition:color .4s,border-color .4s}
+/* ————— footer ————— */
+footer{position:relative;padding:14vh var(--pad) 40px;max-width:1400px;margin:0 auto}
+.fhead{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px;padding-bottom:8vh;border-bottom:1px solid rgba(20,18,16,.1)}
+.fkicker{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(24px,3.2vw,44px);line-height:1.15;max-width:14ch;color:var(--paper-ink)}
+.fmail{font-weight:500;font-size:clamp(15px,1.6vw,20px);letter-spacing:-.01em;color:var(--paper-ink);border-bottom:1px solid rgba(20,18,16,.4);padding-bottom:4px;transition:color .4s,border-color .4s}
 .fmail:hover{color:var(--accent);border-color:var(--accent)}
-
-.fcols{display:grid;grid-template-columns:repeat(4,auto);justify-content:space-between;gap:40px;padding:7vh 0;border-bottom:1px solid var(--cream-10)}
-.fnews{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--cream-24);padding-bottom:6px;transition:border-color .35s}
-.fnews:focus-within{border-color:var(--accent)}
-.fnews input{appearance:none;background:none;border:none;outline:none;font:inherit;font-family:var(--sans);font-size:13px;letter-spacing:-.005em;color:var(--cream);width:132px;padding:2px 0}
-.fnews input::placeholder{color:var(--cream-40)}
-.fnews button{appearance:none;background:none;border:none;font:inherit;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:lowercase;color:var(--cream-55);cursor:pointer;white-space:nowrap;transition:color .3s}
-body.touch .fnews button{cursor:pointer}
-.fnews button:hover{color:var(--accent)}
-.fnews.is-sent input,.fnews.is-sent button.fn-submit{display:none}
-.fnews .fn-done{display:none;font-size:13px;color:var(--cream-55)}
-.fnews.is-sent .fn-done{display:inline}
-.fcol__note{font-size:11px;color:var(--cream-40);letter-spacing:.01em;margin-top:-6px}
+.fcols{display:grid;grid-template-columns:repeat(4,auto);justify-content:space-between;gap:40px;padding:7vh 0;border-bottom:1px solid rgba(20,18,16,.1)}
 .fcol{display:flex;flex-direction:column;gap:14px}
-.fcol__label{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--cream-40);margin-bottom:6px}
-.fcol a{font-family:var(--sans);font-size:14px;font-weight:500;letter-spacing:-.005em;text-transform:lowercase;color:var(--cream-70);position:relative;width:fit-content;padding-bottom:2px;transition:color .35s}
+.fcol__label{font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:rgba(20,18,16,.45);margin-bottom:6px}
+.fcol a{font-size:14px;font-weight:500;letter-spacing:-.005em;text-transform:lowercase;color:rgba(20,18,16,.72);position:relative;width:fit-content;padding-bottom:2px;transition:color .35s}
 .fcol a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .45s var(--ease-io)}
-.fcol a:hover{color:var(--cream)}
+.fcol a:hover{color:var(--paper-ink)}
 .fcol a:hover::after{transform:scaleX(1);transform-origin:left}
-.fcol .copy-email{appearance:none;background:none;border:1px solid var(--cream-24);border-radius:99px;color:var(--cream-55);font:inherit;font-family:var(--sans);font-size:12px;letter-spacing:.05em;padding:8px 16px;width:fit-content;position:relative;transition:border-color .4s,color .4s,background-color .4s,transform .15s cubic-bezier(0.4,0,0.2,1)}
-.fcol .copy-email:hover{border-color:var(--accent);color:var(--cream)}
+.fcol .copy-email{appearance:none;background:none;border:1px solid rgba(20,18,16,.22);border-radius:99px;color:rgba(20,18,16,.55);font:inherit;font-size:12px;letter-spacing:.05em;padding:8px 16px;width:fit-content;position:relative;transition:border-color .4s,color .4s,transform .15s cubic-bezier(0.4,0,0.2,1)}
+.fcol .copy-email:hover{border-color:var(--accent);color:var(--paper-ink)}
 .fcol .copy-email:active{transform:scale(.97)}
 .fcol .copy-email.is-copied{border-color:var(--red);color:var(--red)}
-/* P6 text-swap (transitions.dev): .ce-a stays in flow (sets the button's
-   own width), .ce-b sits on top absolutely — both cross-fade with a
-   slight blur+lift so "copy email" -> "copied" reads as one continuous
-   label, not a hard content swap */
 .fcol .copy-email .ce-label{display:inline-block;transition:opacity .2s ease-out,filter .2s ease-out,transform .2s ease-out}
 .fcol .copy-email .ce-a{opacity:1;filter:blur(0);transform:translateY(0)}
 .fcol .copy-email .ce-b{position:absolute;top:8px;left:16px;opacity:0;filter:blur(4px);transform:translateY(8px)}
 .fcol .copy-email[data-state="b"] .ce-a{opacity:0;filter:blur(4px);transform:translateY(-8px)}
 .fcol .copy-email[data-state="b"] .ce-b{opacity:1;filter:blur(0);transform:translateY(0)}
-@media (prefers-reduced-motion:reduce){
-  .fcol .copy-email .ce-label{transition:opacity .12s ease !important;transform:none !important;filter:none !important}
-  .fcol .copy-email{transition:border-color .4s,color .4s,background-color .4s}
-}
+.fcol__note{font-size:11px;color:rgba(20,18,16,.45);letter-spacing:.01em;margin-top:-6px}
+.fnews{display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(20,18,16,.22);padding-bottom:6px;transition:border-color .35s}
+.fnews:focus-within{border-color:var(--accent)}
+.fnews input{appearance:none;background:none;border:none;outline:none;font:inherit;font-size:13px;letter-spacing:-.005em;color:var(--paper-ink);width:132px;padding:2px 0}
+.fnews input::placeholder{color:rgba(20,18,16,.4)}
+.fnews button{appearance:none;background:none;border:none;font:inherit;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:lowercase;color:rgba(20,18,16,.55);cursor:pointer;white-space:nowrap;transition:color .3s}
+.fnews button:hover{color:var(--accent)}
+.fnews.is-sent input,.fnews.is-sent button.fn-submit{display:none}
+.fnews .fn-done{display:none;font-size:13px;color:rgba(20,18,16,.55)}
+.fnews.is-sent .fn-done{display:inline}
+.fbottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;padding-top:6vh;font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:lowercase;color:rgba(20,18,16,.4)}
+.flogo-spacer{height:min(30vh,320px)}
+@media (max-width:760px){.fcols{grid-template-columns:1fr 1fr}.fcol:nth-child(4){grid-column:1/-1}}
 
-.fmarkwrap{padding:6vh 0 4vh;overflow:hidden}
-.fmarktext{display:block;font-family:var(--kuevy);text-transform:lowercase;font-weight:400;line-height:.86;letter-spacing:-.02em;font-size:clamp(64px,13vw,220px);background:linear-gradient(100deg,var(--accent) 0%,var(--cream) 40%,var(--cream) 60%,var(--red) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-
-.fbottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;padding-top:4vh;font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:lowercase;color:var(--cream-40)}
-@media (max-width:760px){
-  .fcols{grid-template-columns:1fr 1fr}
-  .fcol:last-child{grid-column:1/-1}
-}
+/* ————— floating 3d logo canvas (module script owns the drawing) ————— */
+#logo-field{position:fixed;inset:0;z-index:40;pointer-events:none}
+html.static #logo-field,html.no-webgl #logo-field{display:none}
+.static-mark{display:none}
+html.static .static-mark,html.no-webgl .static-mark{display:block}
+.static-mark--corner{position:fixed;top:var(--pad);right:var(--pad);width:26px;height:26px;opacity:.85;z-index:41}
+.static-mark--corner path{fill:var(--cream)}
+.static-mark--footer{width:min(46vw,260px);margin:0 auto 4vh}
+.static-mark--footer path{fill:var(--paper-ink)}
 
 /* ————— responsive ————— */
 @media (max-width:860px){
-  #ch3 .grid{grid-template-columns:1fr;gap:52px}
-  #ch3 .portrait{height:52vh;max-width:100%}
   #chapter .name{display:none}
 }
 /* ————— reduced motion / fallback ————— */
@@ -383,31 +317,36 @@ html.static .hero-tag{color:var(--cream-70)}
 html.static .hero-sub{color:var(--cream)}
 html.static .hero-heading{opacity:1!important}
 html.static .hero-heading h1{color:var(--cream)}
+html.static [data-io],html.static [data-io-end]{opacity:1!important;transform:none!important}
+html.static #bg-field{display:none}
+html.static #cta{background:var(--red)}
+html.static footer{background:var(--paper)}
 a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid var(--red);outline-offset:6px}
+
 /* ————— single-typeface tuning ————— */
-/* Geist now carries both display and UI duty. Rather than one flat weight
-   everywhere, the big editorial lines lean light (300) for the "come
-   closer" hero/about/fade moments, and the two hardest-working display
-   lines — the invitation headline and the giant footer wordmark — lean
-   into 600 so the site still has a real weight-contrast finish, the same
-   way the two-typeface system used to carry that contrast. */
-.hero-heading h1,.hero-sub,#ch1 .line,.chead h2,.prow__name,#ch3 .name,
-#ch4 .fades,#ch4 .stays,.fkicker{font-weight:300}
-#ch5 h2,.fmarktext{font-weight:600}
-</style>
-</head>
-<body>
+/* Geist carries both display and UI duty across the whole rebuild — light
+   weight on the quieter editorial lines, a heavier beat reserved for the
+   one bold cta headline so there's still real contrast in the type. */
+.hero-heading h1,.hero-sub,.sec-head h2,.pcard__name,.wf-item__name,
+.pd__title,.fkicker,.about-copy p{font-weight:300}
+.cta-h{font-weight:600}
+
+</style><body>
 
 <!-- atmosphere -->
 <div id="bg-wash"><span class="wash wash--1"></span><span class="wash wash--2"></span><span class="wash wash--3"></span><span class="wash wash--4"></span><span class="wash wash--5"></span></div>
 <div id="vignette"></div>
 <div id="grain"></div>
 
+<div id="bg-field"></div>
+<svg class="static-mark static-mark--corner" viewBox="0 0 32 32" aria-hidden="true"><path d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/></svg>
+
+
 <!-- preloader -->
 <div id="veil" aria-hidden="true">
   <svg viewBox="0 0 32 32"><path id="veil-path" d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/></svg>
   <div class="veil-line"><i id="veil-fill"></i></div>
-  <div class="veil-word" id="veil-word">the archive is opening</div>
+  <div class="veil-word" id="veil-word">loading</div>
 </div>
 
 <!-- cursor -->
@@ -422,12 +361,11 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
   <div id="chapter" aria-hidden="true">
     <span class="num" id="chapter-num">00</span>
     <span class="name" id="chapter-name">
-      <span data-ch="0" class="on">the dark</span>
-      <span data-ch="1">the trace</span>
-      <span data-ch="2">the archive</span>
-      <span data-ch="3">behind the work</span>
-      <span data-ch="4">the fade</span>
-      <span data-ch="5">the invitation</span>
+      <span data-ch="0" class="on">hero</span>
+      <span data-ch="1">work</span>
+      <span data-ch="2">about</span>
+      <span data-ch="3">start a project</span>
+      <span data-ch="4">contact</span>
     </span>
   </div>
   <div id="rail" aria-hidden="true"><i id="rail-fill"></i></div>
@@ -438,8 +376,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
 </div>
 
 <main id="top">
-
-  <!-- 00 · the dark -->
+<!-- 00 · the dark -->
   <section id="ch0" data-chapter="0" class="hero-mask">
     <div class="pinwrap">
       <div class="hero-heading">
@@ -456,117 +393,113 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
     </div>
   </section>
 
-  <!-- 01 · the trace -->
-  <section id="ch1" data-chapter="1">
-    <div class="pinwrap">
-      <div class="stack">
-        <p class="line seen" id="seen" data-rest>most things get a glance.</p>
-        <p class="line rem" id="rem" data-rest>the good ones get looked at twice<span class="stop">.</span></p>
-        <div class="markline" id="markline" data-rest><i id="markline-fill"></i></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 02 · the archive -->
-  <section id="ch2" data-chapter="2">
-    <div class="chead" data-chead>
-      <span class="idx">02</span>
-      <h2><span class="word"><span>the</span></span> <span class="word"><span>work</span></span> <span class="word"><span>remains</span></span></h2>
+  
+  <!-- 01 · work -->
+  <section id="work" data-chapter="1" class="sec sec--dark">
+    <div class="sec-head" data-io>
+      <span class="sec-idx">01</span>
+      <h2>selected work</h2>
       <span class="rule"></span>
     </div>
-    <p class="intro" data-io>a glance is free. <b>a second look has to be earned.</b> here's what earned it.</p>
 
-    <div class="plist" id="plist"></div>
+    <div class="work-pin" id="work-pin">
+      <div class="carousel" id="carousel" aria-hidden="true">
+        <div class="carousel__stage" id="carousel-stage"></div>
+      </div>
+      <div class="carousel__nav" aria-hidden="true">
+        <button type="button" data-dir="-1" data-hover>prev</button>
+        <button type="button" data-dir="1" data-hover>next</button>
+      </div>
+      <div class="carousel__detail" id="carousel-detail" aria-live="polite">
+        <p class="pd__tags" id="pd-tags"></p>
+        <h3 class="pd__title" id="pd-title"></h3>
+        <p class="pd__copy" id="pd-copy"></p>
+        <a class="pd__link" id="pd-link" href="#" target="_blank" rel="noopener" data-hover hidden>visit site</a>
+      </div>
+    </div>
+
+    <div class="work-flat" id="work-flat"></div>
   </section>
 
-  <!-- 03 · behind the work -->
-  <section id="ch3" data-chapter="3">
-    <div class="chead" data-chead>
-      <span class="idx">03</span>
-      <h2><span class="word"><span>behind</span></span> <span class="word"><span>the</span></span> <span class="word"><span>work</span></span></h2>
+  <!-- 02 · about -->
+  <section id="about" data-chapter="2" class="sec sec--dark">
+    <div class="sec-head" data-io>
+      <span class="sec-idx">02</span>
+      <h2>about</h2>
       <span class="rule"></span>
     </div>
-    <div class="grid">
-      <figure class="portrait" id="portrait">
-        <img id="portrait-img" src="assets/img/domen-portrait.png" alt="Domen Markeljc, portrait" onerror="this.closest('figure').style.display='none'">
-      </figure>
-      <div>
-        <p class="who" data-io>the second look, from the other side</p>
-        <h3 class="name" data-io>domen markeljc</h3>
-        <div class="about" id="about">
-          <p>i don't design for the first glance. anyone can make something that gets noticed once. <b>i design for the version of a brand that gets looked at twice</b> — and then gets remembered without trying to be.</p>
-          <p>that means strategy, typography, image, motion and interaction stop being separate jobs. <b>they become one decision, made once, held all the way through</b> — so nothing about a brand feels like it was finished by a different person than the one who started it.</p>
-          <p>i'm not interested in work that looks good for a week. i'm interested in <b>the mark someone draws from memory a year later, without meaning to<span class="rd">.</span></b></p>
-        </div>
+    <div class="about-grid">
+      <div></div>
+      <div class="about-copy">
+        <p data-io>i work across brand identity, packaging, and digital product design — usually all three on the same project, because <b>the mark on a label and the button on a screen are solving the same problem: be understood in half a second.</b></p>
+        <p data-io>most of what i do starts with a restriction — a shelf, a thumb, a viewport — and ends with the smallest version of the idea that still says everything. <b>i'm not interested in decoration for its own sake.</b></p>
+        <p data-io>based in slovenia. working further out.</p>
       </div>
     </div>
   </section>
 
-  <!-- 04 · the fade — small, contained, no shader -->
-  <section id="ch4" data-chapter="4">
-    <div class="fadewrap">
-      <p class="fades" id="fades" data-rest>the first glance fades.</p>
-      <p class="stays" id="stays" data-rest>the second look stays<span class="stop">.</span></p>
+  <!-- 03 · start a project -->
+  <section id="cta" data-chapter="3" class="sec sec--red">
+    <div class="cta-inner">
+      <span class="sec-idx" data-io>03 — start a project</span>
+      <h2 class="cta-h" data-io>start a<br>project</h2>
+      <p class="cta-sub" data-io>have something that needs a mark, a label, or a screen — done properly? let's talk it through.</p>
+      <a class="cta-btn" href="mailto:info@domenmarkeljc.com" data-hover data-io>
+        <span>start a project</span><span class="arrow"></span>
+      </a>
+      <p class="cta-avail" data-io>open for new projects · replies within 2 days</p>
     </div>
-  </section>
-
-  <!-- 05 · the invitation -->
-  <section id="ch5" data-chapter="5">
-    <div class="inv">
-      <p class="ready" data-io>still here? good.</p>
-      <h2 id="inv-title"><span class="word"><span>le<span class="tk">t</span></span></span> <span class="word"><span>us</span></span> <span class="word"><span>make</span></span> <span class="word"><span>your</span></span> <span class="word"><span>br<span class="tk">a</span>nd</span></span><br><span class="word accent"><span>remember<span class="tk">ed</span>.</span></span></h2>
-      <p class="invsub" data-io>come closer. let's build something worth a second look.</p>
-      <a class="bigcta" href="mailto:info@domenmarkeljc.com" data-hover data-io><span>start a project</span><span class="arrow"></span></a>
-      <p class="avail" data-io>open for new projects · replies within 2 days</p>
-    </div>
-    <footer>
-      <canvas id="footer-canvas" aria-hidden="true"></canvas>
-      <div class="fhead" data-io-end>
-        <p class="fkicker">still here? let's build something worth a second look.</p>
-        <a class="fmail" href="mailto:info@domenmarkeljc.com" data-hover>info@domenmarkeljc.com</a>
-      </div>
-      <div class="fcols" data-io-end>
-        <div class="fcol">
-          <span class="fcol__label">menu</span>
-          <a href="#top" data-hover>back to top</a>
-          <a href="#ch2" data-hover>the work</a>
-          <a href="#ch3" data-hover>behind the work</a>
-          <a href="#ch5" data-hover>start a project</a>
-        </div>
-        <div class="fcol">
-          <span class="fcol__label">follow</span>
-          <a href="https://www.instagram.com/domen_markeljc/" data-hover target="_blank" rel="noopener">instagram</a>
-          <a href="https://www.facebook.com/domen.markeljc.98" data-hover target="_blank" rel="noopener">facebook</a>
-          <a href="https://x.com/DMarkeljc" data-hover target="_blank" rel="noopener">x</a>
-        </div>
-        <div class="fcol">
-          <span class="fcol__label">get in touch</span>
-          <a href="mailto:info@domenmarkeljc.com" data-hover>email</a>
-          <button type="button" class="copy-email" id="copy-email" data-hover data-email="info@domenmarkeljc.com" aria-label="copy email address to clipboard" data-state="a">
-            <span class="ce-a ce-label">copy email</span>
-            <span class="ce-b ce-label">copied</span>
-          </button>
-        </div>
-        <div class="fcol">
-          <span class="fcol__label">occasional notes</span>
-          <span class="fcol__note">new work, no noise</span>
-          <form class="fnews" id="fnews" novalidate>
-            <input type="email" name="email" placeholder="your email" aria-label="email address for occasional updates" required>
-            <button type="submit" class="fn-submit" data-hover>join</button>
-            <span class="fn-done">thanks — you're in</span>
-          </form>
-        </div>
-      </div>
-      <div class="fmarkwrap" aria-hidden="true"><span class="fmarktext">domen markeljc</span></div>
-      <div class="fbottom" data-io-end>
-        <span>© 2026 domen markeljc</span>
-        <span>identity · web · motion, made one decision at a time</span>
-        <span><span id="clock">--:--</span> cet</span>
-      </div>
-    </footer>
   </section>
 
 </main>
+
+<footer id="site-footer" data-chapter="4" class="sec sec--paper">
+  <div class="flogo-spacer" aria-hidden="true"></div>
+  <svg class="static-mark static-mark--footer" viewBox="0 0 32 32" aria-hidden="true"><path d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/></svg>
+  <div class="fhead" data-io>
+    <p class="fkicker">let's build something worth picking up.</p>
+    <a class="fmail" href="mailto:info@domenmarkeljc.com" data-hover>info@domenmarkeljc.com</a>
+  </div>
+  <div class="fcols" data-io>
+    <div class="fcol">
+      <span class="fcol__label">menu</span>
+      <a href="#top" data-hover>back to top</a>
+      <a href="#work" data-hover>work</a>
+      <a href="#about" data-hover>about</a>
+      <a href="#cta" data-hover>start a project</a>
+    </div>
+    <div class="fcol">
+      <span class="fcol__label">follow</span>
+      <a href="https://www.instagram.com/domen_markeljc/" data-hover target="_blank" rel="noopener">instagram</a>
+      <a href="https://www.facebook.com/domen.markeljc.98" data-hover target="_blank" rel="noopener">facebook</a>
+      <a href="https://x.com/DMarkeljc" data-hover target="_blank" rel="noopener">x</a>
+    </div>
+    <div class="fcol">
+      <span class="fcol__label">get in touch</span>
+      <a href="mailto:info@domenmarkeljc.com" data-hover>email</a>
+      <button type="button" class="copy-email" id="copy-email" data-hover data-email="info@domenmarkeljc.com" aria-label="copy email address to clipboard" data-state="a">
+        <span class="ce-a ce-label">copy email</span>
+        <span class="ce-b ce-label">copied</span>
+      </button>
+    </div>
+    <div class="fcol">
+      <span class="fcol__label">occasional notes</span>
+      <span class="fcol__note">new work, no noise</span>
+      <form class="fnews" id="fnews" novalidate>
+        <input type="email" name="email" placeholder="your email" aria-label="email address for occasional updates" required>
+        <button type="submit" class="fn-submit" data-hover>join</button>
+        <span class="fn-done">thanks — you're in</span>
+      </form>
+    </div>
+  </div>
+  <div class="fbottom" data-io>
+    <span>© <span id="fyear"></span> domen markeljc</span>
+    <span>identity · packaging · web, made one decision at a time</span>
+    <span><span id="clock">--:--</span> cet</span>
+  </div>
+</footer>
+
+
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -614,23 +547,6 @@ const easeInOutCubic = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
   }
 })();
 
-/* ————————————————— text splitting ————————————————— */
-function splitChars(el){
-  if (el.querySelector('.ch')) return [...el.querySelectorAll('.ch')];
-  const walk = node => {
-    if (node.nodeType === 3){
-      const frag = document.createDocumentFragment();
-      for (const ch of node.textContent){
-        if (ch === ' '){ frag.appendChild(document.createTextNode(' ')); continue; }
-        const s = document.createElement('span'); s.className='ch'; s.textContent = ch; frag.appendChild(s);
-      }
-      node.replaceWith(frag);
-    } else if (node.nodeType === 1) [...node.childNodes].forEach(walk);
-  };
-  [...el.childNodes].forEach(walk);
-  return [...el.querySelectorAll('.ch')];
-}
-
 /* ————————————————— smooth scroll ————————————————— */
 if (hasLibs){ gsap.registerPlugin(ScrollTrigger); ScrollTrigger.config({ ignoreMobileResize: true }); }
 
@@ -670,7 +586,7 @@ if (!isTouch){
   };
   loop();
   document.addEventListener('mouseover', e => {
-    const cta = e.target.closest('.bigcta, .chrome-cta, #float-cta');
+    const cta = e.target.closest('.cta-btn, .chrome-cta, #float-cta');
     const hoverable = e.target.closest('a,button,[data-hover]');
     // the mark itself grows to say "interactive" — no separate badge or
     // popup, difference-blend already keeps it legible on any background
@@ -678,7 +594,7 @@ if (!isTouch){
     else if (hoverable){ document.body.classList.add('cur-hover'); setScale(1.32, .35, 'back.out(2)'); }
   });
   document.addEventListener('mouseout', e => {
-    if (e.target.closest('.bigcta, .chrome-cta, #float-cta')){ document.body.classList.remove('cur-cta'); setScale(1, .35, 'power2.out'); }
+    if (e.target.closest('.cta-btn, .chrome-cta, #float-cta')){ document.body.classList.remove('cur-cta'); setScale(1, .35, 'power2.out'); }
     else if (e.target.closest('a,button,[data-hover]')){ document.body.classList.remove('cur-hover'); setScale(1, .35, 'power2.out'); }
   });
 } else {
@@ -1017,120 +933,112 @@ function initHero(){
 }
 if (GL) initHero();
 
-/* ————————————————— projects — data + card reveal + modal ————————————————— */
+
+/* ————————————————— work — data ————————————————— */
 const PROJECTS = [
-  { num:'01', title:'gorjup', meta:'identity &amp; packaging · wine · 2025',
+  { num:'01', title:'gorjup', meta:'wine label',
     copy:"a wine label built to survive being picked up. the shadow of a leaf, cast on stone, became the illustration. <b>the illustration became a mark you can find with your thumb</b> before you've read a word.",
-    tags:['logotype','illustration','label design','packaging design'], link:null,
-    gallery:[
-      { src:'assets/img/gorjup-01.jpg', wide:true, alt:'Gorjup wine bottles with green labels standing on weathered wood', cap:'the vintage — rebula on the shelf' },
-      { src:'assets/img/gorjup-02.jpg', alt:'Gorjup logotype embossed into textured paper', cap:'the mark, pressed' },
-      { src:'assets/img/gorjup-03.jpg', alt:'Leaf illustration cast as a shadow on a sunlit wall', cap:'the illustration, as a shadow' },
-      { src:'assets/img/gorjup-04.jpg', wide:true, alt:'Close-up of the numbered Rebula label on the bottle', cap:'label 43 of 250' }
-    ] },
-  { num:'02', title:'kosovel', meta:'editorial design · booklet · 2025',
+    tags:['identity','packaging'], link:null, cover:'assets/img/gorjup-01.jpg' },
+  { num:'02', title:'kosovel', meta:'editorial · booklet',
     copy:"a hundred years is long enough for a poet to be forgotten. this booklet was built so srečko kosovel's constructivist work wouldn't be — <b>his kons poems set back into motion through typography built to be read twice:</b> once for the words, once for the shape they make.",
-    tags:['editorial design','typography','print design'], link:null,
-    gallery:[
-      { src:'assets/img/kosovel-01.jpg', wide:true, alt:'Open red spread of the Kosovel booklet with archive material', cap:'the archive spread' },
-      { src:'assets/img/kosovel-02.jpg', wide:true, alt:'Blue and red covers of the booklet, kons-trukcija and kozmos', cap:'kons — trukcija · kozmos' },
-      { src:'assets/img/kosovel-03.jpg', alt:'Close-up of a red typographic page', cap:'idejna zasnova, close' },
-      { src:'assets/img/kosovel-04.jpg', alt:'Close-up of a white typographic page with handwritten traces', cap:'šestih kaligramov, close' }
-    ] },
-  { num:'03', title:'santera', meta:'identity &amp; packaging · aperitif · 2026',
+    tags:['editorial','typography'], link:null, cover:'assets/img/kosovel-01.jpg' },
+  { num:'03', title:'santera', meta:'beverage label',
     copy:"not a drink you finish quickly. an arch on the label, a sun-warmed palette, <b>a bottle shaped for the second pour more than the first.</b> built for the part of the evening nobody's in a hurry to end.",
-    tags:['brand identity','label design','packaging design'], link:null,
-    gallery:[
-      { src:'assets/img/santera-01.jpg', wide:true, alt:'Frosted Santera bottle beside a filled glass, olive branches behind', cap:'the ritual — bottle and pour' },
-      { src:'assets/img/santera-02.jpg', wide:true, alt:'Santera brand board with logo, labels and colour palette', cap:'the system — mark, labels, palette' }
-    ] },
-  { num:'04', title:'ronki', meta:'identity &amp; packaging · olive oil · 2026',
+    tags:['identity','packaging'], link:null, cover:'assets/img/santera-01.jpg' },
+  { num:'04', title:'ronki', meta:'olive oil identity',
     copy:"two olives, drawn close enough together that they start to look like a face watching you back. that's the whole brief in one mark — <b>generations of careful selection, pressed into something you'd notice</b> on a shelf full of oil that all looks the same at a glance.",
-    tags:['brand identity','packaging design','logo design'], link:null,
-    gallery:[
-      { src:'assets/img/ronki-01.jpg', alt:'Two dark Ronki olive oil bottles with acid green labels', cap:'extra deviško, bottled' },
-      { src:'assets/img/ronki-04.jpg', alt:'The Ronki symbol — two olives forming a gaze', cap:'the gaze — two olives' },
-      { src:'assets/img/ronki-02.jpg', wide:true, alt:'Ronki business cards on textured fabric', cap:'the cards, in hand' },
-      { src:'assets/img/ronki-03.jpg', wide:true, alt:'Front label design for Ronki extra virgin olive oil', cap:'the label, flat' }
-    ] },
-  { num:'05', title:'2fit2fail', meta:'identity &amp; website · personal training · 2026',
+    tags:['identity','packaging'], link:null, cover:'assets/img/ronki-01.jpg' },
+  { num:'05', title:'2fit2fail', meta:'web design / brand',
     copy:"a training system doesn't need to look loud to feel serious. this one does anyway, on purpose — <b>sharp type, acid accents, a site built with the same discipline</b> the training plans are. built to move, not just to load.",
-    tags:['brand identity','website design','web development','motion design'], link:'https://zhp.vercel.app/',
-    gallery:[
-      { src:'assets/video/zhp-anim.webm', video:true, wide:true, cap:'the site, in motion' },
-      { src:'assets/img/zhp-01.jpg', wide:true, alt:'2fit2fail website screenshot', cap:'the homepage' },
-      { src:'assets/img/zhp-02.jpg', wide:true, alt:'2fit2fail website screenshot, detail view', cap:'the site, in detail' }
-    ] }
+    tags:['identity','website'], link:'https://zhp.vercel.app/', cover:'assets/img/zhp-01.jpg' }
 ];
 
-/* rows are built from PROJECTS — title, tags, a cropped thumbnail strip,
-   a hover-only "view case" reveal, and a click-to-expand body using the
-   CSS grid 0fr->1fr trick instead of a JS-measured height tween. That
-   JS-measured height (the old `height: open ? 0 : 'auto'` GSAP tween)
-   was the actual source of the "buggy" feeling, not the row design. */
-function galleryHTML(p){
-  return p.gallery.map(g => {
-    const media = g.video
-      ? `<video src="${g.src}" muted loop playsinline autoplay preload="metadata"></video>`
-      : `<img src="${g.src}" alt="${g.alt || ''}" loading="lazy">`;
-    return `<figure class="pgal${g.wide ? ' wide' : ''}"><span class="frame">${media}</span><figcaption>${g.cap}</figcaption></figure>`;
-  }).join('');
-}
-function stripHTML(p){
-  return p.gallery.filter(g => !g.video).slice(0, 3)
-    .map(g => `<img src="${g.src}" alt="" loading="lazy">`).join('');
-}
+/* ————————————————— work — orbital carousel (desktop) ————————————————— */
+let carouselApi = null;
+function buildCarousel(){
+  const stage = $('#carousel-stage');
+  if (!stage) return;
+  const n = PROJECTS.length;
+  const step = 360 / n;
+  stage.innerHTML = PROJECTS.map((p,i) => `
+    <article class="pcard" data-i="${i}" data-hover>
+      <div class="pcard__media"><img src="${p.cover}" alt="${p.title}" loading="lazy"></div>
+      <div class="pcard__meta"><span class="pcard__num">${p.num}</span><span class="pcard__name">${p.title}</span></div>
+    </article>`).join('');
+  const cards = $$('.pcard', stage);
+  const radius = Math.max(320, Math.min(innerWidth, 900) * 0.62);
+  cards.forEach((c,i) => { c.style.transform = `rotateY(${i*step}deg) translateZ(${radius}px)`; });
 
-const plist = $('#plist');
-if (plist){
-  plist.innerHTML = PROJECTS.map((p, i) => `
-    <div class="prow" data-proj="${i}">
-      <button class="prow__head" data-toggle data-hover aria-expanded="false" aria-controls="prow-body-${i}">
-        <span class="prow__num">${p.num}</span>
-        <h3 class="prow__name">${p.title}</h3>
-        <span class="prow__tags">${p.tags.map(t => `<span>${t}</span>`).join('')}</span>
-        <span class="prow__strip" aria-hidden="true">${stripHTML(p)}</span>
-        <span class="prow__cta">view case</span>
-        <span class="prow__toggle" aria-hidden="true">(<i>+</i>)</span>
-      </button>
-      <div class="prow__body" id="prow-body-${i}">
-        <div class="prow__body-in"><div class="prow__body-content">
-          <div>
-            <p class="prow__copy">${p.copy}</p>
-            ${p.link ? `<a class="prow__link" href="${p.link}" target="_blank" rel="noopener" data-hover>visit the live site</a>` : ''}
-          </div>
-          <div class="prow__gallery">${galleryHTML(p)}</div>
-        </div></div>
-      </div>
-    </div>`).join('');
+  const detTags = $('#pd-tags'), detTitle = $('#pd-title'), detCopy = $('#pd-copy'), detLink = $('#pd-link');
+  function paintDetail(i){
+    const p = PROJECTS[i];
+    detTags.innerHTML = p.tags.map(t => `<span>${t}</span>`).join('');
+    detTitle.textContent = p.title;
+    detCopy.innerHTML = p.copy;
+    if (p.link){ detLink.href = p.link; detLink.hidden = false; detLink.textContent = 'visit site'; }
+    else detLink.hidden = true;
+  }
 
-  /* rows rise in as they scroll into view — plain opacity/transform,
-     no particle system, no per-character blur */
-  $$('.prow').forEach((row, i) => {
-    gsap.fromTo(row, { opacity:0, y:36 }, { opacity:1, y:0, duration:1, delay:i*.04, ease:'expo.out',
-      scrollTrigger:{ trigger:row, start:'top 92%' } });
-  });
-
-  $$('.prow__head').forEach(head => {
-    const row = head.closest('.prow');
-    const toggleIcon = head.querySelector('.prow__toggle i');
-    head.addEventListener('click', () => {
-      const open = row.classList.contains('is-open');
-      row.classList.toggle('is-open', !open);
-      head.setAttribute('aria-expanded', String(!open));
-      toggleIcon.textContent = open ? '+' : '−';
-      row.querySelectorAll('video').forEach(v => { if (!open && v.play) v.play().catch(()=>{}); else v.pause(); });
-      // the grid-rows transition (~650ms) changes document height once it
-      // settles — one scheduled refresh keeps every pinned section's
-      // scroll math honest, same pattern already used for image loads
-      if (hasLibs) setTimeout(() => ScrollTrigger.refresh(), 700);
+  let groupRot = 0;
+  function render(progress){
+    // settles exactly on the last card at progress = 1, no wrap-around
+    groupRot = -progress * step * (n - 1);
+    stage.style.transform = `rotateY(${groupRot}deg)`;
+    let nearest = 0, nearestDist = Infinity;
+    cards.forEach((c,i) => {
+      let a = (i*step + groupRot) % 360;
+      if (a > 180) a -= 360; if (a < -180) a += 360;
+      const dist = Math.abs(a);
+      const t = clamp01(1 - dist/110);
+      c.style.opacity = 0.22 + t*0.78;
+      const s = 0.72 + t*0.28;
+      c.style.transform = `rotateY(${i*step}deg) translateZ(${radius}px) scale(${s})`;
+      if (dist < nearestDist){ nearestDist = dist; nearest = i; }
     });
+    if (nearest !== carouselApi.active){ carouselApi.active = nearest; paintDetail(nearest); }
+  }
+  paintDetail(0);
+
+  carouselApi = { render, active:0, n, radius: () => radius };
+
+  $$('.pcard', stage).forEach(c => {
+    c.addEventListener('click', () => carouselApi.goTo(+c.dataset.i));
   });
+}
+
+/* ————————————————— work — flat list (mobile / reduced motion) ————————————————— */
+function buildWorkFlat(){
+  const el = $('#work-flat');
+  if (!el) return;
+  el.innerHTML = PROJECTS.map(p => `
+    <div class="wf-item">
+      <div class="wf-item__media"><img src="${p.cover}" alt="${p.title}" loading="lazy"></div>
+      <span class="wf-item__num">${p.num}</span>
+      <span class="wf-item__name">${p.title}</span>
+      <p class="wf-item__copy">${p.copy}</p>
+      ${p.link ? `<a class="wf-item__link" href="${p.link}" target="_blank" rel="noopener" data-hover>visit the live site</a>` : ''}
+    </div>`).join('');
+}
+
+/* ————————————————— newsletter — quiet footer signup ————————————————— */
+{
+  const form = $('#fnews');
+  if (form){
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = form.email.value.trim();
+      if (!email) return;
+      // TODO: wire to a real subscribe endpoint (Resend/Mailchimp/etc.) —
+      // nothing is persisted yet, this only swaps the confirmation state
+      form.classList.add('is-sent');
+    });
+  }
+  const y = $('#fyear'); if (y) y.textContent = new Date().getFullYear();
 }
 
 /* magnetic pull on the primary actions (desktop only — needs a real cursor) */
 if (!isTouch && hasLibs){
-  $$('.chrome-cta, .bigcta, .mark, #float-cta').forEach(el => {
+  $$('.chrome-cta, .cta-btn, .mark, #float-cta').forEach(el => {
     const sx = gsap.quickTo(el, 'x', { duration:.55, ease:'power3.out' });
     const sy = gsap.quickTo(el, 'y', { duration:.55, ease:'power3.out' });
     el.addEventListener('mousemove', e => {
@@ -1146,7 +1054,7 @@ if (!isTouch && hasLibs){
    the site's transitions-dev token pass: a quick, near-linear press-down
    (--btn-press) and a springy release (--btn-release) */
 if (hasLibs && !prefersReduced){
-  $$('.chrome-cta, .bigcta, .mark, #float-cta').forEach(el => {
+  $$('.chrome-cta, .cta-btn, .mark, #float-cta').forEach(el => {
     // magnetic elements already own their transform via GSAP's x/y quickTo —
     // adding a separate scale quickTo composes into the same matrix rather
     // than fighting it, which a plain CSS :active transform would
@@ -1161,7 +1069,7 @@ if (hasLibs && !prefersReduced){
 {
   const homeTitle = document.title;
   document.addEventListener('visibilitychange', () => {
-    document.title = document.hidden ? 'the archive remembers\u2026' : homeTitle;
+    document.title = document.hidden ? 'come back?' : homeTitle;
   });
 }
 
@@ -1207,167 +1115,6 @@ if (clockEl){
       }, 1600);
     });
   }
-}
-
-/* newsletter — quiet footer signup, no modal, no interstitial. This only
-   swaps the field for a confirmation state client-side; wire the fetch()
-   below to a real provider (Resend/Mailchimp/ConvertKit/etc.) before
-   launch — nothing is actually persisted yet. */
-{
-  const form = $('#fnews');
-  if (form){
-    form.addEventListener('submit', async e => {
-      e.preventDefault();
-      const email = form.email.value.trim();
-      if (!email) return;
-      // TODO: replace with a real subscribe call, e.g.
-      // await fetch('/api/subscribe', { method:'POST', body: JSON.stringify({ email }) });
-      form.classList.add('is-sent');
-    });
-  }
-}
-
-/* footer — a small animated gradient-mesh shader, the one colour moment
-   reserved for the very end of the page. Lazily initialised only once the
-   footer is close to view (IntersectionObserver), same pattern already
-   used for the invitation CTA's stroke animation — no reason to run a
-   render loop for something sitting off-screen for the whole rest of the
-   page. */
-function initFooterGradient(){
-  const canvas = $('#footer-canvas');
-  const footerEl = $('footer');
-  if (!canvas || !footerEl || !GL) return;
-
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias:false, alpha:true, powerPreference:'low-power' });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
-  const size0 = footerEl.getBoundingClientRect();
-  renderer.setSize(size0.width || innerWidth, Math.max(size0.height, innerHeight), false);
-
-  const scene = new THREE.Scene();
-  const camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
-  const geo = new THREE.PlaneGeometry(2,2);
-  const uniforms = {
-    uTime: { value: 0 },
-    uResolution: { value: new THREE.Vector2(size0.width||innerWidth, size0.height||innerHeight) },
-    uMouse: { value: new THREE.Vector2(0.5, 0.4) },
-    uMouseActive: { value: 0 },
-    uMouseEnergy: { value: 0 }
-  };
-  const mat = new THREE.ShaderMaterial({
-    uniforms,
-    vertexShader:`varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position,1.0); }`,
-    fragmentShader:`
-      precision highp float;
-      uniform float uTime;
-      uniform vec2 uResolution;
-      uniform vec2 uMouse;
-      uniform float uMouseActive;
-      uniform float uMouseEnergy;
-      varying vec2 vUv;
-      // generic soft-blob gradient mesh — not target-specific
-      float blob(vec2 uv, vec2 center, float radius){
-        return smoothstep(radius, 0.0, length(uv - center));
-      }
-      void main(){
-        float aspect = uResolution.x / max(uResolution.y, 1.0);
-        vec2 uv = vUv * vec2(aspect, 1.0);
-        float t = uTime * 0.04;
-
-        // the ambient blobs drift on their own, but the pointer gently
-        // pulls them toward it — the whole mesh leans into your cursor
-        // rather than just adding a spot on top of it
-        vec2 m = uMouse * vec2(aspect, 1.0);
-        vec2 pull = (m - vec2(0.5*aspect, 0.45)) * 0.06 * uMouseActive;
-
-        vec2 c1 = vec2(0.25 + sin(t*1.3)*0.16, 0.55 + cos(t*1.05)*0.18) * vec2(aspect,1.0) + pull;
-        vec2 c2 = vec2(0.75 + cos(t*0.85)*0.18, 0.65 + sin(t*1.35)*0.16) * vec2(aspect,1.0) + pull*0.6;
-        vec2 c3 = vec2(0.5 + sin(t*0.65+2.1)*0.22, 0.25 + cos(t*0.55)*0.16) * vec2(aspect,1.0) + pull*0.8;
-        vec2 c4 = vec2(0.18 + cos(t*1.1+1.3)*0.12, 0.2 + sin(t*0.75)*0.14) * vec2(aspect,1.0) + pull*0.5;
-
-        // kept deliberately subtle — this read as too bold/obvious twice
-        // already; intensities are roughly a third of the original now,
-        // so it sits as a faint ambient tint well underneath the content
-        vec3 col = vec3(0.039, 0.035, 0.031);
-        col += blob(uv, c1, 0.5) * vec3(0.898, 0.208, 0.169) * 0.13;
-        col += blob(uv, c2, 0.44) * vec3(0.224, 0.443, 1.0) * 0.12;
-        col += blob(uv, c3, 0.56) * vec3(1.0, 0.69, 0.125) * 0.08;
-        col += blob(uv, c4, 0.4) * vec3(0.224, 0.443, 1.0) * 0.07;
-
-        // a fifth blob that IS the cursor — brightens and swells with how
-        // fast you're moving, fades out entirely once the pointer leaves
-        float mr = 0.26 + uMouseEnergy * 0.14;
-        float mGlow = blob(uv, m, mr) * uMouseActive;
-        vec3 mColor = mix(vec3(1.0, 0.69, 0.125), vec3(1.0, 0.87, 0.6), uMouseEnergy);
-        col += mGlow * mColor * (0.1 + uMouseEnergy * 0.14);
-
-        // a soft fade across the footer's own top edge — keeps the
-        // hand-off from chapter 5 gentle without the canvas needing to
-        // escape the footer's box (that caused it to paint over ch5's
-        // own content instead of blending behind it)
-        float edgeFade = smoothstep(0.78, 1.0, vUv.y);
-        vec3 addedColor = col - vec3(0.039, 0.035, 0.031);
-        col = vec3(0.039, 0.035, 0.031) + addedColor * (1.0 - edgeFade * 0.85);
-
-        gl_FragColor = vec4(col, 1.0);
-      }`
-  });
-  scene.add(new THREE.Mesh(geo, mat));
-
-  // pointer tracking, footer-local: lerped position + a decaying "energy"
-  // term driven by how fast the pointer is actually moving right now
-  let targetMouse = { x: 0.5, y: 0.4 }, curMouse = { x: 0.5, y: 0.4 };
-  let targetActive = 0, curActive = 0;
-  let lastPX = null, lastPY = null, energy = 0;
-  const onPointerMove = e => {
-    const r = footerEl.getBoundingClientRect();
-    if (e.clientY < r.top - 40 || e.clientY > r.bottom + 40){ targetActive = 0; return; }
-    targetMouse.x = (e.clientX - r.left) / Math.max(r.width, 1);
-    targetMouse.y = 1 - (e.clientY - r.top) / Math.max(r.height, 1);
-    targetActive = 1;
-    if (lastPX !== null){
-      const d = Math.hypot(e.clientX - lastPX, e.clientY - lastPY);
-      energy = Math.min(1, energy + d * 0.012);
-    }
-    lastPX = e.clientX; lastPY = e.clientY;
-  };
-  addEventListener('pointermove', onPointerMove, { passive:true });
-  addEventListener('pointerleave', () => targetActive = 0);
-
-  let visible = true;
-  document.addEventListener('visibilitychange', () => visible = !document.hidden);
-  const clock = new THREE.Clock();
-  const tick = () => {
-    requestAnimationFrame(tick);
-    if (!visible) return;
-    uniforms.uTime.value = clock.getElapsedTime();
-    curMouse.x = lerp(curMouse.x, targetMouse.x, .07);
-    curMouse.y = lerp(curMouse.y, targetMouse.y, .07);
-    curActive = lerp(curActive, targetActive, .05);
-    energy = lerp(energy, 0, .04); // decays back to 0 when the pointer sits still
-    uniforms.uMouse.value.set(curMouse.x, curMouse.y);
-    uniforms.uMouseActive.value = curActive;
-    uniforms.uMouseEnergy.value = energy;
-    renderer.render(scene, camera);
-  };
-  tick();
-
-  addEventListener('resize', () => {
-    const r = footerEl.getBoundingClientRect();
-    const w = r.width || innerWidth, h = Math.max(r.height, innerHeight);
-    renderer.setSize(w, h, false);
-    uniforms.uResolution.value.set(w, h);
-  });
-
-  requestAnimationFrame(() => canvas.classList.add('is-in'));
-}
-if (GL){
-  const footerEl = $('footer');
-  if (footerEl && 'IntersectionObserver' in window){
-    const io = new IntersectionObserver((entries, obs) => {
-      if (entries.some(e => e.isIntersecting)){ initFooterGradient(); obs.disconnect(); }
-    }, { rootMargin:'50% 0px' });
-    io.observe(footerEl);
-  } else if (footerEl) initFooterGradient();
 }
 
 /* the film has chapters — arrow keys step between them, the way a director's
@@ -1418,13 +1165,14 @@ function setFloatCta(on){
   gsap.to(el, { opacity: on ? 1 : 0, duration:.5, ease:'power2.out' });
 }
 
-/* ————————————————— the film — scroll choreography ————————————————— */
+
+/* ——————————————— the film — scroll choreography ——————————————— */
 function buildFilm(){
-  const seenChars = splitChars($('#seen'));
-  const fadeChars = splitChars($('#fades'));
+  buildCarousel();
+  buildWorkFlat();
 
   /* chapter tracking */
-  $$('section[data-chapter]').forEach(sec => {
+  $$('[data-chapter]').forEach(sec => {
     ScrollTrigger.create({
       trigger: sec, start: 'top 55%', end: 'bottom 55%',
       onEnter: () => setChapter(+sec.dataset.chapter),
@@ -1432,12 +1180,12 @@ function buildFilm(){
     });
   });
 
-  ScrollTrigger.create({ trigger:'#ch1', start:'top 85%',
+  ScrollTrigger.create({ trigger:'#work', start:'top 85%',
     onEnter: () => setFloatCta(true), onLeaveBack: () => setFloatCta(false) });
-  ScrollTrigger.create({ trigger:'#ch5', start:'top 75%',
+  ScrollTrigger.create({ trigger:'#cta', start:'top 75%',
     onEnter: () => setFloatCta(false), onLeaveBack: () => setFloatCta(true) });
 
-  /* the rail — a thin, precious line marking passage through the film.
+/* the rail — a thin, precious line marking passage through the film.
      also carries the fix for the fixed "scroll to remember" hint: it sits
      bottom-right for the whole film, but the footer's own bottom-right
      content (email, copy-email button) lands in that exact same corner
@@ -1462,7 +1210,9 @@ function buildFilm(){
       else if (st.progress <= 0.985 && hintForcedHidden){ hintForcedHidden = false; gsap.to(hintEl, { opacity:1, duration:.4, ease:'power2.out' }); }
     } });
 
-  /* 00 · the mark, as a window — grows until it swallows the white page,
+  
+
+/* 00 · the mark, as a window — grows until it swallows the white page,
      then dissolves well before chapter 1 arrives. It does not linger.
      Shorter pin than before (was +=130%, ~2.3 viewport-heights of scroll
      before any chapter-1 content showed up) — the fade/zoom fractions
@@ -1511,109 +1261,44 @@ function buildFilm(){
     onEnterBack: () => { heroCanvasEl.style.visibility = 'visible'; heroActive = true; }
   });
 
-  /* 01 · the thesis — pure kinetic type, no particle system underneath it.
-     the ambient dust keeps doing its own quiet thing in the background
-     (untouched here); this chapter no longer drives it into a "coalesce
-     into the mark" moment of its own — that spectacle now belongs to the
-     hero and the closing chapter only. shorter pin than before, too: a
-     two-line beat doesn't need the runway a WebGL event did. */
-  const tl1 = gsap.timeline({
-    scrollTrigger: { trigger:'#ch1', start:'top top', end:'+=90%', pin:true, scrub:true }
-  });
-  tl1.fromTo(seenChars, { opacity:0, y:14 },
-      { opacity:1, y:0, stagger:.012, duration:.1, ease:'power2.out' }, 0)
-     .to(seenChars, { x: i => (Math.sin(i*7.3)*140), y: i => -30 - (Math.abs(Math.cos(i*3.1))*120),
-      opacity:0, rotation: i => Math.sin(i)*10,
-      stagger:{ each:.008, from:'center' }, duration:.3, ease:'power2.in' }, .22)
-     .fromTo('#rem', { opacity:0, filter:'blur(18px)', scale:.985 },
-      { opacity:1, filter:'blur(0px)', scale:1, duration:.32, ease:'power2.out' }, .38)
-     .fromTo('#markline', { opacity:0 }, { opacity:1, duration:.08 }, .74)
-     .fromTo('#markline-fill', { scaleX:0, transformOrigin:'left' }, { scaleX:1, duration:.18, ease:'none' }, .78)
-     .to({}, { duration:.04 });
+  
 
-  /* leaving ch1 : keep text visible until pin releases, then it lifts away */
-  gsap.to('#ch1 .stack', {
-    scrollTrigger: { trigger:'#ch2', start:'top bottom', end:'top 45%', scrub:true },
-    opacity:0, y:-80, ease:'none'
-  });
+  /* background field — the two colour beats after the hero's own black */
+  const bgField = $('#bg-field');
+  if (bgField && hasLibs){
+    gsap.to(bgField, { backgroundColor:'#e5352b', ease:'none',
+      scrollTrigger:{ trigger:'#cta', start:'top bottom', end:'top 25%', scrub:true } });
+    gsap.to(bgField, { backgroundColor:'#f5f1e8', ease:'none',
+      scrollTrigger:{ trigger:'#site-footer', start:'top bottom', end:'top 35%', scrub:true } });
+  }
 
-  /* the particle film (dust/mark/horizon ambience) has been pulled out
-     entirely for now — it was showing up as a spectacle in three places
-     when it should only ever be one. It's reserved for a reworked
-     appearance in the footer in a later pass, not reintroduced here. */
+  /* work — pin the carousel unit and scrub its rotation against scroll */
+  if (carouselApi && $('#work-pin')){
+    const workST = ScrollTrigger.create({
+      trigger:'#work-pin', start:'top top', end:'+=' + (carouselApi.n * 70) + '%', pin:true, scrub:true,
+      onUpdate: st => carouselApi.render(st.progress)
+    });
+    carouselApi.goTo = i => {
+      const p = clamp01(i / (carouselApi.n - 1));
+      const y = workST.start + (workST.end - workST.start) * p;
+      if (lenis) lenis.scrollTo(y, { duration:1.2, easing:t=>1-Math.pow(1-t,4) }); else scrollTo({ top:y, behavior:'smooth' });
+    };
+    $$('.carousel__nav button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const dir = +btn.dataset.dir;
+        const next = Math.max(0, Math.min(carouselApi.n - 1, carouselApi.active + dir));
+        carouselApi.goTo(next);
+      });
+    });
+  }
 
-  /* chapter heads */
-  $$('[data-chead]').forEach(head => {
-    gsap.timeline({ scrollTrigger:{ trigger:head, start:'top 82%' } })
-      .to(head.querySelectorAll('.word > span'), { y:0, duration:1.1, stagger:.09, ease:'expo.out' }, 0)
-      .to(head.querySelector('.rule'), { scaleX:1, duration:1.4, ease:'expo.out' }, .15)
-      .from(head.querySelector('.idx'), { opacity:0, duration:.8 }, .2);
-  });
-
-  /* generic reveals */
+  /* generic reveals — every [data-io] element rises in once it's in view */
   $$('[data-io]').forEach(el => {
-    gsap.fromTo(el, { opacity:0, y:44 }, { opacity:1, y:0, duration:1.3, ease:'expo.out',
+    gsap.fromTo(el, { opacity:0, y:40 }, { opacity:1, y:0, duration:1.2, ease:'expo.out',
       scrollTrigger:{ trigger:el, start:'top 88%' } });
   });
 
-  /* footer reveals — 'top 88%' can never fire for content this close to the
-     very end of the page: once the page runs out of scroll room, the
-     footer's top freezes wherever it lands, which may never reach 88% down
-     the viewport, leaving it stuck at opacity 0 forever. 'top bottom' fires
-     the moment the element starts entering the viewport at all, which is
-     always reachable regardless of how little scroll room is left below it. */
-  $$('[data-io-end]').forEach(el => {
-    gsap.fromTo(el, { opacity:0, y:24 }, { opacity:1, y:0, duration:1.1, ease:'expo.out',
-      scrollTrigger:{ trigger:el, start:'top bottom' } });
-  });
-
-  /* 03 · portrait — a quiet parallax bob, nothing else in the way of the image */
-  const pImg = $('#portrait-img');
-  if (pImg) gsap.fromTo(pImg, { y:22 }, { y:-22, ease:'none',
-    scrollTrigger:{ trigger:'#portrait', start:'top bottom', end:'bottom top', scrub:true } });
-  $$('#about p').forEach(p => {
-    gsap.fromTo(p, { opacity:0, y:36, filter:'blur(4px)' },
-      { opacity:1, y:0, filter:'blur(0px)', duration:1.4, ease:'expo.out',
-        scrollTrigger:{ trigger:p, start:'top 86%' } });
-  });
-
-  /* 04 · the fade — a small, contained, connective beat: two short lines,
-     restrained motion, no shader, not pinned. This used to be a full-screen
-     particle event (the dust rising toward its next formation); that was
-     the site's third "coalesce into the mark" moment and diluted the two
-     real spectacles either side of it. The ambient dust itself just holds
-     quietly here — same level it settled to in the archive — with no
-     phase/wobble driving of its own. */
-  gsap.timeline({
-    scrollTrigger: { trigger:'#ch4', start:'top 75%', end:'top 25%', scrub:true }
-  })
-  .fromTo(fadeChars, { opacity:0, y:10 }, { opacity:1, y:0, stagger:.02, duration:.15, ease:'power2.out' }, 0)
-  .to(fadeChars, { y:-24, opacity:0, stagger:{ each:.015, from:'start' }, duration:.25, ease:'power1.in' }, .3)
-  .fromTo('#stays', { opacity:0, filter:'blur(8px)' },
-      { opacity:1, filter:'blur(0px)', duration:.3, ease:'power2.out' }, .55)
-  .fromTo('#stays .stop', { scale:0, transformOrigin:'50% 70%' },
-      { scale:1, duration:.12, ease:'back.out(3)' }, .8)
-  .to({}, { duration:.1 });
-
-  gsap.to('#ch4 .fadewrap', {
-    scrollTrigger:{ trigger:'#ch5', start:'top bottom', end:'top 50%', scrub:true },
-    opacity:0, y:-30, ease:'none'
-  });
-
-  const invT = gsap.timeline({ scrollTrigger:{ trigger:'#inv-title', start:'top 80%' } });
-  invT.to('#inv-title .word > span', { y:0, duration:1.2, stagger:.08, ease:'expo.out' })
-      .add(() => $('#inv-title').classList.add('lit'), '-=.3');
-
-  // the CTA's infinite stroke-color cycle only costs anything while it's
-  // actually visible — no reason to animate a backdrop-filtered element
-  // sitting off-screen for the rest of the page
-  const bigCta = $('#ch5 .bigcta');
-  if (bigCta && 'IntersectionObserver' in window){
-    new IntersectionObserver(es => es.forEach(en =>
-      bigCta.classList.toggle('in-view', en.isIntersecting)), { threshold:.1 }).observe(bigCta);
-  } else if (bigCta) bigCta.classList.add('in-view');
-
-  ScrollTrigger.refresh();
+ScrollTrigger.refresh();
 
   // keep every pinned section's math honest as images/video load in later
   let refreshPending = false;
@@ -1633,21 +1318,14 @@ function buildFilm(){
   addEventListener('resize', safeRefresh);
 }
 
-/* ————————————————— static fallback content ————————————————— */
+
+/* ——————————————— static fallback content ——————————————— */
 function buildStatic(){
+  buildCarousel(); buildWorkFlat();
   setChapter(0);
   $$('#chapter, #hint, .mark, .chrome-cta, #float-cta, #rail').forEach(el => el && (el.style.opacity = 1));
   const railFillStatic = $('#rail-fill'); if (railFillStatic) railFillStatic.style.transform = 'scaleY(1)';
   const fc = $('#float-cta'); if (fc) fc.classList.add('on');
-  $$('.chead .word > span').forEach(s => s.style.transform = 'none');
-  $$('.chead .rule').forEach(r => r.style.transform = 'scaleX(1)');
-  $$('#inv-title .word > span').forEach(s => s.style.transform = 'none');
-  $('#inv-title').classList.add('lit');
-  const rem = $('#rem'); rem.style.position='static'; rem.style.transform='none'; rem.style.opacity=1; rem.style.filter='none';
-  const seen = $('#seen'); seen.style.position='static'; seen.style.transform='none'; seen.style.marginBottom='0.2em';
-  $('#stays').style.opacity = 1; $('#stays').style.filter = 'none';
-  const ml = $('#markline'); ml.style.opacity = 1; ml.style.position='static'; ml.style.transform='none'; ml.style.margin='28px auto 0'; $('#markline-fill').style.transform = 'scaleX(1)';
-  const bigCtaStatic = $('#ch5 .bigcta'); if (bigCtaStatic) bigCtaStatic.classList.add('in-view');
 }
 
 /* ————————————————— overture ————————————————— */
@@ -1709,5 +1387,159 @@ Promise.all([document.fonts.ready, minWait, new Promise(r => {
 
 })();
 </script>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+/* the floating mark — a persistent, independent WebGL layer carrying the
+   3D logo along a predesigned path from hero to footer. Deliberately its
+   own module/script, decoupled from the classic script that runs the hero
+   shader and scroll choreography: if the glb fails to load, or this file
+   throws, the rest of the site is completely unaffected. */
+
+const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let hasGL = false;
+try { const c = document.createElement('canvas'); hasGL = !!(c.getContext('webgl2') || c.getContext('webgl')); } catch (e) {}
+
+if (prefersReduced || !hasGL) {
+  document.documentElement.classList.add('no-webgl');
+} else {
+  initFloatingLogo();
+}
+
+function initFloatingLogo() {
+  const wrap = document.createElement('div');
+  wrap.id = 'logo-field';
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  wrap.appendChild(canvas);
+  document.body.appendChild(wrap);
+
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'low-power' });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+  renderer.setSize(innerWidth, innerHeight, false);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, 0.1, 100);
+  camera.position.set(0, 0, 9);
+
+  // a small procedural room environment gives the transmissive/iridescent
+  // material something to reflect, without needing an external HDR asset
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  const key = new THREE.DirectionalLight(0xffffff, 1.1);
+  key.position.set(3, 4, 5);
+  scene.add(key, new THREE.AmbientLight(0xffffff, 0.35));
+
+  let mesh = null;
+  new GLTFLoader().load('assets/models/logo3d.glb', gltf => {
+    const material = new THREE.MeshPhysicalMaterial({
+      color: 0xffffff,
+      metalness: 0.05,
+      roughness: 0.12,
+      transmission: 0.9,
+      thickness: 0.6,
+      ior: 1.4,
+      iridescence: 1,
+      iridescenceIOR: 1.3,
+      iridescenceThicknessRange: [120, 420],
+      clearcoat: 0.5,
+      clearcoatRoughness: 0.2,
+      envMapIntensity: 1.3
+    });
+    gltf.scene.traverse(o => { if (o.isMesh) o.material = material; });
+
+    // normalise scale/centre so any supplied model sits predictably at unit size
+    const box = new THREE.Box3().setFromObject(gltf.scene);
+    const size = new THREE.Vector3(); box.getSize(size);
+    const center = new THREE.Vector3(); box.getCenter(center);
+    const maxDim = Math.max(size.x, size.y, size.z) || 1;
+    const norm = 2 / maxDim;
+    gltf.scene.scale.setScalar(norm);
+    gltf.scene.position.sub(center.multiplyScalar(norm));
+
+    mesh = new THREE.Group();
+    mesh.add(gltf.scene);
+    scene.add(mesh);
+  }, undefined, () => { /* model failed to load — canvas just stays empty, nothing else breaks */ });
+
+  // the predesigned pathway: normalised screen-space keyframes the mark
+  // travels through as the visitor scrolls the whole document — smallest
+  // and off to the side in the hero, receding through work/about/cta,
+  // arriving centred and largest in the footer
+  const KEYFRAMES = [
+    { p: 0.00, x: 0.30, y: 0.46, scale: 0.30 },
+    { p: 0.12, x: -0.30, y: 0.28, scale: 0.44 },
+    { p: 0.32, x: 0.32, y: 0.64, scale: 0.55 },
+    { p: 0.55, x: -0.28, y: 0.36, scale: 0.60 },
+    { p: 0.72, x: 0.00, y: 0.82, scale: 0.48 },
+    { p: 1.00, x: 0.00, y: 0.36, scale: 1.55 }
+  ];
+  function sampleKeyframes(p) {
+    p = Math.max(0, Math.min(1, p));
+    let a = KEYFRAMES[0], b = KEYFRAMES[KEYFRAMES.length - 1];
+    for (let i = 0; i < KEYFRAMES.length - 1; i++) {
+      if (p >= KEYFRAMES[i].p && p <= KEYFRAMES[i + 1].p) { a = KEYFRAMES[i]; b = KEYFRAMES[i + 1]; break; }
+    }
+    const span = (b.p - a.p) || 1;
+    const t = Math.max(0, Math.min(1, (p - a.p) / span));
+    const ease = t * t * (3 - 2 * t);
+    const lerp = (x, y) => x + (y - x) * ease;
+    return { x: lerp(a.x, b.x), y: lerp(a.y, b.y), scale: lerp(a.scale, b.scale) };
+  }
+  function screenToWorld(nx, ny, depth) {
+    const vFOV = camera.fov * Math.PI / 180;
+    const h = 2 * Math.tan(vFOV / 2) * depth;
+    const w = h * camera.aspect;
+    return { x: (nx - 0.5) * w, y: -(ny - 0.5) * h };
+  }
+
+  const isNarrow = () => innerWidth < 760;
+  let t0 = performance.now();
+  function frame(now) {
+    requestAnimationFrame(frame);
+    if (document.hidden) return;
+    const dt = Math.min(0.05, (now - t0) / 1000); t0 = now;
+    const p = Math.max(0, Math.min(1, scrollY / Math.max(1, document.documentElement.scrollHeight - innerHeight)));
+
+    if (mesh) {
+      const k = sampleKeyframes(p);
+      const pos = screenToWorld(k.x, k.y, camera.position.z);
+      mesh.position.set(pos.x, pos.y, 0);
+      mesh.scale.setScalar(k.scale);
+      // ambient rotation never stops, even if scroll does — the mark is
+      // always faintly alive, not just a scroll-bound object
+      mesh.rotation.y += dt * 0.35;
+      mesh.rotation.x += dt * 0.14;
+    }
+
+    // on narrow viewports the mark steps out of the way through the dense
+    // work/about/cta stretch and returns for the hero and footer beats
+    const midPage = p > 0.14 && p < 0.68;
+    wrap.style.opacity = (isNarrow() && midPage) ? 0 : 1;
+
+    renderer.render(scene, camera);
+  }
+  requestAnimationFrame(frame);
+
+  addEventListener('resize', () => {
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight, false);
+  });
+}
+</script>
+
 </body>
 </html>
