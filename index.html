@@ -57,6 +57,10 @@
   --btn-release-dur:420ms;
   --btn-release-ease:cubic-bezier(.34,1.45,.64,1);
   --btn-press-scale:.96;
+
+  /* transitions.dev — universal tokens (P7 modal used for the project case view) */
+  --p7-open-dur:250ms; --p7-close-dur:150ms; --p7-scale:.96; --p7-ease:cubic-bezier(0.22,1,0.36,1);
+  --p6-dur:200ms; --p6-translate-y:8px; --p6-blur:2px; --p6-ease:ease-out;
 }
 
 *{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
@@ -167,7 +171,36 @@ section{position:relative}
 .hero-tag .dot{color:var(--red)}
 
 
-/* ————— background field — the scroll-driven colour arc —————
+/* ————— project case modal (transitions.dev P7) ————— */
+.t-modal-backdrop{position:fixed;inset:0;z-index:220;background:rgba(5,4,3,.72);backdrop-filter:blur(6px);opacity:0;visibility:hidden;transition:opacity var(--p7-close-dur) var(--p7-ease),visibility 0s linear var(--p7-close-dur)}
+.t-modal-backdrop[data-open="true"]{opacity:1;visibility:visible;transition:opacity var(--p7-open-dur) var(--p7-ease),visibility 0s linear}
+.t-modal{position:fixed;inset:0;z-index:221;display:flex;align-items:center;justify-content:center;padding:6vh var(--pad);transform:scale(var(--p7-scale));opacity:0;visibility:hidden;transition:transform var(--p7-close-dur) var(--p7-ease),opacity var(--p7-close-dur) var(--p7-ease),visibility 0s linear var(--p7-close-dur);pointer-events:none}
+.t-modal[data-open="true"]{transform:none;opacity:1;visibility:visible;transition:transform var(--p7-open-dur) var(--p7-ease),opacity var(--p7-open-dur) var(--p7-ease),visibility 0s linear;pointer-events:auto}
+.modal-card{position:relative;max-width:920px;width:100%;max-height:86vh;overflow-y:auto;background:var(--ink-2);border:1px solid var(--cream-10);border-radius:10px;padding:clamp(28px,4vw,56px)}
+.modal-close{position:sticky;top:0;float:right;margin:-8px -8px 0 0;width:38px;height:38px;border-radius:50%;background:var(--cream-06);border:1px solid var(--cream-24);color:var(--cream);font-size:16px;cursor:none;z-index:2}
+body.touch .modal-close{cursor:pointer}
+.modal-num{font-size:11px;letter-spacing:.3em;color:var(--cream-40)}
+.modal-title{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(30px,4vw,52px);margin:6px 0 18px}
+.modal-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.modal-tags span{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--cream-70);border:1px solid var(--cream-24);padding:6px 12px;border-radius:99px}
+.modal-copy{font-size:clamp(15px,1.3vw,18px);line-height:1.75;color:var(--cream-70);max-width:64ch;margin-bottom:8px}
+.modal-copy b{color:var(--cream);font-weight:500}
+.modal-link{display:inline-flex;align-items:center;gap:10px;margin:14px 0 30px;font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:lowercase;color:var(--accent);border-bottom:1px solid currentColor;padding-bottom:6px}
+.modal-link::after{content:"↗";font-size:12px}
+.modal-gallery{display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.4vw,18px)}
+.modal-gallery figure{margin:0}
+.modal-gallery img,.modal-gallery video{display:block;width:100%;height:auto;border-radius:4px}
+.modal-gallery .wide{grid-column:1/-1}
+@media (max-width:640px){.modal-gallery{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){
+  .t-modal,.t-modal-backdrop{transition:opacity 120ms ease,visibility 0s linear 120ms !important;transform:none !important}
+}
+
+/* ————— next-page teaser — fades in during the tail of the hero's own
+   pinned transition so the visitor reads "selected work" before the pin
+   even releases, instead of waiting on a blank handoff ————— */
+#next-tease{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:15;opacity:0;pointer-events:none;text-align:center}
+#next-tease span{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(22px,3.4vw,40px);color:var(--cream)}
    hero -> black happens for free (the hero's own opaque cream layer just
    fades to reveal the body's default ink beneath it — see --hero-bg).
    this field only needs to own the two colour beats after that: the dive
@@ -255,7 +288,9 @@ html.static .work-flat{display:block}
 @media (prefers-reduced-motion:reduce){.cta-avail::before{animation:none}}
 
 /* ————— footer ————— */
-footer{position:relative;padding:14vh var(--pad) 40px;max-width:1400px;margin:0 auto}
+footer{position:relative;padding:14vh var(--pad) 40px;max-width:1400px;margin:0 auto;isolation:isolate}
+#footer-canvas{position:absolute;inset:0;z-index:-1;width:100%;height:100%;display:block;touch-action:pan-y;opacity:0;transition:opacity 1.2s var(--ease-out)}
+#footer-canvas.is-in{opacity:1}
 .fhead{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px;padding-bottom:8vh;border-bottom:1px solid rgba(20,18,16,.1)}
 .fkicker{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(24px,3.2vw,44px);line-height:1.15;max-width:14ch;color:var(--paper-ink)}
 .fmail{font-weight:500;font-size:clamp(15px,1.6vw,20px);letter-spacing:-.01em;color:var(--paper-ink);border-bottom:1px solid rgba(20,18,16,.4);padding-bottom:4px;transition:color .4s,border-color .4s}
@@ -454,6 +489,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
 </main>
 
 <footer id="site-footer" data-chapter="4" class="sec sec--paper">
+  <canvas id="footer-canvas" aria-hidden="true"></canvas>
   <div class="flogo-spacer" aria-hidden="true"></div>
   <svg class="static-mark static-mark--footer" viewBox="0 0 32 32" aria-hidden="true"><path d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/></svg>
   <div class="fhead" data-io>
@@ -498,6 +534,21 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
     <span><span id="clock">--:--</span> cet</span>
   </div>
 </footer>
+
+<div id="next-tease" aria-hidden="true"><span>selected work</span></div>
+
+<div class="t-modal-backdrop" id="modal-backdrop" data-open="false"></div>
+<div class="t-modal" id="modal" data-open="false" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal-card">
+    <button type="button" class="modal-close" id="modal-close" data-hover aria-label="close">✕</button>
+    <span class="modal-num" id="modal-num"></span>
+    <h3 class="modal-title" id="modal-title"></h3>
+    <p class="modal-tags" id="modal-tags"></p>
+    <p class="modal-copy" id="modal-copy"></p>
+    <a class="modal-link" id="modal-link" href="#" target="_blank" rel="noopener" data-hover hidden>visit the live site</a>
+    <div class="modal-gallery" id="modal-gallery"></div>
+  </div>
+</div>
 
 
 
@@ -938,19 +989,46 @@ if (GL) initHero();
 const PROJECTS = [
   { num:'01', title:'gorjup', meta:'wine label',
     copy:"a wine label built to survive being picked up. the shadow of a leaf, cast on stone, became the illustration. <b>the illustration became a mark you can find with your thumb</b> before you've read a word.",
-    tags:['identity','packaging'], link:null, cover:'assets/img/gorjup-01.jpg' },
+    tags:['identity','packaging'], link:null, cover:'assets/img/gorjup-01.jpg',
+    gallery:[
+      { src:'assets/img/gorjup-01.jpg', wide:true },
+      { src:'assets/img/gorjup-02.jpg' },
+      { src:'assets/img/gorjup-03.jpg' },
+      { src:'assets/img/gorjup-04.jpg', wide:true }
+    ] },
   { num:'02', title:'kosovel', meta:'editorial · booklet',
     copy:"a hundred years is long enough for a poet to be forgotten. this booklet was built so srečko kosovel's constructivist work wouldn't be — <b>his kons poems set back into motion through typography built to be read twice:</b> once for the words, once for the shape they make.",
-    tags:['editorial','typography'], link:null, cover:'assets/img/kosovel-01.jpg' },
+    tags:['editorial','typography'], link:null, cover:'assets/img/kosovel-01.jpg',
+    gallery:[
+      { src:'assets/img/kosovel-01.jpg', wide:true },
+      { src:'assets/img/kosovel-02.jpg', wide:true },
+      { src:'assets/img/kosovel-03.jpg' },
+      { src:'assets/img/kosovel-04.jpg' }
+    ] },
   { num:'03', title:'santera', meta:'beverage label',
     copy:"not a drink you finish quickly. an arch on the label, a sun-warmed palette, <b>a bottle shaped for the second pour more than the first.</b> built for the part of the evening nobody's in a hurry to end.",
-    tags:['identity','packaging'], link:null, cover:'assets/img/santera-01.jpg' },
+    tags:['identity','packaging'], link:null, cover:'assets/img/santera-01.jpg',
+    gallery:[
+      { src:'assets/img/santera-01.jpg', wide:true },
+      { src:'assets/img/santera-02.jpg', wide:true }
+    ] },
   { num:'04', title:'ronki', meta:'olive oil identity',
     copy:"two olives, drawn close enough together that they start to look like a face watching you back. that's the whole brief in one mark — <b>generations of careful selection, pressed into something you'd notice</b> on a shelf full of oil that all looks the same at a glance.",
-    tags:['identity','packaging'], link:null, cover:'assets/img/ronki-01.jpg' },
+    tags:['identity','packaging'], link:null, cover:'assets/img/ronki-01.jpg',
+    gallery:[
+      { src:'assets/img/ronki-01.jpg', wide:true },
+      { src:'assets/img/ronki-02.jpg', wide:true },
+      { src:'assets/img/ronki-03.jpg' },
+      { src:'assets/img/ronki-04.jpg' }
+    ] },
   { num:'05', title:'2fit2fail', meta:'web design / brand',
     copy:"a training system doesn't need to look loud to feel serious. this one does anyway, on purpose — <b>sharp type, acid accents, a site built with the same discipline</b> the training plans are. built to move, not just to load.",
-    tags:['identity','website'], link:'https://zhp.vercel.app/', cover:'assets/img/zhp-01.jpg' }
+    tags:['identity','website'], link:'https://zhp.vercel.app/', cover:'assets/img/zhp-01.jpg',
+    gallery:[
+      { src:'assets/video/zhp-anim.webm', video:true, wide:true },
+      { src:'assets/img/zhp-01.jpg', wide:true },
+      { src:'assets/img/zhp-02.jpg', wide:true }
+    ] }
 ];
 
 /* ————————————————— work — orbital carousel (desktop) ————————————————— */
@@ -966,8 +1044,18 @@ function buildCarousel(){
       <div class="pcard__meta"><span class="pcard__num">${p.num}</span><span class="pcard__name">${p.title}</span></div>
     </article>`).join('');
   const cards = $$('.pcard', stage);
-  const radius = Math.max(320, Math.min(innerWidth, 900) * 0.62);
-  cards.forEach((c,i) => { c.style.transform = `rotateY(${i*step}deg) translateZ(${radius}px)`; });
+  // a DNA-strand tunnel, not a flat ring: cards alternate onto two strands
+  // (even indices sit high, odd low) around the same axis, and each card's
+  // own depth pulls toward the camera as it nears the active angle — so
+  // scrolling reads as travelling forward through a helix, not spinning a
+  // carousel in place
+  const radius = Math.max(280, Math.min(innerWidth, 900) * 0.5);
+  const strandY = Math.min(120, innerWidth * 0.08);
+  const tunnelPull = 220;
+  cards.forEach((c,i) => {
+    const y = (i % 2 === 0 ? 1 : -1) * strandY;
+    c.style.transform = `rotateY(${i*step}deg) translateZ(${radius}px) translateY(${y}px)`;
+  });
 
   const detTags = $('#pd-tags'), detTitle = $('#pd-title'), detCopy = $('#pd-copy'), detLink = $('#pd-link');
   function paintDetail(i){
@@ -979,45 +1067,101 @@ function buildCarousel(){
     else detLink.hidden = true;
   }
 
+  let ambientSpin = 0;
   let groupRot = 0;
   function render(progress){
+    if (carouselApi) carouselApi.lastP = progress;
     // settles exactly on the last card at progress = 1, no wrap-around
     groupRot = -progress * step * (n - 1);
-    stage.style.transform = `rotateY(${groupRot}deg)`;
+    stage.style.transform = `rotateY(${groupRot + ambientSpin}deg)`;
     let nearest = 0, nearestDist = Infinity;
     cards.forEach((c,i) => {
       let a = (i*step + groupRot) % 360;
       if (a > 180) a -= 360; if (a < -180) a += 360;
       const dist = Math.abs(a);
       const t = clamp01(1 - dist/110);
-      c.style.opacity = 0.22 + t*0.78;
-      const s = 0.72 + t*0.28;
-      c.style.transform = `rotateY(${i*step}deg) translateZ(${radius}px) scale(${s})`;
+      const y = (i % 2 === 0 ? 1 : -1) * strandY;
+      c.style.opacity = 0.16 + t*0.84;
+      const s = 0.62 + t*0.4;
+      // the nearest card is pulled forward out of the strand toward the
+      // camera — the tunnel-depth cue — while the rest sit back at the
+      // strand's own radius
+      const z = radius - t*tunnelPull;
+      c.style.transform = `rotateY(${i*step}deg) translateZ(${z}px) translateY(${y*(1 - t*0.3)}px) scale(${s})`;
       if (dist < nearestDist){ nearestDist = dist; nearest = i; }
     });
     if (nearest !== carouselApi.active){ carouselApi.active = nearest; paintDetail(nearest); }
   }
   paintDetail(0);
 
-  carouselApi = { render, active:0, n, radius: () => radius };
+  carouselApi = { render, active:0, n, radius: () => radius, rerender: () => render(carouselApi.lastP || 0) };
+
+  // a slow ambient turn keeps the helix quietly alive even when the
+  // visitor isn't scrolling — paused entirely under reduced motion
+  if (!prefersReduced){
+    let last = performance.now();
+    const spin = now => {
+      requestAnimationFrame(spin);
+      const dt = (now - last) / 1000; last = now;
+      ambientSpin += dt * 2.4;
+      render(carouselApi.lastP || 0);
+    };
+    requestAnimationFrame(spin);
+  }
 
   $$('.pcard', stage).forEach(c => {
-    c.addEventListener('click', () => carouselApi.goTo(+c.dataset.i));
+    c.addEventListener('click', () => openProjectModal(+c.dataset.i));
   });
+}
+
+/* ————————————————— project case modal ————————————————— */
+function galleryFigureHTML(g){
+  const media = g.video
+    ? `<video src="${g.src}" muted loop playsinline autoplay preload="metadata"></video>`
+    : `<img src="${g.src}" alt="" loading="lazy">`;
+  return `<figure${g.wide ? ' class="wide"' : ''}>${media}</figure>`;
+}
+function openProjectModal(i){
+  const p = PROJECTS[i];
+  if (!p) return;
+  $('#modal-num').textContent = p.num;
+  $('#modal-title').textContent = p.title;
+  $('#modal-tags').innerHTML = p.tags.map(t => `<span>${t}</span>`).join('');
+  $('#modal-copy').innerHTML = p.copy;
+  const link = $('#modal-link');
+  if (p.link){ link.href = p.link; link.hidden = false; } else link.hidden = true;
+  $('#modal-gallery').innerHTML = (p.gallery || []).map(galleryFigureHTML).join('');
+  $('#modal-backdrop').dataset.open = 'true';
+  $('#modal').dataset.open = 'true';
+  document.body.style.overflow = 'hidden';
+  if (lenis) lenis.stop();
+}
+function closeProjectModal(){
+  $('#modal-backdrop').dataset.open = 'false';
+  $('#modal').dataset.open = 'false';
+  document.body.style.overflow = '';
+  if (lenis) lenis.start();
+}
+{
+  const closeBtn = $('#modal-close'), backdrop = $('#modal-backdrop');
+  if (closeBtn) closeBtn.addEventListener('click', closeProjectModal);
+  if (backdrop) backdrop.addEventListener('click', closeProjectModal);
+  addEventListener('keydown', e => { if (e.key === 'Escape' && $('#modal').dataset.open === 'true') closeProjectModal(); });
 }
 
 /* ————————————————— work — flat list (mobile / reduced motion) ————————————————— */
 function buildWorkFlat(){
   const el = $('#work-flat');
   if (!el) return;
-  el.innerHTML = PROJECTS.map(p => `
-    <div class="wf-item">
+  el.innerHTML = PROJECTS.map((p,i) => `
+    <div class="wf-item" data-i="${i}" data-hover>
       <div class="wf-item__media"><img src="${p.cover}" alt="${p.title}" loading="lazy"></div>
       <span class="wf-item__num">${p.num}</span>
       <span class="wf-item__name">${p.title}</span>
       <p class="wf-item__copy">${p.copy}</p>
-      ${p.link ? `<a class="wf-item__link" href="${p.link}" target="_blank" rel="noopener" data-hover>visit the live site</a>` : ''}
+      <a class="wf-item__link" data-hover>view case</a>
     </div>`).join('');
+  $$('.wf-item', el).forEach(item => item.addEventListener('click', () => openProjectModal(+item.dataset.i)));
 }
 
 /* ————————————————— newsletter — quiet footer signup ————————————————— */
@@ -1117,6 +1261,136 @@ if (clockEl){
   }
 }
 
+/* footer — a small animated gradient-mesh WebGL shader, recoloured for the
+   footer's paper/cream background (the hero and work/about/cta run dark,
+   so this is the one place a light-on-light warm shimmer is right). Blobs
+   subtract warmth from the cream base rather than adding brightness on
+   top of it — additive glow would just blow out to white on a light
+   background. Lazily initialised only once the footer is close to view. */
+function initFooterGradient(){
+  const canvas = $('#footer-canvas');
+  const footerEl = $('#site-footer');
+  if (!canvas || !footerEl || !GL) return;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias:false, alpha:true, powerPreference:'low-power' });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+  const size0 = footerEl.getBoundingClientRect();
+  renderer.setSize(size0.width || innerWidth, Math.max(size0.height, innerHeight), false);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+  const geo = new THREE.PlaneGeometry(2,2);
+  const uniforms = {
+    uTime: { value: 0 },
+    uResolution: { value: new THREE.Vector2(size0.width||innerWidth, size0.height||innerHeight) },
+    uMouse: { value: new THREE.Vector2(0.5, 0.4) },
+    uMouseActive: { value: 0 },
+    uMouseEnergy: { value: 0 }
+  };
+  const mat = new THREE.ShaderMaterial({
+    uniforms,
+    vertexShader:`varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position,1.0); }`,
+    fragmentShader:`
+      precision highp float;
+      uniform float uTime;
+      uniform vec2 uResolution;
+      uniform vec2 uMouse;
+      uniform float uMouseActive;
+      uniform float uMouseEnergy;
+      varying vec2 vUv;
+      float blob(vec2 uv, vec2 center, float radius){
+        return smoothstep(radius, 0.0, length(uv - center));
+      }
+      void main(){
+        float aspect = uResolution.x / max(uResolution.y, 1.0);
+        vec2 uv = vUv * vec2(aspect, 1.0);
+        float t = uTime * 0.035;
+
+        vec2 m = uMouse * vec2(aspect, 1.0);
+        vec2 pull = (m - vec2(0.5*aspect, 0.45)) * 0.05 * uMouseActive;
+
+        vec2 c1 = vec2(0.25 + sin(t*1.3)*0.16, 0.55 + cos(t*1.05)*0.18) * vec2(aspect,1.0) + pull;
+        vec2 c2 = vec2(0.75 + cos(t*0.85)*0.18, 0.65 + sin(t*1.35)*0.16) * vec2(aspect,1.0) + pull*0.6;
+        vec2 c3 = vec2(0.5 + sin(t*0.65+2.1)*0.22, 0.25 + cos(t*0.55)*0.16) * vec2(aspect,1.0) + pull*0.8;
+
+        // cream base — the same paper tone the footer sits on, so the
+        // shader reads as texture in the page rather than a panel on it
+        vec3 base = vec3(0.961, 0.945, 0.909);
+        vec3 col = base;
+        // subtractive blobs: warm rose / amber / cool blue stains, kept
+        // faint — this is meant to be felt more than seen
+        col -= blob(uv, c1, 0.5) * vec3(0.10, 0.16, 0.22) * 0.5;
+        col -= blob(uv, c2, 0.46) * vec3(0.05, 0.10, 0.02) * 0.5;
+        col -= blob(uv, c3, 0.5) * vec3(0.16, 0.10, 0.20) * 0.4;
+
+        float mr = 0.22 + uMouseEnergy * 0.1;
+        float mGlow = blob(uv, m, mr) * uMouseActive;
+        col -= mGlow * vec3(0.10, 0.14, 0.02) * (0.35 + uMouseEnergy * 0.3);
+
+        // a soft fade across the footer's own top edge, matching before
+        float edgeFade = smoothstep(0.0, 0.22, vUv.y);
+        col = mix(base, col, edgeFade);
+
+        gl_FragColor = vec4(col, 1.0);
+      }`
+  });
+  scene.add(new THREE.Mesh(geo, mat));
+
+  let targetMouse = { x: 0.5, y: 0.4 }, curMouse = { x: 0.5, y: 0.4 };
+  let targetActive = 0, curActive = 0;
+  let lastPX = null, lastPY = null, energy = 0;
+  const onPointerMove = e => {
+    const r = footerEl.getBoundingClientRect();
+    if (e.clientY < r.top - 40 || e.clientY > r.bottom + 40){ targetActive = 0; return; }
+    targetMouse.x = (e.clientX - r.left) / Math.max(r.width, 1);
+    targetMouse.y = 1 - (e.clientY - r.top) / Math.max(r.height, 1);
+    targetActive = 1;
+    if (lastPX !== null){
+      const d = Math.hypot(e.clientX - lastPX, e.clientY - lastPY);
+      energy = Math.min(1, energy + d * 0.012);
+    }
+    lastPX = e.clientX; lastPY = e.clientY;
+  };
+  addEventListener('pointermove', onPointerMove, { passive:true });
+  addEventListener('pointerleave', () => targetActive = 0);
+
+  let visible = true;
+  document.addEventListener('visibilitychange', () => visible = !document.hidden);
+  const clock = new THREE.Clock();
+  const tick = () => {
+    requestAnimationFrame(tick);
+    if (!visible) return;
+    uniforms.uTime.value = clock.getElapsedTime();
+    curMouse.x = lerp(curMouse.x, targetMouse.x, .07);
+    curMouse.y = lerp(curMouse.y, targetMouse.y, .07);
+    curActive = lerp(curActive, targetActive, .05);
+    energy = lerp(energy, 0, .04);
+    uniforms.uMouse.value.set(curMouse.x, curMouse.y);
+    uniforms.uMouseActive.value = curActive;
+    uniforms.uMouseEnergy.value = energy;
+    renderer.render(scene, camera);
+  };
+  tick();
+
+  addEventListener('resize', () => {
+    const r = footerEl.getBoundingClientRect();
+    const w = r.width || innerWidth, h = Math.max(r.height, innerHeight);
+    renderer.setSize(w, h, false);
+    uniforms.uResolution.value.set(w, h);
+  });
+
+  requestAnimationFrame(() => canvas.classList.add('is-in'));
+}
+if (GL){
+  const footerEl = $('#site-footer');
+  if (footerEl && 'IntersectionObserver' in window){
+    const io = new IntersectionObserver((entries, obs) => {
+      if (entries.some(e => e.isIntersecting)){ initFooterGradient(); obs.disconnect(); }
+    }, { rootMargin:'50% 0px' });
+    io.observe(footerEl);
+  } else if (footerEl) initFooterGradient();
+}
+
 /* the film has chapters — arrow keys step between them, the way a director's
    scrubber would, rather than fighting the pinned scroll pixel by pixel */
 {
@@ -1185,6 +1459,16 @@ function buildFilm(){
   ScrollTrigger.create({ trigger:'#cta', start:'top 75%',
     onEnter: () => setFloatCta(false), onLeaveBack: () => setFloatCta(true) });
 
+  // the footer returns to the hero's paper colour, so the fixed nav chrome
+  // (logo mark, "start a project", chapter label, rail, hint) needs to flip
+  // back to dark-on-light here too — otherwise it's cream text stranded on
+  // a cream background, unreadable
+  ScrollTrigger.create({ trigger:'#site-footer', start:'top 55%',
+    onEnter: () => document.body.classList.add('chrome-light'),
+    onEnterBack: () => document.body.classList.add('chrome-light') });
+  ScrollTrigger.create({ trigger:'#site-footer', start:'top 55%',
+    onLeaveBack: () => document.body.classList.remove('chrome-light') });
+
 /* the rail — a thin, precious line marking passage through the film.
      also carries the fix for the fixed "scroll to remember" hint: it sits
      bottom-right for the whole film, but the footer's own bottom-right
@@ -1220,8 +1504,9 @@ function buildFilm(){
      physical scroll distance instead of dragging. */
   const ch0El = $('#ch0');
   const heroCanvasEl = $('#hero-canvas');
+  const nextTeaseEl = $('#next-tease');
   ScrollTrigger.create({
-    trigger:'#ch0', start:'top top', end:'+=20%', pin:true, scrub:true,
+    trigger:'#ch0', start:'top top', end:'+=30%', pin:true, scrub:true,
     onUpdate: st => {
       const p = st.progress;
       heroU.scrollV = p - heroU.scrollP;
@@ -1249,8 +1534,17 @@ function buildFilm(){
       // persist into chapter 1 even if a uniform doesn't land exactly on
       // zero
       if (heroCanvasEl) heroCanvasEl.style.opacity = p >= 0.98 ? 0 : 1;
+
+      // the next section's own heading arrives before the pin even lets
+      // go — fades in over the tail of the transition, then hands off to
+      // the real "01 — selected work" heading once #work is in view
+      if (nextTeaseEl){
+        const teaseIn = clamp01((p - 0.55) / 0.3);
+        const teaseOut = clamp01((p - 0.92) / 0.08);
+        nextTeaseEl.style.opacity = Math.max(0, teaseIn - teaseOut);
+      }
     },
-    onLeaveBack: () => { if (heroCanvasEl) heroCanvasEl.style.opacity = 1; }
+    onLeaveBack: () => { if (heroCanvasEl) heroCanvasEl.style.opacity = 1; if (nextTeaseEl) nextTeaseEl.style.opacity = 0; }
   });
   // hard safety net: once you've genuinely left the hero, the canvas is
   // switched off entirely rather than trusting opacity/reveal math alone
@@ -1399,6 +1693,8 @@ Promise.all([document.fonts.ready, minWait, new Promise(r => {
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 /* the floating mark — a persistent, independent WebGL layer carrying the
@@ -1443,7 +1739,13 @@ function initFloatingLogo() {
   scene.add(key, new THREE.AmbientLight(0xffffff, 0.35));
 
   let mesh = null;
-  new GLTFLoader().load('assets/models/logo3d.glb', gltf => {
+  let modelLoaded = false;
+  const draco = new DRACOLoader();
+  draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco/');
+  const gltfLoader = new GLTFLoader();
+  gltfLoader.setDRACOLoader(draco);
+  gltfLoader.setMeshoptDecoder(MeshoptDecoder);
+  gltfLoader.load('assets/models/logo3d.glb', gltf => {
     const material = new THREE.MeshPhysicalMaterial({
       color: 0xffffff,
       metalness: 0.05,
@@ -1472,7 +1774,29 @@ function initFloatingLogo() {
     mesh = new THREE.Group();
     mesh.add(gltf.scene);
     scene.add(mesh);
-  }, undefined, () => { /* model failed to load — canvas just stays empty, nothing else breaks */ });
+    modelLoaded = true;
+  }, undefined, err => {
+    // model failed to parse/load (e.g. served over file:// where module
+    // fetches are blocked by the browser, or an unsupported compression) —
+    // log it so it's debuggable, and fall back to the static mark rather
+    // than leaving an empty, silently-broken canvas
+    console.error('logo3d.glb failed to load — falling back to the static mark. ' +
+      'If you opened this file directly (file://…), serve it from a local ' +
+      'server instead (ES module + glTF fetches are blocked under file://).', err);
+    document.documentElement.classList.add('no-webgl');
+    wrap.remove();
+  });
+
+  // belt-and-braces: if nothing has loaded within a few seconds (slow
+  // network, blocked request), degrade the same way rather than leaving a
+  // dead, invisible canvas on screen indefinitely
+  setTimeout(() => {
+    if (!modelLoaded){
+      console.warn('logo3d.glb did not resolve in time — falling back to the static mark.');
+      document.documentElement.classList.add('no-webgl');
+      wrap.remove();
+    }
+  }, 6000);
 
   // the predesigned pathway: normalised screen-space keyframes the mark
   // travels through as the visitor scrolls the whole document — smallest
