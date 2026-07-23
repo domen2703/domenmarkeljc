@@ -37,13 +37,14 @@
   --red:#e5352b;          /* blood red — precious */
   --paper:#f5f1e8;        /* gallery white — the hero's inversion */
   --paper-ink:#141210;    /* near-black used for content ON paper */
-  /* the whole site is a light/paper theme now — chrome just reads dark
-     permanently, no more light/dark toggling needed */
-  --chrome-c:var(--paper-ink);
-  --chrome-c-55:rgba(20,18,16,.6);
-  --chrome-c-40:rgba(20,18,16,.42);
-  --chrome-c-24:rgba(20,18,16,.24);
-  --chrome-c-10:rgba(20,18,16,.12);
+  /* fixed chrome (logo/cta/chapter/hint/rail) reads cream by default, for
+     the dark work/about/cta sections — flips to ink while body.chrome-light
+     is set, over the cream hero/footer */
+  --chrome-c:var(--cream);
+  --chrome-c-55:var(--cream-55);
+  --chrome-c-40:var(--cream-40);
+  --chrome-c-24:var(--cream-24);
+  --chrome-c-10:var(--cream-10);
   --kuevy:'Geist',-apple-system,sans-serif;
   --sans:'Geist',-apple-system,sans-serif;
   --accent:#3971ff;      /* leeroy-blue — a second, cooler accent alongside red */
@@ -159,6 +160,10 @@ html.static .hero-idx{opacity:1}
 .hero-blob--2{width:26%;height:22%;bottom:6%;right:-30%}
 .hero-blob--3{width:18%;height:15%;top:38%;right:-42%}
 .hero-mark-svg{position:relative;z-index:2;width:100%;height:100%;display:block;filter:drop-shadow(0 30px 50px rgba(20,18,16,.16))}
+.hero-mark-canvas{position:relative;z-index:2;width:100%;height:100%;display:block;filter:drop-shadow(0 30px 50px rgba(20,18,16,.16))}
+.hero-mark-fallback{display:none}
+html.static .hero-mark-canvas,html.no-webgl .hero-mark-canvas{display:none}
+html.static .hero-mark-fallback,html.no-webgl .hero-mark-fallback{display:block}
 .hero-mark-svg image{filter:saturate(.92)}
 
 .hero-caption{position:absolute;left:var(--pad);bottom:var(--pad);z-index:2;opacity:0;max-width:min(46vw,520px)}
@@ -212,33 +217,37 @@ body.touch .modal-close{cursor:pointer}
    fades to reveal the body's default ink beneath it — see --hero-bg).
    this field only needs to own the two colour beats after that: the dive
    into red for the cta, and the return to cream for the footer. */
-.sec{position:relative;z-index:10;padding:16vh var(--pad);color:var(--paper-ink)}
+#bg-field{position:fixed;inset:0;z-index:1;pointer-events:none;background:var(--paper)}
+html.static #bg-field{display:none}
+
+.sec{position:relative;z-index:10;padding:16vh var(--pad);color:var(--cream)}
+footer.sec{color:var(--paper-ink)}
 .sec-head{display:flex;align-items:baseline;gap:22px;margin-bottom:clamp(48px,7vh,90px);max-width:1400px;margin-left:auto;margin-right:auto}
-.sec-idx{font-size:11px;font-weight:400;letter-spacing:.34em;color:rgba(20,18,16,.5)}
+.sec-idx{font-size:11px;font-weight:400;letter-spacing:.34em;color:var(--cream-55)}
 .sec-head h2{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(30px,4.4vw,68px);line-height:1}
-.sec-head .rule{flex:1;height:1px;background:rgba(20,18,16,.12)}
+.sec-head .rule{flex:1;height:1px;background:var(--cream-10)}
 
 /* ————— 01 work — scattered gallery ————— */
 #work.sec--gallery{padding-top:14vh;padding-bottom:10vh}
 .gallery{position:relative;height:min(86vh,760px);min-height:520px}
 #gallery-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y}
-.gallery-idx{position:absolute;left:0;top:50%;transform:translateY(-50%);font-size:11px;letter-spacing:.14em;color:rgba(20,18,16,.4);z-index:3;opacity:0}
-.gallery-label{position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:12px;letter-spacing:.05em;color:rgba(20,18,16,.55);z-index:3;opacity:0}
+.gallery-idx{position:absolute;left:0;top:50%;transform:translateY(-50%);font-size:11px;letter-spacing:.14em;color:var(--cream-55);z-index:3;opacity:0}
+.gallery-label{position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:12px;letter-spacing:.05em;color:var(--cream-70);z-index:3;opacity:0}
 .gallery-copy{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:min(720px,74vw);text-align:center;z-index:3;pointer-events:none;opacity:0}
-.gallery-copy p{font-family:var(--sans);font-weight:400;font-size:clamp(21px,2.7vw,38px);line-height:1.3;color:var(--paper-ink)}
-.gallery-copy em{font-style:italic;font-family:Georgia,'Times New Roman',serif;color:rgba(20,18,16,.75)}
+.gallery-copy p{font-family:var(--sans);font-weight:400;font-size:clamp(21px,2.7vw,38px);line-height:1.3;color:var(--cream)}
+.gallery-copy em{font-style:italic;font-family:Georgia,'Times New Roman',serif;color:var(--cream-70)}
 
 /* mobile / reduced-motion fallback — a plain stacked list, no webgl */
 .work-flat{display:none;max-width:760px;margin:0 auto}
-.wf-item{padding:44px 0;border-top:1px solid rgba(20,18,16,.1);cursor:none}
+.wf-item{padding:44px 0;border-top:1px solid var(--cream-10);cursor:none}
 body.touch .wf-item{cursor:pointer}
-.wf-item:last-child{border-bottom:1px solid rgba(20,18,16,.1)}
-.wf-item__media{border-radius:6px;overflow:hidden;margin-bottom:22px;background:rgba(20,18,16,.06)}
+.wf-item:last-child{border-bottom:1px solid var(--cream-10)}
+.wf-item__media{border-radius:6px;overflow:hidden;margin-bottom:22px;background:var(--ink-2)}
 .wf-item__media img,.wf-item__media video{display:block;width:100%;height:auto}
-.wf-item__num{font-size:10px;letter-spacing:.3em;color:rgba(20,18,16,.4)}
-.wf-item__name{display:block;font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(24px,4vw,34px);margin:6px 0 14px;color:var(--paper-ink)}
-.wf-item__copy{font-size:15px;line-height:1.7;color:rgba(20,18,16,.68)}
-.wf-item__copy b{color:var(--paper-ink);font-weight:500}
+.wf-item__num{font-size:10px;letter-spacing:.3em;color:var(--cream-55)}
+.wf-item__name{display:block;font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(24px,4vw,34px);margin:6px 0 14px;color:var(--cream)}
+.wf-item__copy{font-size:15px;line-height:1.7;color:var(--cream-70)}
+.wf-item__copy b{color:var(--cream);font-weight:500}
 .wf-item__link{display:inline-flex;align-items:center;gap:10px;margin-top:18px;font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:lowercase;color:var(--accent);border-bottom:1px solid currentColor;padding-bottom:6px}
 .wf-item__link::after{content:"↗";font-size:12px}
 
@@ -252,26 +261,27 @@ html.static .work-flat,html.no-webgl .work-flat{display:block}
 /* ————— 02 about ————— */
 #about{max-width:1400px;margin:0 auto}
 .about-grid{display:grid;grid-template-columns:minmax(0,.7fr) minmax(0,1fr);gap:clamp(40px,6vw,110px)}
-.about-copy p{font-size:clamp(17px,1.7vw,24px);line-height:1.7;font-weight:300;color:rgba(20,18,16,.68);margin-bottom:1.1em}
+.about-copy p{font-size:clamp(17px,1.7vw,24px);line-height:1.7;font-weight:300;color:var(--cream-70);margin-bottom:1.1em}
 .about-copy p:last-child{margin-bottom:0}
-.about-copy b{color:var(--paper-ink);font-weight:500}
+.about-copy b{color:var(--cream);font-weight:500}
 @media (max-width:860px){.about-grid{grid-template-columns:1fr;gap:36px}}
 
 /* ————— 03 start a project — the one bold beat ————— */
 #cta{min-height:82vh;display:flex;align-items:center;justify-content:center;text-align:center;padding-top:14vh;padding-bottom:14vh}
 .cta-inner{max-width:900px}
-.cta-h{font-family:var(--sans);font-weight:600;text-transform:lowercase;font-size:clamp(48px,9vw,132px);line-height:.92;letter-spacing:-.01em;color:var(--paper-ink)}
-.cta-sub{margin-top:4vh;font-size:clamp(16px,1.5vw,21px);line-height:1.7;color:rgba(20,18,16,.68);max-width:48ch;margin-left:auto;margin-right:auto}
-.cta-btn{display:inline-flex;align-items:center;gap:18px;margin-top:7vh;font-weight:500;font-size:13px;letter-spacing:.32em;text-transform:lowercase;color:var(--paper);padding:24px 42px;border-radius:99px;background:var(--paper-ink);position:relative;overflow:hidden;will-change:transform}
+.cta-h{font-family:var(--sans);font-weight:600;text-transform:lowercase;font-size:clamp(48px,9vw,132px);line-height:.92;letter-spacing:-.01em;color:var(--cream)}
+.cta-sub{margin-top:4vh;font-size:clamp(16px,1.5vw,21px);line-height:1.7;color:var(--cream-70);max-width:48ch;margin-left:auto;margin-right:auto}
+.cta-btn{display:inline-flex;align-items:center;gap:18px;margin-top:7vh;font-weight:500;font-size:13px;letter-spacing:.32em;text-transform:lowercase;color:var(--ink);padding:24px 42px;border-radius:99px;background:var(--cream);position:relative;overflow:hidden;will-change:transform}
 .cta-btn .arrow{width:24px;height:1px;background:currentColor;position:relative;transition:width .5s var(--ease-out)}
 .cta-btn .arrow::after{content:"";position:absolute;right:0;top:-3px;width:6px;height:6px;border-top:1px solid currentColor;border-right:1px solid currentColor;transform:rotate(45deg)}
 .cta-btn:hover .arrow{width:36px}
-.cta-avail{margin-top:3vh;font-size:11px;font-weight:400;letter-spacing:.2em;text-transform:lowercase;color:rgba(20,18,16,.5);display:flex;align-items:center;justify-content:center;gap:10px}
+.cta-avail{margin-top:3vh;font-size:11px;font-weight:400;letter-spacing:.2em;text-transform:lowercase;color:var(--cream-55);display:flex;align-items:center;justify-content:center;gap:10px}
 .cta-avail::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--red);flex:none;animation:pulse-dot 2.6s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){.cta-avail::before{animation:none}}
 
 /* ————— footer ————— */
-footer{position:relative;padding:14vh var(--pad) 40px;max-width:1400px;margin:0 auto;isolation:isolate}
+footer{position:relative;padding:14vh 0 40px;width:100%;isolation:isolate}
+.footer-inner{max-width:1400px;margin:0 auto;padding:0 var(--pad)}
 #footer-canvas{position:absolute;inset:0;z-index:-1;width:100%;height:100%;display:block;touch-action:pan-y;opacity:0;transition:opacity 1.2s var(--ease-out)}
 #footer-canvas.is-in{opacity:1}
 .fhead{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px;padding-bottom:8vh;border-bottom:1px solid rgba(20,18,16,.1)}
@@ -331,6 +341,7 @@ html.static .hero-sub{color:var(--paper-ink)}
 html.static .hero-heading{opacity:1!important}
 html.static .hero-heading h1{color:var(--paper-ink)}
 html.static [data-io],html.static [data-io-end]{opacity:1!important;transform:none!important}
+html.static #work,html.static #about,html.static #cta{background:var(--ink)}
 a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid var(--red);outline-offset:6px}
 
 /* ————— single-typeface tuning ————— */
@@ -348,6 +359,8 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
 <div id="bg-wash"><span class="wash wash--1"></span><span class="wash wash--2"></span><span class="wash wash--3"></span><span class="wash wash--4"></span><span class="wash wash--5"></span></div>
 <div id="grain"></div>
 
+
+<div id="bg-field"></div>
 
 <!-- preloader -->
 <div id="veil" aria-hidden="true">
@@ -391,7 +404,8 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
         <div class="hero-blob hero-blob--1" aria-hidden="true"></div>
         <div class="hero-blob hero-blob--2" aria-hidden="true"></div>
         <div class="hero-blob hero-blob--3" aria-hidden="true"></div>
-        <svg class="hero-mark-svg" viewBox="0 0 32 32" aria-hidden="true">
+        <canvas class="hero-mark-canvas" id="hero-mark-canvas" aria-hidden="true"></canvas>
+        <svg class="hero-mark-svg hero-mark-fallback" viewBox="0 0 32 32" aria-hidden="true">
           <defs>
             <clipPath id="heroMarkClip" clipPathUnits="userSpaceOnUse">
               <path d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/>
@@ -464,6 +478,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
 
 <footer id="site-footer" data-chapter="4" class="sec">
   <canvas id="footer-canvas" aria-hidden="true"></canvas>
+  <div class="footer-inner">
   <div class="fwordmark" aria-hidden="true"><span>domen</span><span>markeljc</span></div>
   <div class="fhead" data-io>
     <p class="fkicker">let's build something worth picking up.</p>
@@ -506,9 +521,10 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
     <span>identity · packaging · web, made one decision at a time</span>
     <span><span id="clock">--:--</span> cet</span>
   </div>
+  </div>
 </footer>
 
-<div id="next-tease" aria-hidden="true"><span>selected work</span></div>
+<div id="next-tease" aria-hidden="true"><span>gallery</span></div>
 
 <div class="t-modal-backdrop" id="modal-backdrop" data-open="false"></div>
 <div class="t-modal" id="modal" data-open="false" role="dialog" aria-modal="true" aria-labelledby="modal-title">
@@ -630,6 +646,118 @@ if (!isTouch){
 
 
 
+/* ————————————————— hero — shader-distorted mark —————————————————
+   the mark's own silhouette, with the four project photos composited
+   into it (2D canvas clip — reliable, no SDF math needed), then that
+   composite is handed to WebGL as a texture and run through a small
+   ripple-distortion fragment shader so the photos themselves warp with
+   the cursor, the way the old hero shader warped the mark. Falls back to
+   the plain SVG version under reduced-motion / no WebGL. */
+function buildHeroMark(){
+  const canvas = $('#hero-mark-canvas');
+  const wrap = $('#hero-mark-wrap');
+  if (!canvas || !wrap || !GL){ document.documentElement.classList.add('no-webgl'); return; }
+
+  const MARK_PATH = 'M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z';
+  const SIZE = 640;
+  const composite = document.createElement('canvas');
+  composite.width = composite.height = SIZE;
+  const ctx = composite.getContext('2d');
+
+  const sources = ['assets/img/gorjup-01.jpg','assets/img/santera-01.jpg','assets/img/kosovel-01.jpg','assets/img/ronki-01.jpg'];
+  const quads = [
+    { x:-2, y:-2, w:18, h:18 }, { x:15, y:-2, w:19, h:17 },
+    { x:-2, y:14, w:17, h:20 }, { x:14, y:15, w:20, h:19 }
+  ];
+
+  Promise.all(sources.map(src => new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = src;
+  }))).then(images => {
+    const scale = SIZE / 32;
+    ctx.save();
+    ctx.scale(scale, scale);
+    ctx.clip(new Path2D(MARK_PATH));
+    images.forEach((img, i) => {
+      if (!img) return;
+      const q = quads[i];
+      const ir = img.width/img.height, qr = q.w/q.h;
+      let sx=0, sy=0, sw=img.width, sh=img.height;
+      if (ir > qr){ sw = img.height*qr; sx = (img.width-sw)/2; } else { sh = img.width/qr; sy = (img.height-sh)/2; }
+      ctx.drawImage(img, sx, sy, sw, sh, q.x, q.y, q.w, q.h);
+    });
+    ctx.restore();
+    startHeroShader(composite);
+  });
+
+  function startHeroShader(sourceCanvas){
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true, powerPreference:'low-power' });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    const r0 = wrap.getBoundingClientRect();
+    let w = r0.width || 340, h = r0.height || 340;
+    renderer.setSize(w, h, false);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+    const tex = new THREE.CanvasTexture(sourceCanvas);
+    const uniforms = {
+      uTexture:{ value:tex }, uMouse:{ value:new THREE.Vector2(.5,.5) },
+      uEnergy:{ value:0 }, uTime:{ value:0 }
+    };
+    const mat = new THREE.ShaderMaterial({
+      uniforms, transparent:true,
+      vertexShader:`varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position,1.0); }`,
+      fragmentShader:`
+        precision highp float;
+        uniform sampler2D uTexture; uniform vec2 uMouse; uniform float uEnergy; uniform float uTime;
+        varying vec2 vUv;
+        void main(){
+          vec2 uv = vUv;
+          vec2 toMouse = uv - uMouse;
+          float dist = length(toMouse);
+          float falloff = smoothstep(0.55, 0.0, dist);
+          float ripple = sin(dist*22.0 - uTime*3.2) * 0.022 * (0.3 + uEnergy) * falloff;
+          vec2 dir = dist > 0.0001 ? toMouse/dist : vec2(0.0);
+          vec2 duv = uv + dir * ripple;
+          duv += vec2(sin(uv.y*6.0+uTime*0.4), cos(uv.x*6.0+uTime*0.35)) * 0.0025;
+          gl_FragColor = texture2D(uTexture, clamp(duv, 0.0, 1.0));
+        }`
+    });
+    scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2), mat));
+
+    let mx=.5, my=.5, tmx=.5, tmy=.5, energy=0, lastX=null, lastY=null;
+    addEventListener('pointermove', e => {
+      const r = canvas.getBoundingClientRect();
+      tmx = (e.clientX - r.left)/r.width; tmy = 1 - (e.clientY - r.top)/r.height;
+      if (lastX !== null) energy = Math.min(1, energy + Math.hypot(e.clientX-lastX, e.clientY-lastY)*0.02);
+      lastX = e.clientX; lastY = e.clientY;
+    }, { passive:true });
+
+    const clock = new THREE.Clock();
+    let visible = true;
+    document.addEventListener('visibilitychange', () => visible = !document.hidden);
+    function tick(){
+      requestAnimationFrame(tick);
+      if (!visible) return;
+      uniforms.uTime.value = clock.getElapsedTime();
+      mx += (tmx-mx)*0.08; my += (tmy-my)*0.08; energy *= 0.94;
+      uniforms.uMouse.value.set(mx, my);
+      uniforms.uEnergy.value = energy;
+      renderer.render(scene, camera);
+    }
+    tick();
+
+    addEventListener('resize', () => {
+      const r = wrap.getBoundingClientRect();
+      w = r.width || w; h = r.height || h;
+      renderer.setSize(w, h, false);
+    });
+  }
+}
+if (GL) buildHeroMark(); else document.documentElement.classList.add('no-webgl');
+
 /* ————————————————— work — data ————————————————— */
 const PROJECTS = [
   { num:'01', title:'gorjup', meta:'wine label',
@@ -676,7 +804,7 @@ const PROJECTS = [
     ] }
 ];
 
-/* ————————————————— work — scattered gallery (three.js) ————————————————— */
+/* ————————————————— work — dna-path gallery (three.js, scroll-driven) ————————————————— */
 let galleryApi = null;
 function buildGallery(){
   const canvas = $('#gallery-canvas');
@@ -694,28 +822,25 @@ function buildGallery(){
   const camera = new THREE.PerspectiveCamera(42, w/h, 0.1, 100);
   camera.position.set(0, 0, 7);
 
-  // a fixed, art-directed scatter — not random each load — five loose
-  // positions at varied depth and tilt, echoing the floating-device-mockup
-  // reference rather than a neat grid
-  const LAYOUT = [
-    { x:-2.7, y:0.55, z:0,    rz:-7, w:1.7, h:1.15 },
-    { x:-0.75,y:1.2,  z:-1.1, rz:5,  w:1.25,h:0.95 },
-    { x:1.55, y:0.7,  z:-0.3, rz:-6, w:1.55,h:1.1 },
-    { x:2.75, y:-0.55,z:0.35, rz:7,  w:1.5, h:1.05 },
-    { x:-1.85,y:-1.4, z:0.55, rz:4,  w:1.6, h:1.15 }
-  ];
+  const n = PROJECTS.length;
+  const step = (Math.PI * 2) / n;
+  const radius = 2.6;
+  const strandY = 1.05;
+  const group = new THREE.Group();
+  scene.add(group);
+
   const loader = new THREE.TextureLoader();
   const planes = [];
   PROJECTS.forEach((p, i) => {
-    const cfg = LAYOUT[i % LAYOUT.length];
     const mat = new THREE.MeshBasicMaterial({ map:loader.load(p.cover), transparent:true });
-    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(cfg.w, cfg.h), mat);
-    mesh.position.set(cfg.x, cfg.y, cfg.z);
-    mesh.rotation.z = cfg.rz * Math.PI/180;
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.05), mat);
+    const angle = i * step;
     mesh.userData.index = i;
-    mesh.userData.baseY = cfg.y;
-    mesh.userData.bob = i * 1.7;
-    scene.add(mesh);
+    mesh.userData.angle = angle;
+    mesh.userData.strandY = (i % 2 === 0 ? 1 : -1) * strandY;
+    mesh.position.set(Math.sin(angle) * radius, mesh.userData.strandY, Math.cos(angle) * radius);
+    mesh.lookAt(0, mesh.userData.strandY, 0);
+    group.add(mesh);
     planes.push(mesh);
   });
 
@@ -735,7 +860,7 @@ function buildGallery(){
     if (next !== hovered){
       if (hovered) gsap.to(hovered.scale, { x:1, y:1, z:1, duration:.4, ease:'power2.out' });
       hovered = next;
-      if (hovered) gsap.to(hovered.scale, { x:1.06, y:1.06, z:1.06, duration:.4, ease:'power2.out' });
+      if (hovered) gsap.to(hovered.scale, { x:1.08, y:1.08, z:1.08, duration:.4, ease:'power2.out' });
       canvas.style.cursor = hovered ? 'pointer' : '';
     }
   });
@@ -746,27 +871,37 @@ function buildGallery(){
     if (hit) openProjectModal(hit.object.userData.index);
   });
 
-  // gentle mouse parallax on the whole scene, plus a slow independent
-  // bob per plane so the gallery stays quietly alive even at rest
-  let mx = 0, my = 0, tmx = 0, tmy = 0;
-  addEventListener('pointermove', e => {
-    tmx = (e.clientX / innerWidth - 0.5);
-    tmy = (e.clientY / innerHeight - 0.5);
-  }, { passive:true });
+  // ambient turn keeps the helix quietly alive at rest; scroll (via
+  // renderAtProgress, called from the pinned ScrollTrigger in buildFilm)
+  // drives the primary rotation on top of it
+  let ambient = 0, lastActive = 0;
+  function renderAtProgress(progress){
+    group.rotation.y = -progress * step * (n - 1) + ambient;
+    let nearest = 0, nearestDist = Infinity;
+    planes.forEach(m => {
+      const worldAngle = (m.userData.angle + group.rotation.y) % (Math.PI * 2);
+      let a = worldAngle; if (a > Math.PI) a -= Math.PI*2; if (a < -Math.PI) a += Math.PI*2;
+      const dist = Math.abs(a);
+      if (dist < nearestDist){ nearestDist = dist; nearest = m.userData.index; }
+      const t = clamp01(1 - dist / 1.9);
+      const targetScale = m === hovered ? 1.08 : 0.7 + t*0.4;
+      if (m !== hovered){ m.scale.setScalar(targetScale); }
+      m.material.opacity = 0.35 + t*0.65;
+    });
+    if (nearest !== lastActive) lastActive = nearest;
+  }
+  renderAtProgress(0);
 
   const clock = new THREE.Clock();
   let visible = true;
   document.addEventListener('visibilitychange', () => visible = !document.hidden);
+  let lastP = 0;
   function tick(){
     requestAnimationFrame(tick);
     if (!visible) return;
-    const t = clock.getElapsedTime();
-    mx += (tmx - mx) * 0.04;
-    my += (tmy - my) * 0.04;
-    camera.position.x = mx * 0.6;
-    camera.position.y = -my * 0.4;
-    camera.lookAt(0, 0, 0);
-    planes.forEach(m => { m.position.y = m.userData.baseY + Math.sin(t*0.5 + m.userData.bob) * 0.06; });
+    const dt = clock.getDelta();
+    ambient += dt * 0.12;
+    renderAtProgress(lastP);
     renderer.render(scene, camera);
   }
   if (!prefersReduced) tick(); else renderer.render(scene, camera);
@@ -777,7 +912,7 @@ function buildGallery(){
     renderer.setSize(w, h, false);
   });
 
-  galleryApi = { planes };
+  galleryApi = { planes, setProgress: p => { lastP = p; } };
 }
 
 /* ————————————————— project case modal ————————————————— */
@@ -1228,6 +1363,24 @@ function buildFilm(){
   });
 
   
+
+  /* work — pin the gallery and scrub the dna-helix rotation against scroll */
+  if (galleryApi && $('#gallery')){
+    ScrollTrigger.create({
+      trigger:'#gallery', start:'top top', end:'+=' + (galleryApi.planes.length * 65) + '%', pin:true, scrub:true,
+      onUpdate: st => galleryApi.setProgress(st.progress)
+    });
+  }
+
+  /* background field — cream hero fades to near-black entering work, stays
+     black through about/cta, fades back to cream entering the footer */
+  const bgField = $('#bg-field');
+  if (bgField && hasLibs){
+    gsap.to(bgField, { backgroundColor:'#0a0908', ease:'none',
+      scrollTrigger:{ trigger:'#work', start:'top bottom', end:'top 40%', scrub:true } });
+    gsap.to(bgField, { backgroundColor:'#f5f1e8', ease:'none',
+      scrollTrigger:{ trigger:'#site-footer', start:'top bottom', end:'top 35%', scrub:true } });
+  }
 
   /* generic reveals — every [data-io] element rises in once it's in view */
   $$('[data-io]').forEach(el => {
