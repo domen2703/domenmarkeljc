@@ -271,23 +271,71 @@ body.touch .wf-item{cursor:pointer}
 html.static .gallery{display:none}
 html.static .work-flat{display:block}
 
-/* ————— 02 about — full-width portrait, no frame ————— */
+/* ————— 02 about — editorial, statement-led —————
+   Built on the arrangement lukebaffait.fr uses for its own about block:
+   a large lead statement doing the talking, key phrases distinguished by a
+   change of TYPEFACE rather than weight or colour, a photo held as a
+   supporting element off to one side rather than a slab of equal weight,
+   and a character-roll link. The techniques are the reference; the layout
+   numbers, palette and words here are this site's own. */
 #about{max-width:1400px;margin:0 auto}
-.about-grid{display:grid;grid-template-columns:minmax(0,.56fr) minmax(0,1fr);gap:clamp(40px,6vw,100px);align-items:stretch}
-.about-portrait-wrap{position:relative;overflow:hidden;border-radius:4px;background:none;box-shadow:none;height:100%}
-/* the shader portrait sits over the plain <img>, which stays in the markup
-   as the real, accessible, alt-carrying image and as the no-webgl fallback.
-   Only once the canvas is actually running do we hide the img underneath. */
-.about-portrait-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:2;opacity:0;transition:opacity .5s var(--ease-out)}
-.about-portrait-wrap.shader-on .about-portrait-canvas{opacity:1}
-.about-portrait-wrap.shader-on .about-portrait{visibility:hidden}
-.about-portrait{display:block;width:100%;height:100%;object-fit:cover;object-position:center top;background:none;box-shadow:none;filter:grayscale(.08) contrast(1.02);transition:transform .8s var(--ease-out)}
-.about-portrait-wrap:hover .about-portrait{transform:scale(1.03)}
-.about-copy{max-width:58ch;padding-top:clamp(4px,1.2vw,14px)}
-.about-copy p{font-size:clamp(18px,1.7vw,25px);line-height:1.6;letter-spacing:-.005em;font-weight:300;color:var(--cream-70);margin-bottom:1.15em}
-.about-copy p:last-child{margin-bottom:0}
+.about-layout{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.72fr);
+  column-gap:clamp(40px,6vw,110px);row-gap:clamp(34px,6vh,72px);align-items:start}
+
+/* the lead spans the text column only, so it keeps a readable measure
+   instead of running the full width at this size */
+.about-statement{grid-column:1;max-width:19ch;font-family:var(--sans);font-weight:300;
+  font-size:clamp(27px,3.5vw,52px);line-height:1.24;letter-spacing:-.022em;color:var(--cream)}
+.about-statement em{font-style:italic;font-family:Georgia,'Times New Roman',serif;
+  font-weight:400;letter-spacing:-.01em;color:var(--cream)}
+.about-statement .rword{display:inline-block;will-change:transform,opacity,filter}
+
+/* photo sits in the second column and starts lower than the statement, so
+   the two never square up into a slab */
+.about-figure{grid-column:2;grid-row:1/span 2;margin:0;align-self:start;
+  padding-top:clamp(8px,4vh,58px)}
+.about-photo-wrap{position:relative;overflow:hidden;border-radius:4px}
+/* transition names transform only. The scroll reveal drives `filter` from
+   gsap, and listing it here too would set a css transition racing the
+   tween on the very same property. */
+.about-portrait{display:block;width:100%;height:auto;background:none;
+  filter:grayscale(.08) contrast(1.02);
+  transition:transform .9s var(--ease-out)}
+.about-photo-wrap:hover .about-portrait{transform:scale(1.03)}
+@media (hover:none){.about-photo-wrap:hover .about-portrait{transform:none}}
+.about-figure figcaption{margin-top:14px;font-size:10px;font-weight:600;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--cream-40)}
+
+.about-side{grid-column:1;display:flex;flex-direction:column;align-items:flex-start;
+  gap:clamp(22px,3.6vh,40px);max-width:52ch}
+.about-copy p{font-size:clamp(15px,1.25vw,18px);line-height:1.62;letter-spacing:-.004em;
+  font-weight:300;color:var(--cream-70);margin:0}
 .about-copy b{color:var(--cream);font-weight:500}
 .about-copy .rword{display:inline-block;will-change:transform,opacity,filter}
+
+/* ---- character-roll link ----
+   Each character is its own overflow:hidden window holding two stacked
+   copies; on hover the pair slides up together so the second replaces the
+   first, staggered along the word. Transitions rather than keyframes, so a
+   pointer that leaves mid-roll retargets from where it is instead of
+   snapping back to the start. */
+.roll{display:inline-flex;align-items:center;gap:12px;font-weight:500;font-size:12px;
+  letter-spacing:.2em;text-transform:lowercase;color:var(--cream);
+  border-bottom:1px solid var(--cream-24);padding-bottom:8px;
+  transition:border-color .4s var(--ease-out)}
+.roll:hover{border-color:var(--cream)}
+.roll__label{display:inline-flex}
+.roll .ch{position:relative;display:inline-block;overflow:hidden;vertical-align:top}
+.roll .ch span{display:block;transition:transform .42s var(--ease-out);transition-delay:var(--d,0ms)}
+.roll .ch span:last-child{position:absolute;left:0;top:100%}
+.roll:hover .ch span{transform:translateY(-100%)}
+.roll__arrow{transition:transform .42s var(--ease-out)}
+.roll:hover .roll__arrow{transform:translate(3px,-3px)}
+.roll:active{transform:scale(.98)}
+@media (prefers-reduced-motion:reduce){
+  .roll .ch span,.roll__arrow{transition:none}
+  .roll:hover .ch span{transform:none}
+}
 
 /* the availability dot's breathing pulse. This keyframe went missing when
    the floating cta chrome was removed — it was defined alongside it — and
@@ -313,16 +361,13 @@ html.static .work-flat{display:block}
 @media (prefers-reduced-motion:reduce){.fact--live i{animation:none}}
 
 @media (max-width:860px){
-  /* stacked to one column — the stretch-to-match-the-copy's-height trick
-     only makes sense side-by-side. height:100% against an auto-height
-     single-column row resolves unpredictably (percentage heights against
-     a non-explicit parent height compute to auto per spec, but chained
-     through two nested height:100% elements this was rendering the
-     portrait at zero/inconsistent height on narrow screens) — reset both
-     back to natural aspect-ratio sizing. */
-  .about-grid{grid-template-columns:1fr;gap:36px}
-  .about-portrait-wrap{height:auto}
-  .about-portrait{height:auto;object-fit:initial}
+  /* one column: statement, then photo, then the supporting column. The
+     explicit grid-row on .about-figure has to be released too, or it keeps
+     spanning rows that no longer exist side by side and leaves a hole. */
+  .about-layout{grid-template-columns:1fr;row-gap:clamp(28px,5vh,44px)}
+  .about-statement{grid-column:1;max-width:none;font-size:clamp(25px,6.4vw,34px)}
+  .about-figure{grid-column:1;grid-row:auto;padding-top:0}
+  .about-side{grid-column:1;max-width:none}
   /* the label column costs too much of a narrow screen — stack instead */
   .fact{grid-template-columns:1fr;gap:5px}
 }
@@ -518,29 +563,47 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
       <h2>about</h2>
       <span class="rule"></span>
     </div>
-    <div class="about-grid">
-      <div class="about-portrait-wrap" id="about-portrait-wrap" data-io>
-        <canvas class="about-portrait-canvas" id="about-portrait-canvas" aria-hidden="true"></canvas>
-        <img class="about-portrait" src="assets/img/domen-portrait.png" alt="domen markeljc">
-      </div>
-      <div class="about-copy" id="about-copy">
-        <p>i work across brand identity, packaging, and digital product design — usually all three on the same project, because <b>the mark on a label and the button on a screen are solving the same problem: be understood in half a second.</b></p>
-        <p>most of what i do starts with a restriction — a shelf, a thumb, a viewport — and ends with the smallest version of the idea that still says everything. <b>i'm not interested in decoration for its own sake.</b></p>
+    <div class="about-layout">
+      <!-- the lead carries the section on its own: set large, with the key
+           phrases marked in the serif rather than bolded. Weight shouts;
+           a change of typeface at the same weight just reads as emphasis. -->
+      <p class="about-statement" id="about-statement">
+        i work across <em>brand identity</em>, packaging, and <em>digital product</em> design —
+        usually all three on the same project, because the mark on a label and the button on a
+        screen are solving the same problem: <em>be understood in half a second</em>.
+      </p>
 
-        <dl class="facts" data-io>
+      <figure class="about-figure" id="about-figure">
+        <div class="about-photo-wrap">
+          <img class="about-portrait" src="assets/img/domen-portrait.png" alt="domen markeljc">
+        </div>
+        <figcaption>ljubljana — <span id="about-year"></span></figcaption>
+      </figure>
+
+      <div class="about-side">
+        <div class="about-copy" id="about-copy">
+          <p>most of what i do starts with a restriction — a shelf, a thumb, a viewport — and ends with the smallest version of the idea that still says everything. <b>i'm not interested in decoration for its own sake.</b></p>
+        </div>
+
+        <dl class="facts">
           <div class="fact">
             <dt>based</dt>
             <dd>slovenia — working further out</dd>
           </div>
           <div class="fact">
             <dt>works in</dt>
-            <dd id="fact-disciplines">—</dd>
+            <dd>identity · packaging · editorial · web</dd>
           </div>
           <div class="fact">
             <dt>status</dt>
             <dd class="fact--live"><i aria-hidden="true"></i>open for new projects</dd>
           </div>
         </dl>
+
+        <a class="roll" href="mailto:info@domenmarkeljc.com" data-roll data-hover>
+          <span class="roll__label">get in touch</span>
+          <span class="roll__arrow" aria-hidden="true">↗</span>
+        </a>
       </div>
     </div>
   </section>
@@ -1566,187 +1629,91 @@ function buildWorkFlat(){
   }
 }
 
-/* ————————————————— about — the portrait, resolving —————————————————
-   The portrait is drawn through a shader instead of sitting as a flat
-   <img>: as the section scrolls into view it assembles out of displaced
-   horizontal bands with the channels pulled apart, settling into a clean
-   image — and once resolved it stays quietly reactive, bending toward the
-   cursor. Same visual language as the hero mark and the footer gradient,
-   so the middle of the page stops being the one static stretch.
-
-   The <img> stays in the markup: it carries the alt text, it is what
-   loads if WebGL is unavailable, and the canvas only takes over (via the
-   .shader-on class) once it is genuinely running. */
-function buildAboutPortrait(){
-  const canvas = $('#about-portrait-canvas');
-  const wrap = $('#about-portrait-wrap');
-  const img = $('.about-portrait');
-  if (!canvas || !wrap || !img || !GL || !hasLibs) return;
-
-  const start = () => {
-    const iw = img.naturalWidth, ih = img.naturalHeight;
-    if (!iw || !ih) return;
-
-    let w = wrap.clientWidth, h = wrap.clientHeight;
-    if (!w || !h) return;
-
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true, powerPreference:'low-power' });
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    renderer.setSize(w, h, false);
-
-    const tex = new THREE.Texture(img);
-    tex.minFilter = tex.magFilter = THREE.LinearFilter;
-    tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
-    tex.needsUpdate = true;
-
-    // reproduce css object-fit:cover — crop the overflowing axis rather
-    // than squashing the portrait to the container's aspect
-    const cover = () => {
-      const ca = w / h, ia = iw / ih;
-      return ia > ca ? [ca / ia, 1] : [1, ia / ca];
-    };
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
-    const uniforms = {
-      uTex:{ value:tex },
-      uCover:{ value:new THREE.Vector2(...cover()) },
-      uProgress:{ value:0 },
-      uTime:{ value:0 },
-      uMouse:{ value:new THREE.Vector2(.5,.5) },
-      uHover:{ value:0 }
-    };
-    const mat = new THREE.ShaderMaterial({
-      uniforms, transparent:true,
-      vertexShader:`varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position,1.0); }`,
-      fragmentShader:`
-        precision highp float;
-        uniform sampler2D uTex;
-        uniform vec2 uCover, uMouse;
-        uniform float uProgress, uTime, uHover;
-        varying vec2 vUv;
-
-        float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453123); }
-        float noise(vec2 p){
-          vec2 i = floor(p), f = fract(p);
-          vec2 u = f*f*(3.0-2.0*f);
-          return mix(mix(hash(i), hash(i+vec2(1,0)), u.x),
-                     mix(hash(i+vec2(0,1)), hash(i+vec2(1,1)), u.x), u.y);
-        }
-
-        void main(){
-          // cover-fit, anchored to the top of the frame (object-position:
-          // center top) so the crop never eats into the face
-          vec2 uv;
-          uv.x = (vUv.x - 0.5) * uCover.x + 0.5;
-          uv.y = 1.0 - (1.0 - vUv.y) * uCover.y;
-
-          float settle = 1.0 - uProgress;   // 1 while arriving, 0 once resolved
-
-          // horizontal bands slide apart while unresolved and slot back
-          float band = floor(uv.y * 26.0);
-          uv.x += (hash(vec2(band, 3.0)) - 0.5) * 0.19 * settle;
-
-          // and stays quietly alive afterwards: a ripple trailing the cursor
-          vec2 toM = uv - uMouse;
-          float d = length(toM);
-          vec2 dir = d > 0.0001 ? toM / d : vec2(0.0);
-          uv += dir * sin(d * 26.0 - uTime * 2.2) * 0.011 * uHover * smoothstep(0.62, 0.0, d);
-
-          // channels pull apart with the displacement, and again under the
-          // cursor — strongest exactly where the eye already is
-          float sep = 0.015 * settle + 0.005 * uHover * smoothstep(0.45, 0.0, d);
-          vec4 base = texture2D(uTex, uv);
-          vec3 col = vec3(
-            texture2D(uTex, uv + vec2(sep, 0.0)).r,
-            base.g,
-            texture2D(uTex, uv - vec2(sep, 0.0)).b
-          );
-          col += (noise(uv * 620.0) - 0.5) * 0.11 * settle;   // grain burns off
-
-          // nothing outside the frame — clamped edge texels would otherwise
-          // smear the border pixels down the whole side of the canvas
-          vec2 g = step(vec2(0.0), uv) * step(uv, vec2(1.0));
-          // carry the source alpha through: the portrait is a cut-out png,
-          // and forcing its transparent region opaque published whatever
-          // rgb happens to sit in those texels — which rendered as white
-          // blocks around the head instead of the page showing through.
-          gl_FragColor = vec4(col, base.a * g.x * g.y);
-        }`
-    });
-    scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2), mat));
-    wrap.classList.add('shader-on');
-
-    let tmx = .5, tmy = .5, mx = .5, my = .5, tHover = 0, hov = 0;
-    wrap.addEventListener('pointermove', e => {
-      const r = wrap.getBoundingClientRect();
-      tmx = (e.clientX - r.left) / r.width;
-      tmy = 1 - (e.clientY - r.top) / r.height;
-      tHover = 1;
-    }, { passive:true });
-    wrap.addEventListener('pointerleave', () => { tHover = 0; }, { passive:true });
-
-    // scroll drives the resolve; scrubbed so it also runs backwards
-    ScrollTrigger.create({
-      trigger:'#about-portrait-wrap', start:'top 88%', end:'top 42%', scrub:true,
-      onUpdate: st => { uniforms.uProgress.value = st.progress; }
-    });
-
-    let tabVisible = true, onScreen = true;
-    document.addEventListener('visibilitychange', () => tabVisible = !document.hidden);
-    if ('IntersectionObserver' in window){
-      new IntersectionObserver(
-        es => { onScreen = es.some(e => e.isIntersecting); }, { rootMargin:'12% 0px' }
-      ).observe(wrap);
-    }
-
-    const clock = new THREE.Clock();
-    (function tick(){
-      requestAnimationFrame(tick);
-      if (!tabVisible || !onScreen) return;
-      uniforms.uTime.value = clock.getElapsedTime();
-      mx += (tmx - mx) * 0.08; my += (tmy - my) * 0.08;
-      hov += (tHover - hov) * 0.06;
-      uniforms.uMouse.value.set(mx, my);
-      uniforms.uHover.value = hov;
-      renderer.render(scene, camera);
-    })();
-
-    addEventListener('resize', () => {
-      w = wrap.clientWidth; h = wrap.clientHeight;
-      if (!w || !h) return;
-      renderer.setSize(w, h, false);
-      uniforms.uCover.value.set(...cover());
-    });
-  };
-
-  if (img.complete && img.naturalWidth) start();
-  else img.addEventListener('load', start, { once:true });
-}
-
 /* ————————————————— about — word-by-word text reveal ————————————————— */
 function buildAboutReveal(){
-  const paras = $$('#about-copy p');
-  if (!paras.length || !hasLibs) return;
-  paras.forEach(p => {
-    const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
+  if (!hasLibs) return;
+
+  // wrap every word in its own span, leaving the element structure intact —
+  // walking text nodes means the <em> and <b> inside keep their children
+  const wrapWords = root => {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     const nodes = [];
     while (walker.nextNode()) nodes.push(walker.currentNode);
     nodes.forEach(node => {
-      const words = node.textContent.split(/(\s+)/);
+      if (!node.textContent.trim()) return;
       const frag = document.createDocumentFragment();
-      words.forEach(w => {
+      node.textContent.split(/(\s+)/).forEach(w => {
         if (/^\s+$/.test(w)) frag.appendChild(document.createTextNode(w));
-        else if (w){ const span = document.createElement('span'); span.className = 'rword'; span.textContent = w; frag.appendChild(span); }
+        else if (w){
+          const span = document.createElement('span');
+          span.className = 'rword'; span.textContent = w;
+          frag.appendChild(span);
+        }
       });
       node.parentNode.replaceChild(frag, node);
     });
+  };
+
+  // The lead statement takes a slower stagger than the note beneath it: it
+  // is set roughly three times the size, so the same per-word delay that
+  // reads as a sequence at 16px reads as a flicker at 52px.
+  [['#about-statement', 0.026, 0.8], ['#about-copy', 0.012, 0.7]].forEach(([sel, stagger, dur]) => {
+    const root = $(sel);
+    if (!root) return;
+    wrapWords(root);
+    const words = $$('.rword', root);
+    if (!words.length) return;
+    gsap.set(words, { opacity:0, y:14, filter:'blur(7px)' });
+    ScrollTrigger.create({
+      trigger: sel, start:'top 84%',
+      onEnter: () => gsap.to(words, {
+        opacity:1, y:0, filter:'blur(0px)', duration:dur, ease:'power3.out', stagger
+      })
+    });
   });
-  const words = $$('#about-copy .rword');
-  gsap.set(words, { opacity:0, y:12, filter:'blur(6px)' });
+}
+
+/* ————————————————— about — the portrait, arriving —————————————————
+   Resolves out of a blur instead of fading. A plain crossfade shows two
+   sharp states overlapping and reads as two objects swapping places;
+   coming out of blur reads as one object arriving — the same trick the
+   reference uses on its own about photo, and what emil-design-eng
+   recommends whenever a transition between states feels "off". */
+function buildAboutPhoto(){
+  const wrap = $('.about-photo-wrap'), img = $('.about-portrait');
+  if (!wrap || !img || !hasLibs) return;
+  const rest = 'grayscale(.08) contrast(1.02)';
+  gsap.set(img, { opacity:0, filter:`blur(18px) ${rest}` });
   ScrollTrigger.create({
-    trigger:'#about-copy', start:'top 82%',
-    onEnter: () => gsap.to(words, { opacity:1, y:0, filter:'blur(0px)', duration:.7, ease:'power2.out', stagger:0.012 })
+    trigger: wrap, start:'top 86%',
+    onEnter: () => gsap.to(img, {
+      opacity:1, filter:`blur(0px) ${rest}`, duration:1.05, ease:'power3.out'
+    })
+  });
+}
+
+/* ————————————————— character-roll links —————————————————
+   Each character becomes its own overflow-hidden window holding two
+   stacked copies; on hover the pair slides up so the second takes the
+   first's place, staggered along the word so the roll travels rather than
+   flipping all at once. CSS transitions rather than keyframes, so a
+   pointer leaving mid-roll retargets from where it actually is instead of
+   restarting from zero. */
+function buildRollLinks(){
+  $$('[data-roll] .roll__label').forEach(label => {
+    const text = label.textContent.trim();
+    label.textContent = '';
+    [...text].forEach((chr, i) => {
+      const ch = document.createElement('span');
+      ch.className = 'ch';
+      ch.style.setProperty('--d', (i * 22) + 'ms');
+      const top = document.createElement('span');
+      const bot = document.createElement('span');
+      // a space has no glyph to roll but still has to hold its width open
+      top.textContent = bot.textContent = chr === ' ' ? ' ' : chr;
+      ch.append(top, bot);
+      label.appendChild(ch);
+    });
   });
 }
 
@@ -1763,7 +1730,9 @@ function buildAboutReveal(){
       form.classList.add('is-sent');
     });
   }
-  const y = $('#fyear'); if (y) y.textContent = new Date().getFullYear();
+  const yr = new Date().getFullYear();
+  const y = $('#fyear'); if (y) y.textContent = yr;
+  const ay = $('#about-year'); if (ay) ay.textContent = yr;
 }
 
 /* footer closing line — "domen markeljc" + the mark, sized so the pair
@@ -2094,7 +2063,8 @@ function buildFilm(){
   buildGallery();
   buildWorkFlat();
   buildAboutReveal();
-  buildAboutPortrait();
+  buildAboutPhoto();
+  buildRollLinks();
 
   // the footer returns to the hero's paper colour, so the fixed nav chrome
   // (logo mark, "start a project", chapter label, rail, hint) needs to flip
@@ -2107,10 +2077,13 @@ function buildFilm(){
      it, which a stylesheet rule can't override without !important.
      Leaving is quicker than arriving (emil-design-eng): a snappy exit
      reads as responsive, a symmetric one reads as sluggish. */
-  const chromeCta = $('.chrome-cta');
+  // Both bits of fixed chrome step aside in the footer, not just the cta:
+  // the footer carries its own wordmark and its own "back to top" link, so
+  // the floating mark is duplicating something already on screen too.
+  const chromeEls = $$('.chrome-cta, .mark').filter(Boolean);
   const showChromeCta = show => {
-    if (!chromeCta) return;
-    gsap.to(chromeCta, {
+    if (!chromeEls.length) return;
+    gsap.to(chromeEls, {
       opacity: show ? 1 : 0,
       y: show ? 0 : -8,
       duration: show ? 0.38 : 0.26,
@@ -2322,6 +2295,7 @@ ScrollTrigger.refresh();
 /* ——————————————— static fallback content ——————————————— */
 function buildStatic(){
   buildGallery(); buildWorkFlat();
+  buildRollLinks();   // markup, not motion — the still edition wants it too
   $$('.mark, .chrome-cta').forEach(el => el && (el.style.opacity = 1));
 }
 
