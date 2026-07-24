@@ -129,7 +129,7 @@ section{position:relative}
    edges. it used to live inside the 340px .hero-mark-wrap box, which
    clipped it — the wrap now only carries the no-webgl svg fallback. */
 .hero-mark-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;opacity:1;pointer-events:none}
-.hero-mark-wrap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(30vw,340px);aspect-ratio:1;z-index:1;opacity:0;will-change:opacity}
+.hero-mark-wrap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(34.5vw,391px);aspect-ratio:1;z-index:1;opacity:0;will-change:opacity}
 html.no-webgl .hero-mark-wrap,html.static .hero-mark-wrap{opacity:1}
 .hero-mark-svg{position:relative;z-index:2;width:100%;height:100%;display:block;filter:drop-shadow(0 30px 50px rgba(20,18,16,.16))}
 .hero-mark-fallback{display:none}
@@ -144,7 +144,7 @@ html.static .hero-mark-fallback,html.no-webgl .hero-mark-fallback{display:block}
 .hero-heading .rd{color:var(--red)}
 .hero-tag{font-size:clamp(13px,1.1vw,15px);font-weight:400;letter-spacing:.01em;color:rgba(20,18,16,.6);text-transform:none;line-height:1.5;max-width:38ch}
 @media (max-width:760px){
-  .hero-mark-wrap{width:min(52vw,260px)}
+  .hero-mark-wrap{width:min(59.8vw,299px)}
   .hero-caption{max-width:calc(100vw - var(--pad) * 2)}
 }
 
@@ -253,12 +253,20 @@ body.touch .wf-item{cursor:pointer}
 .wf-item__link{display:inline-flex;align-items:center;gap:10px;margin-top:18px;font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:lowercase;color:var(--accent);border-bottom:1px solid currentColor;padding-bottom:6px}
 .wf-item__link::after{content:"↗";font-size:12px}
 
-@media (max-width:760px), (hover:none){
-  /* #work.sec--gallery zeroes the section's own padding so the desktop
-     orbit canvas can run edge-to-edge — the flat list needs that padding
-     back itself, since it has no full-bleed trick of its own */
-  .gallery{display:none}
-  .work-flat{display:block;padding:12vh var(--pad) 4vh}
+/* The orbit runs at every width now — the stacked list is kept only as the
+   reduced-motion / no-js fallback below, not as the phone layout. #work
+   zeroes its own padding for the full-bleed canvas, so the list has to
+   bring that padding back itself when it does appear. */
+.work-flat{padding:12vh var(--pad) 4vh}
+@media (max-width:760px){
+  /* shorter travel on a phone: 480vh of scrolling to get through five
+     cards is punishing on a device you're moving with your thumb */
+  .gallery{height:360vh}
+  /* the phrase shares the middle of the screen with the orbit on a narrow
+     viewport, so it gives up some size and gains a soft shadow to stay
+     readable on the frames where a card passes behind it */
+  .gallery-phrase{font-size:clamp(17px,4.6vw,22px);max-width:min(88vw,420px);
+    text-shadow:0 2px 18px rgba(10,9,8,.75),0 0 40px rgba(10,9,8,.55)}
 }
 html.static .gallery{display:none}
 html.static .work-flat{display:block}
@@ -266,7 +274,13 @@ html.static .work-flat{display:block}
 /* ————— 02 about — full-width portrait, no frame ————— */
 #about{max-width:1400px;margin:0 auto}
 .about-grid{display:grid;grid-template-columns:minmax(0,.56fr) minmax(0,1fr);gap:clamp(40px,6vw,100px);align-items:stretch}
-.about-portrait-wrap{overflow:hidden;border-radius:4px;background:none;box-shadow:none;height:100%}
+.about-portrait-wrap{position:relative;overflow:hidden;border-radius:4px;background:none;box-shadow:none;height:100%}
+/* the shader portrait sits over the plain <img>, which stays in the markup
+   as the real, accessible, alt-carrying image and as the no-webgl fallback.
+   Only once the canvas is actually running do we hide the img underneath. */
+.about-portrait-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:2;opacity:0;transition:opacity .5s var(--ease-out)}
+.about-portrait-wrap.shader-on .about-portrait-canvas{opacity:1}
+.about-portrait-wrap.shader-on .about-portrait{visibility:hidden}
 .about-portrait{display:block;width:100%;height:100%;object-fit:cover;object-position:center top;background:none;box-shadow:none;filter:grayscale(.08) contrast(1.02);transition:transform .8s var(--ease-out)}
 .about-portrait-wrap:hover .about-portrait{transform:scale(1.03)}
 .about-copy{max-width:58ch;padding-top:clamp(4px,1.2vw,14px)}
@@ -298,16 +312,6 @@ html.static .work-flat{display:block}
 .fact--live i{width:6px;height:6px;border-radius:50%;background:var(--red);flex:none;animation:pulse-dot 2.6s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){.fact--live i{animation:none}}
 
-/* ---- practice band: the disciplines, as a numbered index ------------
-   Large display type, so tracking goes negative — letters read too far
-   apart as they grow. Leading tightens to match. */
-.practice{max-width:1400px;margin:clamp(60px,10vh,120px) auto 0;padding-top:clamp(28px,4.5vh,52px);border-top:1px solid var(--cream-10)}
-.practice__label{display:block;font-size:10px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:var(--cream-40);margin-bottom:clamp(20px,3.4vh,38px)}
-.practice__list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:0 clamp(20px,3vw,48px)}
-.practice__item{display:flex;align-items:baseline;gap:clamp(10px,1.2vw,18px);padding:clamp(11px,1.6vh,17px) 0;border-bottom:1px solid var(--cream-10)}
-.practice__num{font-size:10px;font-weight:500;letter-spacing:.12em;color:var(--cream-40);flex:none;font-variant-numeric:tabular-nums}
-.practice__name{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(21px,2.5vw,34px);line-height:1.06;letter-spacing:-.018em;color:var(--cream)}
-.practice__count{margin-left:auto;font-size:10px;letter-spacing:.1em;color:var(--cream-40);font-variant-numeric:tabular-nums}
 @media (max-width:860px){
   /* stacked to one column — the stretch-to-match-the-copy's-height trick
      only makes sense side-by-side. height:100% against an auto-height
@@ -319,11 +323,8 @@ html.static .work-flat{display:block}
   .about-grid{grid-template-columns:1fr;gap:36px}
   .about-portrait-wrap{height:auto}
   .about-portrait{height:auto;object-fit:initial}
-  /* the label column costs too much of a narrow screen — stack instead,
-     and let the practice band run as one full-width column so each
-     discipline keeps its own line rather than cramming two per row */
+  /* the label column costs too much of a narrow screen — stack instead */
   .fact{grid-template-columns:1fr;gap:5px}
-  .practice__list{grid-template-columns:1fr}
 }
 
 /* ————— 03 start a project — the one bold beat ————— */
@@ -518,7 +519,8 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
       <span class="rule"></span>
     </div>
     <div class="about-grid">
-      <div class="about-portrait-wrap" data-io>
+      <div class="about-portrait-wrap" id="about-portrait-wrap" data-io>
+        <canvas class="about-portrait-canvas" id="about-portrait-canvas" aria-hidden="true"></canvas>
         <img class="about-portrait" src="assets/img/domen-portrait.png" alt="domen markeljc">
       </div>
       <div class="about-copy" id="about-copy">
@@ -540,14 +542,6 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
           </div>
         </dl>
       </div>
-    </div>
-
-    <!-- the practice band: one numbered line per discipline, built at
-         runtime from the tags the projects actually carry so it can never
-         drift out of step with the work above it -->
-    <div class="practice" id="practice" data-io>
-      <span class="practice__label">practice</span>
-      <ol class="practice__list" id="practice-list"></ol>
     </div>
   </section>
 
@@ -884,12 +878,24 @@ function buildHeroMark(){
     // the edge. Tightening the spread is correct under linear filtering.
     const SPREAD = res * 0.025;
     const data = new Uint8Array(N * 4);
-    for (let i = 0; i < N; i++){
-      const sd = Math.sqrt(fOut[i]) - Math.sqrt(fIn[i]); // >0 outside, <0 inside
-      const enc = Math.round(128 - (sd / SPREAD) * 127);  // inside -> bright
-      const val = enc < 0 ? 0 : enc > 255 ? 255 : enc;
-      data[i*4] = data[i*4+1] = data[i*4+2] = val;
-      data[i*4+3] = 255;
+    // Rows are written bottom-up. The montage and trail are CanvasTextures,
+    // which three uploads with flipY=true, but a DataTexture defaults to
+    // flipY=false — and simply setting .flipY on it would not help, since
+    // UNPACK_FLIP_Y_WEBGL has no effect on texImage2D from an ArrayBufferView.
+    // Uploading in canvas row order therefore rendered the mark vertically
+    // mirrored against its own fill. Flipping here is the fix that actually
+    // applies to this texture type.
+    for (let y = 0; y < res; y++){
+      const src = y * res;
+      const dst = (res - 1 - y) * res;
+      for (let x = 0; x < res; x++){
+        const i = src + x, o = (dst + x) * 4;
+        const sd = Math.sqrt(fOut[i]) - Math.sqrt(fIn[i]); // >0 outside, <0 inside
+        const enc = Math.round(128 - (sd / SPREAD) * 127); // inside -> bright
+        const val = enc < 0 ? 0 : enc > 255 ? 255 : enc;
+        data[o] = data[o+1] = data[o+2] = val;
+        data[o+3] = 255;
+      }
     }
     const tex = new THREE.DataTexture(data, res, res, THREE.RGBAFormat);
     tex.minFilter = tex.magFilter = THREE.LinearFilter;
@@ -928,9 +934,13 @@ function buildHeroMark(){
     // static/no-webgl fallback uses (min(30vw, 340px), or 52vw on narrow
     // screens) so the shader mark and the svg fallback are the same size.
     function markFraction(){
+      // 15% up from the original 30vw/340px (and 52vw/260px on narrow
+      // screens). Kept in lockstep with .hero-mark-wrap in the css, which
+      // sizes the no-webgl svg fallback — if these two drift the mark
+      // changes size when the shader isn't available.
       const px = innerWidth <= 760
-        ? Math.min(innerWidth * 0.52, 260)
-        : Math.min(innerWidth * 0.30, 340);
+        ? Math.min(innerWidth * 0.598, 299)
+        : Math.min(innerWidth * 0.345, 391);
       return { x: px / innerWidth, y: px / innerHeight };
     }
 
@@ -1279,15 +1289,26 @@ function buildGallery(){
   const wrap = $('#gallery');
   const pin = $('#gallery-pin');
   const phraseEl = $('#gallery-phrase');
-  if (!wrap || !pin || !phraseEl || !hasLibs) return;
-  if (matchMedia('(hover:none)').matches || innerWidth <= 760) return; // mobile uses .work-flat instead
-
+  if (!wrap || !pin || !phraseEl || !hasLibs || prefersReduced) return;
+  // The orbit now runs on phones too, rather than dropping to the stacked
+  // list — that list is still the fallback, but only for reduced-motion and
+  // no-gsap, not for "narrow". What has to change on a narrow screen is the
+  // geometry, not the effect: at desktop numbers a 375px viewport gets tiny
+  // cards swinging round an orbit nearly twice the screen's width, so they
+  // read as specks that spend most of the travel off-screen. Cards scale up
+  // against the viewport and the orbit tightens, so they stay legible and
+  // spend their travel where they can actually be seen.
   const vw = innerWidth;
+  const narrow = vw <= 760;
   const SLICES = 10;
-  const imgW = Math.min(Math.max(120, vw * 0.14), 210);
+  const imgW = narrow
+    ? Math.min(Math.max(140, vw * 0.44), 210)
+    : Math.min(Math.max(120, vw * 0.14), 210);
   const imgH = imgW * 2 / 3;
   const cardAspect = imgW / imgH;
-  const orbitR = (vw * 0.34 + 500) / 2;
+  const orbitR = narrow
+    ? (vw * 0.5 + 300) / 2
+    : (vw * 0.34 + 500) / 2;
   const bendRad = imgW / orbitR;
   const cylR = orbitR;
   const sliceW = imgW / SLICES;
@@ -1362,7 +1383,14 @@ function buildGallery(){
     const phraseWords = $$('.word', phraseEl);
 
     const count = cards.length;
-    const rx = vw * 0.34, rz = 500;
+    // rx/rz are the orbit path itself (orbitR above only sets the cylinder
+    // the slices bend around). Both need widening/flattening on a phone:
+    // at the desktop numbers a 375px screen gets rx≈127, so the cards swing
+    // through a narrow arc straight across the middle — right where the
+    // phrase sits — while rz=500 still brings them a full 500px toward the
+    // camera, ballooning them under perspective. Wider arc, shallower dive.
+    const rx = narrow ? vw * 0.62 : vw * 0.34;
+    const rz = narrow ? 300 : 500;
     const tiltY = vw <= 768 ? 80 : 180;
     const entryAngle = Math.PI / 2;
     const offX = vw * 0.85;
@@ -1498,15 +1526,20 @@ function buildWorkFlat(){
   const items = $$('.wf-item', el);
   items.forEach(item => item.addEventListener('click', () => openProjectModal(+item.dataset.i)));
 
-  // this is the list's stand-in for the desktop orbit gallery's motion —
-  // it can't pin/orbit itself (this only ever shows where the gallery's
-  // 3D transforms don't run: mobile widths and hover:none devices, see the
-  // media query above), but each card can still animate as it transits the
-  // viewport. One ScrollTrigger per card, un-pinned and scoped to that
-  // card's own natural position, so it's exactly as scroll-safe as every
-  // other reveal on the page — the image eases out of a slight zoom+drift
-  // and the caption stacks up right after, instead of the whole card just
-  // appearing.
+  // Only wire the per-card motion when the list is actually the layout in
+  // use. It is now the reduced-motion / no-js fallback rather than the
+  // phone layout, so most of the time it is display:none — and a
+  // ScrollTrigger built against a zero-height hidden element has
+  // start === end, which is a degenerate range that reports NaN progress.
+  if (!el.offsetParent) return;
+
+  // this is the list's stand-in for the orbit gallery's motion — it can't
+  // pin or orbit itself, but each card can still animate as it transits
+  // the viewport. One ScrollTrigger per card, un-pinned and scoped to that
+  // card's own natural position, so it stays sane in exactly the contexts
+  // this list is for (reduced-motion, no-gsap): the image eases out of a
+  // slight zoom and drift, and the caption stacks up right after, instead
+  // of the whole card simply appearing.
   if (hasLibs){
     items.forEach(item => {
       const media = item.querySelector('.wf-item__media img');
@@ -1533,45 +1566,162 @@ function buildWorkFlat(){
   }
 }
 
-/* ————————————————— about — the practice index —————————————————
-   Both the disciplines line and the practice band are derived from the
-   tags the projects actually carry, rather than typed out separately.
-   Adding a project with a new discipline updates this on its own, and
-   there's no second list to forget to update. Counts are real too. */
-function buildPractice(){
-  const tally = new Map();
-  PROJECTS.forEach(p => (p.tags || []).forEach(t => tally.set(t, (tally.get(t) || 0) + 1)));
-  // most-practised first, alphabetical within a tie so the order is stable
-  const ranked = [...tally.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-  if (!ranked.length) return;
+/* ————————————————— about — the portrait, resolving —————————————————
+   The portrait is drawn through a shader instead of sitting as a flat
+   <img>: as the section scrolls into view it assembles out of displaced
+   horizontal bands with the channels pulled apart, settling into a clean
+   image — and once resolved it stays quietly reactive, bending toward the
+   cursor. Same visual language as the hero mark and the footer gradient,
+   so the middle of the page stops being the one static stretch.
 
-  const list = $('#practice-list');
-  if (list) list.innerHTML = ranked.map(([name, count], i) => `
-    <li class="practice__item">
-      <span class="practice__num">${String(i + 1).padStart(2, '0')}</span>
-      <span class="practice__name">${name}</span>
-      <span class="practice__count">${count} ${count === 1 ? 'project' : 'projects'}</span>
-    </li>`).join('');
+   The <img> stays in the markup: it carries the alt text, it is what
+   loads if WebGL is unavailable, and the canvas only takes over (via the
+   .shader-on class) once it is genuinely running. */
+function buildAboutPortrait(){
+  const canvas = $('#about-portrait-canvas');
+  const wrap = $('#about-portrait-wrap');
+  const img = $('.about-portrait');
+  if (!canvas || !wrap || !img || !GL || !hasLibs) return;
 
-  const disc = $('#fact-disciplines');
-  if (disc) disc.textContent = ranked.slice(0, 4).map(([n]) => n).join(' · ');
-}
+  const start = () => {
+    const iw = img.naturalWidth, ih = img.naturalHeight;
+    if (!iw || !ih) return;
 
-/* the practice rows arrive one after another as the band enters view.
-   ease-out, because they're entering — anything easing in feels sluggish
-   at exactly the moment the eye lands on it. The stagger is small (45ms):
-   enough to read as a sequence rather than a block, short enough that the
-   whole band has settled before you've finished scanning it. */
-function buildPracticeReveal(){
-  const items = $$('#practice-list .practice__item');
-  if (!items.length || !hasLibs) return;
-  gsap.set(items, { opacity:0, y:18 });
-  ScrollTrigger.create({
-    trigger:'#practice', start:'top 85%',
-    onEnter: () => gsap.to(items, {
-      opacity:1, y:0, duration:.62, ease:'power3.out', stagger:0.045
-    })
-  });
+    let w = wrap.clientWidth, h = wrap.clientHeight;
+    if (!w || !h) return;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true, powerPreference:'low-power' });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setSize(w, h, false);
+
+    const tex = new THREE.Texture(img);
+    tex.minFilter = tex.magFilter = THREE.LinearFilter;
+    tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+    tex.needsUpdate = true;
+
+    // reproduce css object-fit:cover — crop the overflowing axis rather
+    // than squashing the portrait to the container's aspect
+    const cover = () => {
+      const ca = w / h, ia = iw / ih;
+      return ia > ca ? [ca / ia, 1] : [1, ia / ca];
+    };
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+    const uniforms = {
+      uTex:{ value:tex },
+      uCover:{ value:new THREE.Vector2(...cover()) },
+      uProgress:{ value:0 },
+      uTime:{ value:0 },
+      uMouse:{ value:new THREE.Vector2(.5,.5) },
+      uHover:{ value:0 }
+    };
+    const mat = new THREE.ShaderMaterial({
+      uniforms, transparent:true,
+      vertexShader:`varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position,1.0); }`,
+      fragmentShader:`
+        precision highp float;
+        uniform sampler2D uTex;
+        uniform vec2 uCover, uMouse;
+        uniform float uProgress, uTime, uHover;
+        varying vec2 vUv;
+
+        float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453123); }
+        float noise(vec2 p){
+          vec2 i = floor(p), f = fract(p);
+          vec2 u = f*f*(3.0-2.0*f);
+          return mix(mix(hash(i), hash(i+vec2(1,0)), u.x),
+                     mix(hash(i+vec2(0,1)), hash(i+vec2(1,1)), u.x), u.y);
+        }
+
+        void main(){
+          // cover-fit, anchored to the top of the frame (object-position:
+          // center top) so the crop never eats into the face
+          vec2 uv;
+          uv.x = (vUv.x - 0.5) * uCover.x + 0.5;
+          uv.y = 1.0 - (1.0 - vUv.y) * uCover.y;
+
+          float settle = 1.0 - uProgress;   // 1 while arriving, 0 once resolved
+
+          // horizontal bands slide apart while unresolved and slot back
+          float band = floor(uv.y * 26.0);
+          uv.x += (hash(vec2(band, 3.0)) - 0.5) * 0.19 * settle;
+
+          // and stays quietly alive afterwards: a ripple trailing the cursor
+          vec2 toM = uv - uMouse;
+          float d = length(toM);
+          vec2 dir = d > 0.0001 ? toM / d : vec2(0.0);
+          uv += dir * sin(d * 26.0 - uTime * 2.2) * 0.011 * uHover * smoothstep(0.62, 0.0, d);
+
+          // channels pull apart with the displacement, and again under the
+          // cursor — strongest exactly where the eye already is
+          float sep = 0.015 * settle + 0.005 * uHover * smoothstep(0.45, 0.0, d);
+          vec4 base = texture2D(uTex, uv);
+          vec3 col = vec3(
+            texture2D(uTex, uv + vec2(sep, 0.0)).r,
+            base.g,
+            texture2D(uTex, uv - vec2(sep, 0.0)).b
+          );
+          col += (noise(uv * 620.0) - 0.5) * 0.11 * settle;   // grain burns off
+
+          // nothing outside the frame — clamped edge texels would otherwise
+          // smear the border pixels down the whole side of the canvas
+          vec2 g = step(vec2(0.0), uv) * step(uv, vec2(1.0));
+          // carry the source alpha through: the portrait is a cut-out png,
+          // and forcing its transparent region opaque published whatever
+          // rgb happens to sit in those texels — which rendered as white
+          // blocks around the head instead of the page showing through.
+          gl_FragColor = vec4(col, base.a * g.x * g.y);
+        }`
+    });
+    scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2), mat));
+    wrap.classList.add('shader-on');
+
+    let tmx = .5, tmy = .5, mx = .5, my = .5, tHover = 0, hov = 0;
+    wrap.addEventListener('pointermove', e => {
+      const r = wrap.getBoundingClientRect();
+      tmx = (e.clientX - r.left) / r.width;
+      tmy = 1 - (e.clientY - r.top) / r.height;
+      tHover = 1;
+    }, { passive:true });
+    wrap.addEventListener('pointerleave', () => { tHover = 0; }, { passive:true });
+
+    // scroll drives the resolve; scrubbed so it also runs backwards
+    ScrollTrigger.create({
+      trigger:'#about-portrait-wrap', start:'top 88%', end:'top 42%', scrub:true,
+      onUpdate: st => { uniforms.uProgress.value = st.progress; }
+    });
+
+    let tabVisible = true, onScreen = true;
+    document.addEventListener('visibilitychange', () => tabVisible = !document.hidden);
+    if ('IntersectionObserver' in window){
+      new IntersectionObserver(
+        es => { onScreen = es.some(e => e.isIntersecting); }, { rootMargin:'12% 0px' }
+      ).observe(wrap);
+    }
+
+    const clock = new THREE.Clock();
+    (function tick(){
+      requestAnimationFrame(tick);
+      if (!tabVisible || !onScreen) return;
+      uniforms.uTime.value = clock.getElapsedTime();
+      mx += (tmx - mx) * 0.08; my += (tmy - my) * 0.08;
+      hov += (tHover - hov) * 0.06;
+      uniforms.uMouse.value.set(mx, my);
+      uniforms.uHover.value = hov;
+      renderer.render(scene, camera);
+    })();
+
+    addEventListener('resize', () => {
+      w = wrap.clientWidth; h = wrap.clientHeight;
+      if (!w || !h) return;
+      renderer.setSize(w, h, false);
+      uniforms.uCover.value.set(...cover());
+    });
+  };
+
+  if (img.complete && img.naturalWidth) start();
+  else img.addEventListener('load', start, { once:true });
 }
 
 /* ————————————————— about — word-by-word text reveal ————————————————— */
@@ -1943,19 +2093,36 @@ $('.mark').addEventListener('click', e => {
 function buildFilm(){
   buildGallery();
   buildWorkFlat();
-  buildPractice();
   buildAboutReveal();
-  buildPracticeReveal();
+  buildAboutPortrait();
 
   // the footer returns to the hero's paper colour, so the fixed nav chrome
   // (logo mark, "start a project", chapter label, rail, hint) needs to flip
   // back to dark-on-light here too — otherwise it's cream text stranded on
   // a cream background, unreadable
+  /* the fixed top-right "start a project" steps aside once the footer's
+     own, much larger one is on screen — two identical calls to action
+     competing in the same view just splits the attention. Tweened rather
+     than class-toggled because the intro timeline set an inline opacity on
+     it, which a stylesheet rule can't override without !important.
+     Leaving is quicker than arriving (emil-design-eng): a snappy exit
+     reads as responsive, a symmetric one reads as sluggish. */
+  const chromeCta = $('.chrome-cta');
+  const showChromeCta = show => {
+    if (!chromeCta) return;
+    gsap.to(chromeCta, {
+      opacity: show ? 1 : 0,
+      y: show ? 0 : -8,
+      duration: show ? 0.38 : 0.26,
+      ease: 'power2.out',
+      pointerEvents: show ? 'auto' : 'none'
+    });
+  };
   ScrollTrigger.create({ trigger:'#site-footer', start:'top 55%',
-    onEnter: () => document.body.classList.add('chrome-light'),
-    onEnterBack: () => document.body.classList.add('chrome-light') });
+    onEnter: () => { document.body.classList.add('chrome-light'); showChromeCta(false); },
+    onEnterBack: () => { document.body.classList.add('chrome-light'); showChromeCta(false); } });
   ScrollTrigger.create({ trigger:'#site-footer', start:'top 55%',
-    onLeaveBack: () => document.body.classList.remove('chrome-light') });
+    onLeaveBack: () => { document.body.classList.remove('chrome-light'); showChromeCta(true); } });
 
 
   
@@ -2009,7 +2176,11 @@ function buildFilm(){
     // saturate early leaves a dead tail where scrolling continues but
     // nothing moves, and the pin's release then reads as a jump.
     ScrollTrigger.create({
-      trigger:'#ch0', start:'top top', end:'+=60%', pin:true, scrub:true,
+      // +=30% of the viewport: the pin holds the page still for exactly
+      // this much scrolling, so it also sets how long the work section is
+      // held back. 60% made the flight luxurious but left you scrolling at
+      // a frozen page for too long before the hand-off.
+      trigger:'#ch0', start:'top top', end:'+=30%', pin:true, scrub:true,
       onUpdate: st => {
         const p = st.progress;
         // the heading and caption step aside early — they're read before
@@ -2151,7 +2322,6 @@ ScrollTrigger.refresh();
 /* ——————————————— static fallback content ——————————————— */
 function buildStatic(){
   buildGallery(); buildWorkFlat();
-  buildPractice();   // content, not motion — belongs in the still edition too
   $$('.mark, .chrome-cta').forEach(el => el && (el.style.opacity = 1));
 }
 
