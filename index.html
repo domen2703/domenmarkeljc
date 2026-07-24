@@ -91,13 +91,6 @@ a{color:inherit;text-decoration:none}
 a,button,[data-hover]{cursor:none}
 body.touch a,body.touch button{cursor:pointer}
 
-/* ————— atmosphere ————— */
-/* the whole site is a single warm paper tone now, hero through footer —
-   no chapter-to-chapter colour washes. #grain still runs everywhere for
-   texture; the old dark vignette is gone since it read as muddy over a
-   light background. */
-
-#grain{position:fixed;inset:-100px;z-index:60;pointer-events:none;opacity:.05;mix-blend-mode:multiply}
 
 /* ————— preloader ————— */
 #veil{position:fixed;inset:0;z-index:200;clip-path:inset(0 0 0 0);background:var(--paper);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:28px}
@@ -108,7 +101,7 @@ body.touch a,body.touch button{cursor:pointer}
 #veil .veil-word{font-family:var(--sans);font-weight:300;font-size:10px;letter-spacing:.42em;text-transform:lowercase;color:rgba(20,18,16,.4);opacity:0}
 
 /* ————— cursor ————— */
-#cur-dot{position:fixed;top:0;left:0;z-index:150;pointer-events:none;will-change:transform;width:23px;height:24px;margin:-6px 0 0 -2px;transform-origin:10% 26%;mix-blend-mode:difference}
+#cur-dot{position:fixed;top:0;left:0;z-index:230;pointer-events:none;will-change:transform;width:23px;height:24px;margin:-6px 0 0 -2px;transform-origin:10% 26%;mix-blend-mode:difference}
 #cur-dot svg{width:100%;height:100%;display:block}
 #cur-dot path{fill:#fff}
 body.touch #cur-dot{display:none}
@@ -204,13 +197,6 @@ body.touch .pv-close{cursor:pointer}
   .project-view{transition:opacity 120ms ease,visibility 0s linear 120ms !important}
 }
 
-/* ————— next-page teaser — fades in during the tail of the hero's own
-   pinned transition so the visitor reads "selected work" before the pin
-   even releases, instead of waiting on a blank handoff ————— */
-#next-tease{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:15;opacity:0;pointer-events:none;text-align:center}
-#next-tease span{display:block;margin-top:22px;font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(20px,3vw,34px);color:var(--cream)}
-.ntg{display:grid;grid-template-columns:repeat(2,clamp(64px,8vw,110px));gap:8px}
-.ntg img{display:block;width:100%;height:100%;aspect-ratio:1;object-fit:cover;border-radius:3px}
 
 /* ————— background field — the scroll-driven colour arc —————
    hero -> black happens for free (the hero's own opaque cream layer just
@@ -297,16 +283,17 @@ footer{position:relative;padding:14vh 0 40px;width:100%;isolation:isolate;backgr
 #footer-canvas.is-in{opacity:1}
 
 .ftop{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:32px;padding-bottom:8vh;border-bottom:1px solid rgba(20,18,16,.1)}
-.fkicker{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(30px,4.4vw,60px);line-height:1.12;max-width:15ch;color:var(--paper-ink)}
+.fkicker{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(30px,4.4vw,60px);line-height:1.15;max-width:15ch;color:var(--paper-ink)}
+.fkicker__ghost{color:rgba(20,18,16,.32)}
 .fcta{display:inline-flex;align-items:center;gap:16px;flex:none;font-weight:500;font-size:12px;letter-spacing:.28em;text-transform:lowercase;color:var(--paper);padding:20px 32px;border-radius:99px;background:var(--paper-ink);position:relative;overflow:hidden;will-change:transform}
 .fcta .arrow{width:20px;height:1px;background:currentColor;position:relative;transition:width .5s var(--ease-out)}
 .fcta .arrow::after{content:"";position:absolute;right:0;top:-3px;width:6px;height:6px;border-top:1px solid currentColor;border-right:1px solid currentColor;transform:rotate(45deg)}
 .fcta:hover .arrow{width:30px}
 
-.fcontact{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;padding:6vh 0;border-bottom:1px solid rgba(20,18,16,.1)}
-.fcontact__row{display:flex;align-items:baseline;gap:20px;flex-wrap:wrap}
-.fcontact__loc{font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:rgba(20,18,16,.45)}
-.fmail{font-weight:500;font-size:clamp(16px,1.7vw,21px);letter-spacing:-.01em;color:var(--paper-ink);border-bottom:1px solid rgba(20,18,16,.4);padding-bottom:4px;transition:color .4s,border-color .4s}
+.fcontact{display:flex;flex-direction:column;gap:22px;padding:6vh 0;border-bottom:1px solid rgba(20,18,16,.1)}
+.fcontact__block{display:flex;align-items:baseline;gap:20px;flex-wrap:wrap}
+.fcontact__loc{font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:rgba(20,18,16,.4);min-width:6em}
+.fmail{font-weight:500;font-size:clamp(20px,2.2vw,30px);letter-spacing:-.01em;color:var(--paper-ink);border-bottom:1px solid rgba(20,18,16,.4);padding-bottom:4px;transition:color .4s,border-color .4s}
 .fmail:hover{color:var(--accent);border-color:var(--accent)}
 .copy-email{appearance:none;background:none;border:1px solid rgba(20,18,16,.22);border-radius:99px;color:rgba(20,18,16,.55);font:inherit;font-size:12px;letter-spacing:.05em;padding:8px 16px;width:fit-content;position:relative;transition:border-color .4s,color .4s,transform .15s cubic-bezier(0.4,0,0.2,1)}
 .copy-email:hover{border-color:var(--accent);color:var(--paper-ink)}
@@ -378,9 +365,6 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
 
 </style></head>
 <body>
-
-<!-- atmosphere -->
-<div id="grain"></div>
 
 
 <div id="bg-field"></div>
@@ -467,7 +451,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
       <h2>about</h2>
       <span class="rule"></span>
     </div>
-    <img class="about-portrait" src="assets/img/portrait.jpg" alt="domen markeljc" data-io>
+    <img class="about-portrait" src="assets/img/domen-portrait.png" alt="domen markeljc" data-io>
     <div class="about-copy">
         <p data-io>i work across brand identity, packaging, and digital product design — usually all three on the same project, because <b>the mark on a label and the button on a screen are solving the same problem: be understood in half a second.</b></p>
         <p data-io>most of what i do starts with a restriction — a shelf, a thumb, a viewport — and ends with the smallest version of the idea that still says everything. <b>i'm not interested in decoration for its own sake.</b></p>
@@ -495,13 +479,13 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
   <canvas id="footer-canvas" aria-hidden="true"></canvas>
   <div class="footer-inner">
   <div class="ftop" data-io>
-    <p class="fkicker">have a project in mind?<br>let's see it through.</p>
+    <p class="fkicker"><span class="fkicker__ghost">have a project in mind?</span><br>let's see it through.</p>
     <a class="fcta" href="mailto:info@domenmarkeljc.com" data-hover>
       <span>start a project</span><span class="arrow"></span>
     </a>
   </div>
   <div class="fcontact" data-io>
-    <div class="fcontact__row">
+    <div class="fcontact__block">
       <span class="fcontact__loc">slovenia</span>
       <a class="fmail" href="mailto:info@domenmarkeljc.com" data-hover>info@domenmarkeljc.com</a>
       <button type="button" class="copy-email" id="copy-email" data-hover data-email="info@domenmarkeljc.com" aria-label="copy email address to clipboard" data-state="a">
@@ -537,10 +521,8 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
   </div>
 </footer>
 
-<div id="next-tease" aria-hidden="true"><div class="ntg" id="next-tease-grid"></div><span>selected work</span></div>
-
 <div class="project-view" id="modal" data-open="false" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-  <div class="pv-scroll" id="pv-scroll">
+  <div class="pv-scroll" id="pv-scroll" data-lenis-prevent>
     <div class="pv-inner">
       <button type="button" class="pv-close" id="modal-close" data-hover aria-label="close, back to work">
         <span>close</span><i></i>
@@ -585,23 +567,6 @@ const $$ = s => [...document.querySelectorAll(s)];
 const lerp = (a,b,t)=>a+(b-a)*t;
 const clamp01 = t => Math.max(0, Math.min(1, t));
 const easeInOutCubic = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
-
-/* ————————————————— film grain ————————————————— */
-(() => {
-  const g = document.createElement('canvas'); g.width = g.height = 160;
-  const ctx = g.getContext('2d'); const id = ctx.createImageData(160,160);
-  for (let i=0;i<id.data.length;i+=4){ const v = Math.random()*255|0; id.data[i]=id.data[i+1]=id.data[i+2]=v; id.data[i+3]=255; }
-  ctx.putImageData(id,0,0);
-  const el = $('#grain'); el.style.backgroundImage = `url(${g.toDataURL()})`;
-  if (!prefersReduced){
-    let grainTimer = null;
-    const startGrain = () => { if (!grainTimer) grainTimer = setInterval(() =>
-      el.style.backgroundPosition = `${Math.random()*160|0}px ${Math.random()*160|0}px`, 84); };
-    const stopGrain = () => { clearInterval(grainTimer); grainTimer = null; };
-    document.addEventListener('visibilitychange', () => document.hidden ? stopGrain() : startGrain());
-    startGrain();
-  }
-})();
 
 /* ————————————————— smooth scroll ————————————————— */
 if (hasLibs){ gsap.registerPlugin(ScrollTrigger); ScrollTrigger.config({ ignoreMobileResize: true }); }
@@ -915,11 +880,6 @@ const PROJECTS = [
 
 if (GL) buildHeroMark(); else document.documentElement.classList.add('no-webgl');
 
-{
-  const grid = $('#next-tease-grid');
-  if (grid) grid.innerHTML = PROJECTS.slice(0, 4).map(p => `<img src="${p.cover}" alt="">`).join('');
-}
-
 /* ————————————————— work — 3d orbit gallery (ported, scroll-driven) —————————————————
    reconstructed from lukebaffait.fr's own unminified, publicly-served
    /js/index.js and /styles/index.css (their "#circle-gallery" section):
@@ -1123,6 +1083,20 @@ function closeProjectModal(){
   const closeBtn = $('#modal-close');
   if (closeBtn) closeBtn.addEventListener('click', closeProjectModal);
   addEventListener('keydown', e => { if (e.key === 'Escape' && $('#modal').dataset.open === 'true') closeProjectModal(); });
+  // Lenis calls preventDefault on every wheel event once stopped — even
+  // with data-lenis-prevent set, since that only skips its own scroll
+  // logic, not the isStopped-guard's unconditional preventDefault a few
+  // lines later in its source. So the wheel default action inside the
+  // project view is never reliable while the main page's Lenis instance
+  // exists at all — drive #pv-scroll's scrollTop directly from wheel
+  // delta instead of depending on native scroll for it.
+  const pvScroll = $('#pv-scroll');
+  if (pvScroll){
+    pvScroll.addEventListener('wheel', e => {
+      pvScroll.scrollTop += e.deltaY;
+      e.stopPropagation();
+    }, { passive:true });
+  }
 }
 
 /* ————————————————— work — flat list (mobile / reduced motion) ————————————————— */
@@ -1302,37 +1276,68 @@ function initFooterGradient(){
       uniform float uMouseActive;
       uniform float uMouseEnergy;
       varying vec2 vUv;
-      float blob(vec2 uv, vec2 center, float radius){
-        return smoothstep(radius, 0.0, length(uv - center));
+
+      float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
+      float noise(vec2 p){
+        vec2 i = floor(p), f = fract(p);
+        float a = hash(i), b = hash(i + vec2(1.0,0.0)), c = hash(i + vec2(0.0,1.0)), d = hash(i + vec2(1.0,1.0));
+        vec2 u = f * f * (3.0 - 2.0 * f);
+        return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
       }
+      float fbm(vec2 p){
+        float v = 0.0, a = 0.55;
+        for (int i = 0; i < 4; i++){ v += a * noise(p); p *= 2.05; a *= 0.55; }
+        return v;
+      }
+
       void main(){
+        // unit = one canvas-width, not the whole (often much taller than
+        // one screen) footer height — so the flowing ribbon motif repeats
+        // naturally down a tall footer instead of only ever appearing once
+        // near vUv's own y=0
         float aspect = uResolution.x / max(uResolution.y, 1.0);
-        vec2 uv = vUv * vec2(aspect, 1.0);
-        float t = uTime * 0.035;
+        float heightUnits = 1.0 / aspect;
+        vec2 uv = gl_FragCoord.xy / uResolution.x;
+        vec2 m = vec2(uMouse.x, uMouse.y * heightUnits);
+        float t = uTime * 0.045;
 
-        vec2 m = uMouse * vec2(aspect, 1.0);
-        vec2 pull = (m - vec2(0.5*aspect, 0.45)) * 0.05 * uMouseActive;
+        vec2 pull = (m - vec2(0.5, 0.5 * heightUnits)) * 0.06 * uMouseActive;
 
-        vec2 c1 = vec2(0.28 + sin(t*1.3)*0.18, 0.58 + cos(t*1.05)*0.2) * vec2(aspect,1.0) + pull;
-        vec2 c2 = vec2(0.74 + cos(t*0.85)*0.2, 0.34 + sin(t*1.35)*0.18) * vec2(aspect,1.0) + pull*0.7;
+        // repeating diagonal bands, each seeded independently so the
+        // ribbons don't look mechanically identical down the footer
+        float band = 1.35;
+        float bandIdx = floor((uv.y - pull.y) / band);
+        float bandY = mod(uv.y - pull.y, band);
+        float seed = hash(vec2(bandIdx, 4.7));
 
-        // true-white base — the footer's own ground, so the shader reads
-        // as texture in the page rather than a panel on it
-        vec3 base = vec3(1.0, 1.0, 1.0);
-        vec3 col = base;
-        // two clear, subtle stains — cool blue (reduces red/green, leaves
-        // blue relatively high) and warm yellow (reduces blue, leaves
-        // red/green relatively high) — kept faint, felt more than seen
-        col -= blob(uv, c1, 0.56) * vec3(0.05, 0.03, 0.0) * 1.0;
-        col -= blob(uv, c2, 0.52) * vec3(0.0, 0.02, 0.06) * 1.0;
+        vec2 dir = normalize(vec2(0.92, 0.48));
+        vec2 perp = vec2(-dir.y, dir.x);
+        vec2 origin = vec2(-0.2 + seed * 0.5, band * (0.12 + seed * 0.1)) + vec2(pull.x, 0.0);
+        vec2 rel = vec2(uv.x, bandY) - origin;
+        float along = dot(rel, dir);
+        float across = dot(rel, perp);
 
-        float mr = 0.22 + uMouseEnergy * 0.1;
-        float mGlow = blob(uv, m, mr) * uMouseActive;
-        col -= mGlow * vec3(0.04, 0.025, 0.0) * (0.35 + uMouseEnergy * 0.3);
+        float wave = sin(along * 3.1 + t * 2.2 + seed * 6.28) * 0.055
+                   + (fbm(vec2(along * 2.1 + seed * 12.0, t * 0.9)) - 0.5) * 0.09;
+        float d = across - wave;
 
-        // a soft fade across the footer's own top edge, matching before
-        float edgeFade = smoothstep(0.0, 0.22, vUv.y);
-        col = mix(base, col, edgeFade);
+        float lenT = clamp(along / 1.15, 0.0, 1.0);
+        float width = mix(0.025, 0.15, smoothstep(0.0, 0.3, lenT) * smoothstep(1.0, 0.55, lenT));
+        width += (fbm(vec2(along * 2.6 + seed * 20.0, t)) - 0.5) * 0.03;
+        float ribbon = smoothstep(width, width * 0.12, abs(d));
+
+        // colour drifts blue -> yellow along each ribbon's own length
+        vec3 white = vec3(1.0);
+        vec3 blue = vec3(0.20, 0.40, 0.92);
+        vec3 yellow = vec3(0.97, 0.74, 0.14);
+        vec3 tint = mix(blue, yellow, clamp(lenT * 1.25 - 0.1 + (fbm(vec2(along, t + seed)) - 0.5) * 0.25, 0.0, 1.0));
+
+        vec3 col = mix(white, tint, ribbon * 0.55);
+
+        // a soft, mouse-reactive glow riding the same palette
+        float mr = 0.14 + uMouseEnergy * 0.08;
+        float mGlow = smoothstep(mr, 0.0, length(vec2(uv.x, uv.y) - m)) * uMouseActive;
+        col = mix(col, mix(blue, yellow, 0.5), mGlow * 0.3);
 
         gl_FragColor = vec4(col, 1.0);
       }`
@@ -1498,13 +1503,9 @@ function buildFilm(){
 
 /* 00 · the mark, as a window — the photo-collage mark scales up until its
    silhouette has grown past the edges of the screen, so scrolling reads
-   as diving straight through it — then it fades out over the tail of the
-   pin, handing off cleanly to the work section right behind it. Much
-   simpler than the old shader version: everything here is a single
-   transform + opacity on one element, no WebGL, nothing that can
-   silently fail. */
+   as diving straight through it, dissolving into the gallery directly
+   behind it with no bridging screen in between. */
   const heroMarkWrap = $('#hero-mark-wrap');
-  const nextTeaseEl = $('#next-tease');
   ScrollTrigger.create({
     trigger:'#ch0', start:'top top', end:'+=30%', pin:true, scrub:true,
     onUpdate: st => {
@@ -1522,18 +1523,7 @@ function buildFilm(){
         heroMarkWrap.style.opacity = 1 - easeInOutCubic(fadeP);
       }
       if (heroMarkApi) heroMarkApi.setDissolve(clamp01((p - 0.35) / 0.55));
-
-      // a small grid of the same project photos the mark was just built
-      // from fades in over the tail of the transition — visual continuity
-      // from "logo made of project photos" to "here are the projects" —
-      // then hands off to the real gallery once #work is in view
-      if (nextTeaseEl){
-        const teaseIn = clamp01((p - 0.55) / 0.3);
-        const teaseOut = clamp01((p - 0.92) / 0.08);
-        nextTeaseEl.style.opacity = Math.max(0, teaseIn - teaseOut);
-      }
-    },
-    onLeaveBack: () => { if (nextTeaseEl) nextTeaseEl.style.opacity = 0; }
+    }
   });
 
 
