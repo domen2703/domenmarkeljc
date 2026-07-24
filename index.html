@@ -169,32 +169,50 @@ html.static .hero-mark-fallback,html.no-webgl .hero-mark-fallback{display:block}
 
 /* ————— project view — a dedicated, scrollable full-page case study,
    not a small modal card. opens over the whole viewport so there's real
-   room to explain the project, not just a gallery grid ————— */
-.project-view{position:fixed;inset:0;z-index:220;background:var(--ink);opacity:0;visibility:hidden;transition:opacity .5s var(--ease-io),visibility 0s linear .5s;pointer-events:none}
-.project-view[data-open="true"]{opacity:1;visibility:visible;transition:opacity .5s var(--ease-io),visibility 0s linear;pointer-events:auto}
+   room to explain the project, not just a gallery grid.
+   Colour: `color` is set on the container itself so nothing here can
+   silently fall back to body's dark ink on a near-black background — that
+   was the actual bug behind .pv-title reading as a washed-out, low-
+   contrast grey instead of cream (it had no explicit colour at all).
+   Motion: entering uses the site's own strong ease-out (emil-design-eng —
+   ease-out for anything entering/exiting, never the in-out this used to
+   use), and closing is deliberately faster than opening — a snappier
+   release feels more responsive than a symmetric fade (apple-design's
+   feedback-must-be-instant + emil's asymmetric enter/exit). Content
+   materialises with a small fade+rise on top of the backdrop's own fade,
+   so it reads as arriving rather than just switching visible. ————— */
+.project-view{position:fixed;inset:0;z-index:220;background:var(--ink);color:var(--cream);opacity:0;visibility:hidden;transition:opacity 260ms var(--ease-out),visibility 0s linear 260ms;pointer-events:none}
+.project-view[data-open="true"]{opacity:1;visibility:visible;transition:opacity 420ms var(--ease-out),visibility 0s linear;pointer-events:auto}
 .pv-scroll{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.pv-inner{max-width:1000px;margin:0 auto;padding:clamp(90px,12vh,140px) var(--pad) 14vh}
-.pv-close{position:fixed;top:var(--pad);right:var(--pad);z-index:2;display:inline-flex;align-items:center;gap:10px;background:var(--cream-06);border:1px solid var(--cream-24);border-radius:99px;padding:10px 18px 10px 20px;color:var(--cream);font-size:11px;font-weight:500;letter-spacing:.2em;text-transform:lowercase;cursor:none}
+.pv-inner{max-width:1000px;margin:0 auto;padding:clamp(90px,12vh,140px) var(--pad) 14vh;opacity:0;transform:translateY(14px);transition:opacity 300ms var(--ease-out) 60ms,transform 300ms var(--ease-out) 60ms}
+.project-view[data-open="true"] .pv-inner{opacity:1;transform:translateY(0)}
+.pv-close{position:fixed;top:var(--pad);right:var(--pad);z-index:2;display:inline-flex;align-items:center;gap:10px;background:rgba(236,229,216,.08);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);border:1px solid var(--cream-24);border-radius:99px;padding:10px 18px 10px 20px;color:var(--cream);font-size:11px;font-weight:500;letter-spacing:.2em;text-transform:lowercase;cursor:none;transition:transform 120ms var(--ease-out),border-color .3s,background-color .3s}
+.pv-close:hover{border-color:var(--cream-40);background:rgba(236,229,216,.13)}
+.pv-close:active{transform:scale(.96)}
 body.touch .pv-close{cursor:pointer}
 .pv-close i{width:12px;height:12px;position:relative;flex:none}
 .pv-close i::before,.pv-close i::after{content:"";position:absolute;top:50%;left:0;width:100%;height:1px;background:currentColor}
 .pv-close i::before{transform:rotate(45deg)}
 .pv-close i::after{transform:rotate(-45deg)}
 .pv-num{font-size:11px;letter-spacing:.3em;color:var(--cream-40)}
-.pv-title{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(40px,7vw,96px);line-height:.98;margin:10px 0 24px}
-.pv-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8vh}
+.pv-title{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(40px,7vw,96px);line-height:1.02;letter-spacing:-.02em;color:var(--cream);margin:14px 0 28px}
+.pv-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:7vh}
 .pv-tags span{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--cream-70);border:1px solid var(--cream-24);padding:6px 12px;border-radius:99px}
-.pv-copy{font-size:clamp(17px,1.8vw,24px);line-height:1.75;font-weight:300;color:var(--cream-70);max-width:70ch;margin-bottom:6vh}
+.pv-copy{font-size:clamp(17px,1.8vw,24px);line-height:1.65;font-weight:300;letter-spacing:-.005em;color:var(--cream-70);max-width:70ch;margin-bottom:40px}
 .pv-copy b{color:var(--cream);font-weight:500}
-.pv-link{display:inline-flex;align-items:center;gap:10px;margin:-4vh 0 6vh;font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:lowercase;color:var(--accent);border-bottom:1px solid currentColor;padding-bottom:6px}
+.pv-link{display:inline-flex;align-items:center;gap:10px;margin:0 0 8vh;font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:lowercase;color:var(--accent);border-bottom:1px solid currentColor;padding-bottom:6px;transition:opacity .3s}
+.pv-link:hover{opacity:.75}
 .pv-link::after{content:"↗";font-size:12px}
 .pv-gallery{display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.4vw,18px)}
-.pv-gallery figure{margin:0}
-.pv-gallery img,.pv-gallery video{display:block;width:100%;height:auto;border-radius:6px}
+.pv-gallery figure{margin:0;overflow:hidden;border-radius:6px}
+.pv-gallery img,.pv-gallery video{display:block;width:100%;height:auto;border-radius:6px;transition:transform 500ms var(--ease-out)}
+.pv-gallery figure:hover img,.pv-gallery figure:hover video{transform:scale(1.035)}
 .pv-gallery .wide{grid-column:1/-1}
 @media (max-width:640px){.pv-gallery{grid-template-columns:1fr}}
+@media (hover:none){.pv-gallery figure:hover img,.pv-gallery figure:hover video{transform:none}}
 @media (prefers-reduced-motion:reduce){
-  .project-view{transition:opacity 120ms ease,visibility 0s linear 120ms !important}
+  .project-view,.project-view[data-open="true"]{transition:opacity 120ms ease,visibility 0s linear 120ms !important}
+  .pv-inner{transition:opacity 120ms ease !important;transform:none !important}
 }
 
 
@@ -255,11 +273,15 @@ html.static .work-flat{display:block}
 
 /* ————— 02 about — full-width portrait, no frame ————— */
 #about{max-width:1400px;margin:0 auto}
-.about-portrait{display:block;width:100%;height:auto;margin-bottom:clamp(48px,7vh,90px);background:none;box-shadow:none;filter:none}
-.about-copy{max-width:74ch}
-.about-copy p{font-size:clamp(17px,1.7vw,24px);line-height:1.7;font-weight:300;color:var(--cream-70);margin-bottom:1.1em}
+.about-grid{display:grid;grid-template-columns:minmax(0,.56fr) minmax(0,1fr);gap:clamp(40px,6vw,100px);align-items:start}
+.about-portrait-wrap{overflow:hidden;border-radius:4px;background:none;box-shadow:none}
+.about-portrait{display:block;width:100%;height:auto;background:none;box-shadow:none;filter:grayscale(.08) contrast(1.02);transition:transform .8s var(--ease-out)}
+.about-portrait-wrap:hover .about-portrait{transform:scale(1.03)}
+.about-copy{max-width:58ch;padding-top:clamp(4px,1.2vw,14px)}
+.about-copy p{font-size:clamp(18px,1.7vw,25px);line-height:1.6;letter-spacing:-.005em;font-weight:300;color:var(--cream-70);margin-bottom:1.15em}
 .about-copy p:last-child{margin-bottom:0}
 .about-copy b{color:var(--cream);font-weight:500}
+@media (max-width:860px){.about-grid{grid-template-columns:1fr;gap:36px}}
 
 /* ————— 03 start a project — the one bold beat ————— */
 #cta{min-height:82vh;display:flex;align-items:center;justify-content:center;text-align:center;padding-top:14vh;padding-bottom:14vh}
@@ -277,56 +299,60 @@ html.static .work-flat{display:block}
 /* ————— footer — reference layout: heading+cta row, contact block, a
    thin link row, then the giant wordmark — on its own true-white ground
    with the blue/yellow shader beneath ————— */
-footer{position:relative;padding:14vh 0 40px;width:100%;isolation:isolate;background:#fff}
-.footer-inner{max-width:1400px;margin:0 auto;padding:0 var(--pad)}
+/* the whole footer is capped at one viewport tall — four groups (heading
+   row, contact block, link row, closing wordmark line) distributed by
+   justify-content:space-between rather than large fixed vh paddings, so
+   it always fits exactly instead of stacking up past the screen */
+footer{position:relative;width:100%;height:100vh;isolation:isolate;display:flex;flex-direction:column}
+.footer-inner{max-width:1400px;width:100%;margin:0 auto;padding:clamp(16px,3.5vh,36px) var(--pad);flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-between}
 #footer-canvas{position:absolute;inset:0;z-index:-1;width:100%;height:100%;display:block;touch-action:pan-y;opacity:0;transition:opacity 1.2s var(--ease-out)}
 #footer-canvas.is-in{opacity:1}
 
-.ftop{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:32px;padding-bottom:8vh;border-bottom:1px solid rgba(20,18,16,.1)}
-.fkicker{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(30px,4.4vw,60px);line-height:1.15;max-width:15ch;color:var(--paper-ink)}
+.ftop{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:24px;padding-bottom:clamp(14px,3vh,28px);border-bottom:1px solid rgba(20,18,16,.1)}
+.fkicker{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(20px,3vw,40px);line-height:1.18;max-width:15ch;color:var(--paper-ink)}
 .fkicker__ghost{color:rgba(20,18,16,.32)}
-.fcta{display:inline-flex;align-items:center;gap:16px;flex:none;font-weight:500;font-size:12px;letter-spacing:.28em;text-transform:lowercase;color:var(--paper);padding:20px 32px;border-radius:99px;background:var(--paper-ink);position:relative;overflow:hidden;will-change:transform}
-.fcta .arrow{width:20px;height:1px;background:currentColor;position:relative;transition:width .5s var(--ease-out)}
+.fcta{display:inline-flex;align-items:center;gap:14px;flex:none;font-weight:500;font-size:11px;letter-spacing:.26em;text-transform:lowercase;color:var(--paper);padding:16px 26px;border-radius:99px;background:var(--paper-ink);position:relative;overflow:hidden;will-change:transform}
+.fcta .arrow{width:18px;height:1px;background:currentColor;position:relative;transition:width .5s var(--ease-out)}
 .fcta .arrow::after{content:"";position:absolute;right:0;top:-3px;width:6px;height:6px;border-top:1px solid currentColor;border-right:1px solid currentColor;transform:rotate(45deg)}
-.fcta:hover .arrow{width:30px}
+.fcta:hover .arrow{width:28px}
 
-.fcontact{display:flex;flex-direction:column;gap:22px;padding:6vh 0;border-bottom:1px solid rgba(20,18,16,.1)}
+.fcontact{display:flex;flex-direction:column;gap:12px;padding:clamp(10px,2.4vh,22px) 0;border-bottom:1px solid rgba(20,18,16,.1)}
 .fcontact__block{display:flex;align-items:baseline;gap:20px;flex-wrap:wrap}
-.fcontact__loc{font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:rgba(20,18,16,.4);min-width:6em}
-.fmail{font-weight:500;font-size:clamp(20px,2.2vw,30px);letter-spacing:-.01em;color:var(--paper-ink);border-bottom:1px solid rgba(20,18,16,.4);padding-bottom:4px;transition:color .4s,border-color .4s}
+.fcontact__loc{font-size:10px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:rgba(20,18,16,.4);min-width:6em}
+.fmail{font-weight:500;font-size:clamp(15px,1.5vw,20px);letter-spacing:-.01em;color:var(--paper-ink);border-bottom:1px solid rgba(20,18,16,.4);padding-bottom:3px;transition:color .4s,border-color .4s}
 .fmail:hover{color:var(--accent);border-color:var(--accent)}
-.copy-email{appearance:none;background:none;border:1px solid rgba(20,18,16,.22);border-radius:99px;color:rgba(20,18,16,.55);font:inherit;font-size:12px;letter-spacing:.05em;padding:8px 16px;width:fit-content;position:relative;transition:border-color .4s,color .4s,transform .15s cubic-bezier(0.4,0,0.2,1)}
+.copy-email{appearance:none;background:none;border:1px solid rgba(20,18,16,.22);border-radius:99px;color:rgba(20,18,16,.55);font:inherit;font-size:11px;letter-spacing:.05em;padding:6px 14px;width:fit-content;position:relative;transition:border-color .4s,color .4s,transform .15s cubic-bezier(0.4,0,0.2,1)}
 .copy-email:hover{border-color:var(--accent);color:var(--paper-ink)}
 .copy-email:active{transform:scale(.97)}
 .copy-email.is-copied{border-color:var(--red);color:var(--red)}
 .copy-email .ce-label{display:inline-block;transition:opacity .2s ease-out,filter .2s ease-out,transform .2s ease-out}
 .copy-email .ce-a{opacity:1;filter:blur(0);transform:translateY(0)}
-.copy-email .ce-b{position:absolute;top:8px;left:16px;opacity:0;filter:blur(4px);transform:translateY(0)}
+.copy-email .ce-b{position:absolute;top:6px;left:14px;opacity:0;filter:blur(4px);transform:translateY(0)}
 .copy-email[data-state="b"] .ce-a{opacity:0;filter:blur(4px);transform:translateY(-8px)}
 .copy-email[data-state="b"] .ce-b{opacity:1;filter:blur(0);transform:translateY(0)}
 
-.fnews{display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(20,18,16,.22);padding-bottom:6px;transition:border-color .35s}
+.fnews{display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(20,18,16,.22);padding-bottom:5px;width:fit-content;transition:border-color .35s}
 .fnews:focus-within{border-color:var(--accent)}
-.fnews input{appearance:none;background:none;border:none;outline:none;font:inherit;font-size:13px;letter-spacing:-.005em;color:var(--paper-ink);width:180px;padding:2px 0}
+.fnews input{appearance:none;background:none;border:none;outline:none;font:inherit;font-size:12px;letter-spacing:-.005em;color:var(--paper-ink);width:170px;padding:2px 0}
 .fnews input::placeholder{color:rgba(20,18,16,.4)}
 .fnews button{appearance:none;background:none;border:none;font:inherit;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:lowercase;color:rgba(20,18,16,.55);cursor:pointer;white-space:nowrap;transition:color .3s}
 .fnews button:hover{color:var(--accent)}
 .fnews.is-sent input,.fnews.is-sent button.fn-submit{display:none}
-.fnews .fn-done{display:none;font-size:13px;color:rgba(20,18,16,.55)}
+.fnews .fn-done{display:none;font-size:12px;color:rgba(20,18,16,.55)}
 .fnews.is-sent .fn-done{display:inline}
 
-.fbottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;padding-top:6vh;font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:lowercase;color:rgba(20,18,16,.4)}
-.fbottom__social,.fbottom__nav,.fbottom__meta{display:flex;gap:22px;flex-wrap:wrap}
+.fbottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;padding:clamp(10px,2.4vh,22px) 0;font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:lowercase;color:rgba(20,18,16,.4)}
+.fbottom__social,.fbottom__nav,.fbottom__meta{display:flex;gap:20px;flex-wrap:wrap}
 .fbottom a{color:inherit;transition:color .35s}
 .fbottom a:hover{color:var(--paper-ink)}
 
-.fwordmark{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;width:100vw;margin-left:calc(50% - 50vw);padding:min(14vh,140px) var(--pad) min(6vh,60px);position:relative;z-index:1}
-.fwordmark span{display:block;font-family:var(--sans);font-weight:600;text-transform:lowercase;letter-spacing:-.02em;line-height:.92;font-size:clamp(48px,15vw,320px);color:var(--paper-ink);opacity:.92}
-.fwordmark span:last-child{opacity:.16}
-.ficon{display:flex;align-items:center;justify-content:center;padding:0 0 min(7vh,64px);position:relative;z-index:1}
-.ficon svg{width:34px;height:34px;display:block}
-.ficon path{fill:var(--paper-ink);opacity:.55}
+/* closing line — the mark and the wordmark on one baseline, full width */
+.fclose{display:flex;align-items:center;justify-content:center;gap:clamp(14px,1.8vw,30px);width:100vw;margin-left:calc(50% - 50vw);font-size:clamp(34px,7.4vw,140px)}
+.fclose__icon{height:.78em;width:auto;flex:none;display:block}
+.fclose__icon path{fill:var(--paper-ink)}
+.fclose__word{font-family:var(--sans);font-weight:600;text-transform:lowercase;letter-spacing:-.02em;line-height:1;font-size:1em;color:var(--paper-ink)}
 @media (max-width:760px){
+  footer{height:auto;min-height:100vh}
   .ftop{flex-direction:column;align-items:flex-start}
   .fbottom{flex-direction:column;align-items:flex-start}
 }
@@ -451,8 +477,11 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
       <h2>about</h2>
       <span class="rule"></span>
     </div>
-    <img class="about-portrait" src="assets/img/domen-portrait.png" alt="domen markeljc" data-io>
-    <div class="about-copy">
+    <div class="about-grid">
+      <div class="about-portrait-wrap" data-io>
+        <img class="about-portrait" src="assets/img/domen-portrait.png" alt="domen markeljc">
+      </div>
+      <div class="about-copy">
         <p data-io>i work across brand identity, packaging, and digital product design — usually all three on the same project, because <b>the mark on a label and the button on a screen are solving the same problem: be understood in half a second.</b></p>
         <p data-io>most of what i do starts with a restriction — a shelf, a thumb, a viewport — and ends with the smallest version of the idea that still says everything. <b>i'm not interested in decoration for its own sake.</b></p>
         <p data-io>based in slovenia. working further out.</p>
@@ -516,8 +545,10 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
       <span><span id="clock">--:--</span> cet</span>
     </div>
   </div>
-  <div class="fwordmark" aria-hidden="true"><span>domen</span><span>markeljc</span></div>
-  <div class="ficon" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/></svg></div>
+  <div class="fclose" aria-hidden="true">
+    <svg class="fclose__icon" viewBox="0 0 32 32"><path d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/></svg>
+    <span class="fclose__word">domen markeljc</span>
+  </div>
   </div>
 </footer>
 
@@ -1276,68 +1307,40 @@ function initFooterGradient(){
       uniform float uMouseActive;
       uniform float uMouseEnergy;
       varying vec2 vUv;
-
-      float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
-      float noise(vec2 p){
-        vec2 i = floor(p), f = fract(p);
-        float a = hash(i), b = hash(i + vec2(1.0,0.0)), c = hash(i + vec2(0.0,1.0)), d = hash(i + vec2(1.0,1.0));
-        vec2 u = f * f * (3.0 - 2.0 * f);
-        return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+      float blob(vec2 uv, vec2 center, float radius){
+        return smoothstep(radius, 0.0, length(uv - center));
       }
-      float fbm(vec2 p){
-        float v = 0.0, a = 0.55;
-        for (int i = 0; i < 4; i++){ v += a * noise(p); p *= 2.05; a *= 0.55; }
-        return v;
-      }
-
       void main(){
-        // unit = one canvas-width, not the whole (often much taller than
-        // one screen) footer height — so the flowing ribbon motif repeats
-        // naturally down a tall footer instead of only ever appearing once
-        // near vUv's own y=0
         float aspect = uResolution.x / max(uResolution.y, 1.0);
-        float heightUnits = 1.0 / aspect;
-        vec2 uv = gl_FragCoord.xy / uResolution.x;
-        vec2 m = vec2(uMouse.x, uMouse.y * heightUnits);
-        float t = uTime * 0.045;
+        vec2 uv = vUv * vec2(aspect, 1.0);
+        float t = uTime * 0.035;
 
-        vec2 pull = (m - vec2(0.5, 0.5 * heightUnits)) * 0.06 * uMouseActive;
+        vec2 m = uMouse * vec2(aspect, 1.0);
+        vec2 pull = (m - vec2(0.5*aspect, 0.45)) * 0.05 * uMouseActive;
 
-        // repeating diagonal bands, each seeded independently so the
-        // ribbons don't look mechanically identical down the footer
-        float band = 1.35;
-        float bandIdx = floor((uv.y - pull.y) / band);
-        float bandY = mod(uv.y - pull.y, band);
-        float seed = hash(vec2(bandIdx, 4.7));
+        vec2 c1 = vec2(0.28 + sin(t*1.3)*0.18, 0.58 + cos(t*1.05)*0.2) * vec2(aspect,1.0) + pull;
+        vec2 c2 = vec2(0.74 + cos(t*0.85)*0.2, 0.34 + sin(t*1.35)*0.18) * vec2(aspect,1.0) + pull*0.7;
 
-        vec2 dir = normalize(vec2(0.92, 0.48));
-        vec2 perp = vec2(-dir.y, dir.x);
-        vec2 origin = vec2(-0.2 + seed * 0.5, band * (0.12 + seed * 0.1)) + vec2(pull.x, 0.0);
-        vec2 rel = vec2(uv.x, bandY) - origin;
-        float along = dot(rel, dir);
-        float across = dot(rel, perp);
+        // true-white base — the footer's own ground, so the shader reads
+        // as texture in the page rather than a panel on it. Boosted well
+        // past the original subtle pass — clearly readable blue/yellow
+        // stains rather than a felt-more-than-seen tint.
+        vec3 base = vec3(1.0, 1.0, 1.0);
+        vec3 col = base;
+        col -= blob(uv, c1, 0.62) * vec3(0.16, 0.10, 0.0);
+        col -= blob(uv, c2, 0.58) * vec3(0.0, 0.06, 0.19);
 
-        float wave = sin(along * 3.1 + t * 2.2 + seed * 6.28) * 0.055
-                   + (fbm(vec2(along * 2.1 + seed * 12.0, t * 0.9)) - 0.5) * 0.09;
-        float d = across - wave;
+        float mr = 0.24 + uMouseEnergy * 0.12;
+        float mGlow = blob(uv, m, mr) * uMouseActive;
+        col -= mGlow * vec3(0.09, 0.06, 0.0) * (0.4 + uMouseEnergy * 0.35);
 
-        float lenT = clamp(along / 1.15, 0.0, 1.0);
-        float width = mix(0.025, 0.15, smoothstep(0.0, 0.3, lenT) * smoothstep(1.0, 0.55, lenT));
-        width += (fbm(vec2(along * 2.6 + seed * 20.0, t)) - 0.5) * 0.03;
-        float ribbon = smoothstep(width, width * 0.12, abs(d));
-
-        // colour drifts blue -> yellow along each ribbon's own length
-        vec3 white = vec3(1.0);
-        vec3 blue = vec3(0.20, 0.40, 0.92);
-        vec3 yellow = vec3(0.97, 0.74, 0.14);
-        vec3 tint = mix(blue, yellow, clamp(lenT * 1.25 - 0.1 + (fbm(vec2(along, t + seed)) - 0.5) * 0.25, 0.0, 1.0));
-
-        vec3 col = mix(white, tint, ribbon * 0.55);
-
-        // a soft, mouse-reactive glow riding the same palette
-        float mr = 0.14 + uMouseEnergy * 0.08;
-        float mGlow = smoothstep(mr, 0.0, length(vec2(uv.x, uv.y) - m)) * uMouseActive;
-        col = mix(col, mix(blue, yellow, 0.5), mGlow * 0.3);
+        // the footer's own top edge fades from cta's black down into the
+        // white/blob ground over the first ~1/4 of the footer's height —
+        // a real spatial gradient baked into the shader itself, so the
+        // cta-to-footer seam is smooth regardless of scroll-driven timing
+        vec3 black = vec3(0.039, 0.035, 0.031);
+        float topFade = smoothstep(0.78, 1.0, vUv.y);
+        col = mix(col, black, topFade);
 
         gl_FragColor = vec4(col, 1.0);
       }`
@@ -1547,11 +1550,12 @@ function buildFilm(){
     function paintBgField(){
       const vh = innerHeight;
       // synced to the hero pin's own scroll range (end:'+=30%' below), not
-      // #work's position — darkening now happens *during* the mark's own
-      // dissolve, landing on black exactly as the pin releases, instead of
-      // only starting once #work has already scrolled into view
+      // #work's position — darkening starts the instant scroll begins (no
+      // white/cream hold first) and is fully black well before the pin
+      // even releases, so diving through the mark reads as entering black
+      // space immediately rather than a white page that later goes dark
       const pinDist = vh * 0.3;
-      const p1 = clamp01((window.scrollY - pinDist * 0.3) / (pinDist * 0.7));
+      const p1 = clamp01(window.scrollY / (pinDist * 0.45));
       const footerTop = footerEl.getBoundingClientRect().top + window.scrollY;
       const p2 = clamp01((window.scrollY - (footerTop - vh)) / (vh * 0.65));
       const mid = lerp3(CREAM, BLACK, p1);
