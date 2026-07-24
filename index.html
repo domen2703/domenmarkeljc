@@ -1134,7 +1134,42 @@ function buildWorkFlat(){
       <p class="wf-item__copy">${p.copy}</p>
       <a class="wf-item__link" data-hover>view case</a>
     </div>`).join('');
-  $$('.wf-item', el).forEach(item => item.addEventListener('click', () => openProjectModal(+item.dataset.i)));
+  const items = $$('.wf-item', el);
+  items.forEach(item => item.addEventListener('click', () => openProjectModal(+item.dataset.i)));
+
+  // this is the list's stand-in for the desktop orbit gallery's motion —
+  // it can't pin/orbit itself (this only ever shows where the gallery's
+  // 3D transforms don't run: mobile widths and hover:none devices, see the
+  // media query above), but each card can still animate as it transits the
+  // viewport. One ScrollTrigger per card, un-pinned and scoped to that
+  // card's own natural position, so it's exactly as scroll-safe as every
+  // other reveal on the page — the image eases out of a slight zoom+drift
+  // and the caption stacks up right after, instead of the whole card just
+  // appearing.
+  if (hasLibs){
+    items.forEach(item => {
+      const media = item.querySelector('.wf-item__media img');
+      const rest = item.querySelectorAll('.wf-item__num, .wf-item__name, .wf-item__copy, .wf-item__link');
+      gsap.set(item, { opacity:0 });
+      gsap.set(rest, { opacity:0, y:22 });
+      ScrollTrigger.create({
+        trigger:item, start:'top bottom', end:'bottom top', scrub:0.4,
+        onUpdate: st => {
+          const p = st.progress;
+          const revealP = clamp01(p / 0.22);
+          item.style.opacity = revealP;
+          const drift = (p - 0.5) * -34;
+          const scale = 1.18 - 0.18 * revealP;
+          media.style.transform = `scale(${scale.toFixed(3)}) translateY(${drift.toFixed(1)}px)`;
+          rest.forEach((r, i) => {
+            const rp = clamp01((p - i * 0.05) / 0.3);
+            r.style.opacity = rp;
+            r.style.transform = `translateY(${(14 * (1 - rp)).toFixed(1)}px)`;
+          });
+        }
+      });
+    });
+  }
 }
 
 /* ————————————————— about — word-by-word text reveal ————————————————— */
@@ -1570,21 +1605,23 @@ function buildFilm(){
       }
     });
   } else {
-    // touch devices — pinning a fixed-position element through a 16x
-    // scroll-driven scale is exactly the kind of scroll-jacking that
-    // iOS Safari (and mobile browsers generally) handle unreliably —
-    // stuck pins, content trapped mid-transform, scroll that stops
-    // responding entirely. Skip the pin outright: the mark stays put at
-    // its natural size and #ch0 just scrolls past normally like any
-    // other section, with its own background still darkening across
-    // that same natural scroll distance so the handoff into #work still
-    // reads as fading into black, just without the literal dive-through.
+    // touch devices — pinning a fixed-position element through a scroll-
+    // driven scale is exactly the kind of scroll-jacking that iOS Safari
+    // (and mobile browsers generally) handle unreliably: stuck pins,
+    // content trapped mid-transform, scroll that stops responding
+    // entirely. Skip the pin outright — but the mark still grows and
+    // dissolves, it just does it while scrolling *naturally* past instead
+    // of being held in place: since .pinwrap has overflow:hidden, growing
+    // the mark while it rides normal scroll motion upward off-screen reads
+    // as it rushing up and swelling past the viewport, a smaller-scale
+    // echo of the desktop dive rather than a flat colour-only fade.
     ScrollTrigger.create({
       trigger:'#ch0', start:'top top', end:'bottom top', scrub:true,
       onUpdate: st => {
         const growP = easeInOutCubic(clamp01(st.progress / 0.7));
         paintCh0(growP);
-        if (heroMarkApi) heroMarkApi.setDissolve(clamp01((st.progress - 0.6) / 0.4) * 0.3);
+        if (heroMarkWrap) heroMarkWrap.style.transform = `translate(-50%,-50%) scale(${1 + growP * 5})`;
+        if (heroMarkApi) heroMarkApi.setDissolve(clamp01((st.progress - 0.45) / 0.5));
       }
     });
   }
@@ -1608,6 +1645,23 @@ function buildFilm(){
   if (bgField && hasLibs){
     const CREAM = [245,241,232], BLACK = [10,9,8];
     const lerp3 = (a,b,t) => [0,1,2].map(i => Math.round(a[i] + (b[i]-a[i]) * t));
+    // pinDist is captured ONCE, not recomputed from innerHeight on every
+    // call — this is what actually fixed mobile's random white/cream
+    // flashes deep in the page. innerHeight is not stable on mobile: the
+    // browser chrome (address bar / bottom bar) showing and hiding as you
+    // scroll changes it, and can report a transiently different value
+    // mid-animation. Recomputing pinDist = innerHeight*0.3 on every scroll
+    // tick meant an inflated momentary innerHeight could inflate pinDist
+    // enough that an already-past-the-hero scrollY divided by it dropped
+    // back under 1 — un-saturating p1 and repainting a lighter shade for a
+    // frame, while the user was scrolled deep into work/about/cta the
+    // whole time. A stable snapshot can't be perturbed by that. The latch
+    // below is a second, independent guard on top: once fully black, it
+    // refuses to repaint lighter while the live scroll position is still
+    // genuinely past the hero, regardless of what a stray recalculation
+    // pass might otherwise compute.
+    const pinDist = innerHeight * 0.3;
+    let bgLatched = false;
     function paintBgField(){
       // matched exactly to the mark's own growP easing (same trigger, same
       // curve) — the mark's black silhouette is the primary thing filling
@@ -1617,14 +1671,33 @@ function buildFilm(){
       // darkening at the identical pace means any gap in the shape is
       // already sitting on the right intermediate shade instead of raw
       // cream, so the two reinforce one another rather than racing.
-      const pinDist = innerHeight * 0.3;
-      const p1 = easeInOutCubic(clamp01(window.scrollY / pinDist));
+      const y = window.scrollY;
+      if (bgLatched && y > pinDist) return;
+      const p1 = easeInOutCubic(clamp01(y / pinDist));
+      if (p1 >= 1) bgLatched = true; else if (y < pinDist) bgLatched = false;
       const c = lerp3(CREAM, BLACK, p1);
       bgField.style.backgroundColor = `rgb(${c[0]},${c[1]},${c[2]})`;
     }
     // only the hero's own pin distance can move this any more — nothing
     // past it changes the colour, so the trigger only needs to span that
     ScrollTrigger.create({ trigger:'#ch0', start:'top top', end:'+=30%', scrub:true, onUpdate: paintBgField });
+    // confirmed live (not just theorised): ScrollTrigger.refresh() — which
+    // fires often on mobile since the address bar showing/hiding trips a
+    // resize event — genuinely, if briefly, scrolls the page back to 0 to
+    // remeasure the pinned hero section, which fires this trigger's
+    // onUpdate mid-refresh with a real (if transient) scrollY of 0,
+    // painting cream. Once refresh finishes restoring the real scroll
+    // position, that position sits outside this trigger's own short
+    // start/end range, so GSAP doesn't consider its progress "changed" and
+    // never calls onUpdate again to correct the leftover cream paint —
+    // the field was left stuck light-coloured for the rest of the session
+    // even though the user never actually left work/about/cta. The latch
+    // above can't catch this because the mid-refresh call is a genuine
+    // scrollY of 0, not a stale value to distrust. Listening for GSAP's
+    // own 'refresh' event and repainting once refresh is fully settled is
+    // the actual fix: it runs after the real scroll position is restored,
+    // so it always reflects where the user truly is.
+    ScrollTrigger.addEventListener('refresh', paintBgField);
     paintBgField();
   }
 
@@ -1651,7 +1724,20 @@ ScrollTrigger.refresh();
       el.addEventListener('error', safeRefresh, { once:true });
     }
   });
-  addEventListener('resize', safeRefresh);
+  // ScrollTrigger.config({ignoreMobileResize:true}) only suppresses
+  // ScrollTrigger's *own* internal resize handling — it does nothing for
+  // this listener, which is a plain page-level 'resize' binding. On mobile
+  // the address bar showing/hiding on scroll fires resize events for a
+  // pure viewport *height* change, so without this same guard here,
+  // ordinary scrolling was calling ScrollTrigger.refresh() constantly.
+  // Only refresh on a genuine width change (real resize/orientation) when
+  // on a touch device; non-touch keeps refreshing on any resize as before.
+  let lastW = innerWidth;
+  addEventListener('resize', () => {
+    if (isTouch && innerWidth === lastW) return;
+    lastW = innerWidth;
+    safeRefresh();
+  });
 }
 
 
