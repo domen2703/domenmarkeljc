@@ -117,26 +117,6 @@ body.touch #cur-dot{display:none}
 .chrome-cta i{position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--chrome-c-40);font-style:normal;transition:background-color .5s}
 .chrome-cta i b{position:absolute;inset:0;background:var(--red);transform:scaleX(0);transform-origin:right;transition:transform .7s var(--ease-io)}
 .chrome-cta:hover i b{transform:scaleX(1);transform-origin:left}
-#chapter{position:absolute;bottom:var(--pad);left:var(--pad);font-size:11px;font-weight:400;letter-spacing:.34em;color:var(--chrome-c-55);text-transform:lowercase;opacity:0;display:flex;gap:14px;align-items:baseline;transition:color .5s}
-#chapter .num{color:var(--cream)}
-#chapter .name{position:relative;display:inline-block;min-width:150px;height:12px}
-#chapter .name span{position:absolute;left:0;top:0;white-space:nowrap;opacity:0;transition:opacity .6s}
-#chapter .name span.on{opacity:1}
-#hint{position:absolute;bottom:var(--pad);right:var(--pad);font-size:11px;font-weight:400;letter-spacing:.34em;color:var(--chrome-c-55);text-transform:lowercase;opacity:0;display:flex;align-items:center;gap:12px;transition:color .5s}
-#hint em{font-style:normal}
-#hint .tick{width:1px;height:34px;background:var(--cream-10);position:relative;overflow:hidden}
-#hint .tick i{position:absolute;left:0;top:-100%;width:100%;height:100%;background:var(--cream-40);animation:tickfall 2.1s var(--ease-io) infinite}
-@keyframes tickfall{0%{top:-100%}55%{top:0}100%{top:100%}}
-#rail{position:fixed;top:16vh;bottom:16vh;right:22px;width:1px;z-index:90;opacity:0;background:var(--chrome-c-10);transition:background-color .5s}
-#rail-fill{position:absolute;left:0;top:0;width:100%;height:100%;background:linear-gradient(180deg,var(--cream-55) 0%,var(--red) 100%);transform:scaleY(0);transform-origin:top}
-@media (max-width:860px){#rail{display:none}}
-#float-cta{position:absolute;bottom:var(--pad);right:var(--pad);display:inline-flex;align-items:center;gap:12px;opacity:0;pointer-events:none;padding:14px 20px 14px 16px;border:1px solid var(--cream-24);border-radius:99px;background:rgba(10,9,8,.55);backdrop-filter:blur(6px);font-size:10px;font-weight:400;letter-spacing:.3em;text-transform:lowercase;color:var(--cream);transition:border-color .5s,background-color .5s;will-change:transform}
-#float-cta:hover{border-color:var(--cream-40);background:rgba(10,9,8,.8)}
-#float-cta.on{pointer-events:auto}
-#float-cta .dot{width:6px;height:6px;border-radius:50%;background:var(--red);flex:none;animation:pulse-dot 2.6s ease-in-out infinite}
-@keyframes pulse-dot{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.7);opacity:.55}}
-@media (prefers-reduced-motion:reduce){#float-cta .dot{animation:none}}
-@media (max-width:640px){#float-cta .ftxt{display:none}#float-cta{padding:14px;gap:0}}
 
 /* ————— layout / chapters ————— */
 main{position:relative;z-index:10}
@@ -265,8 +245,11 @@ body.touch .wf-item{cursor:pointer}
 .wf-item__link::after{content:"↗";font-size:12px}
 
 @media (max-width:760px), (hover:none){
+  /* #work.sec--gallery zeroes the section's own padding so the desktop
+     orbit canvas can run edge-to-edge — the flat list needs that padding
+     back itself, since it has no full-bleed trick of its own */
   .gallery{display:none}
-  .work-flat{display:block}
+  .work-flat{display:block;padding:12vh var(--pad) 4vh}
 }
 html.static .gallery{display:none}
 html.static .work-flat{display:block}
@@ -316,7 +299,7 @@ html.static .work-flat{display:block}
    justify-content:space-between rather than large fixed vh paddings, so
    it always fits exactly instead of stacking up past the screen */
 footer{position:relative;width:100%;height:100vh;isolation:isolate;display:flex;flex-direction:column}
-.footer-inner{max-width:1400px;width:100%;margin:0 auto;padding:clamp(16px,3.5vh,36px) var(--pad);flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-between}
+.footer-inner{max-width:1400px;width:100%;margin:0 auto;padding:clamp(16px,3.5vh,36px) var(--pad);flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-start;gap:clamp(18px,2.6vh,32px)}
 #footer-canvas{position:absolute;inset:0;z-index:-1;width:100%;height:100%;display:block;touch-action:pan-y;opacity:0;transition:opacity 1.2s var(--ease-out)}
 #footer-canvas.is-in{opacity:1}
 
@@ -359,7 +342,7 @@ footer{position:relative;width:100%;height:100vh;isolation:isolate;display:flex;
 .fbottom a:hover{color:var(--paper-ink)}
 
 /* closing line — the mark and the wordmark on one baseline, full width */
-.fclose{display:flex;align-items:center;justify-content:center;gap:clamp(14px,1.8vw,30px);width:100vw;margin-left:calc(50% - 50vw);font-size:clamp(34px,7.4vw,140px)}
+.fclose{display:flex;align-items:center;justify-content:center;gap:clamp(14px,1.8vw,30px);width:100vw;margin-left:calc(50% - 50vw);margin-top:auto;padding-top:clamp(20px,4vh,60px);font-size:clamp(34px,7.4vw,140px)}
 .fclose__icon{height:.78em;width:auto;flex:none;display:block}
 .fclose__icon path{fill:var(--paper-ink)}
 .fclose__word{font-family:var(--sans);font-weight:500;text-transform:lowercase;letter-spacing:-.02em;line-height:1;font-size:1em;color:var(--paper-ink);white-space:nowrap}
@@ -372,10 +355,6 @@ footer{position:relative;width:100%;height:100vh;isolation:isolate;display:flex;
 /* ————— floating 3d logo canvas (module script owns the drawing) ————— */
 /* ————— floating 3d logo canvas — removed for now ————— */
 
-/* ————— responsive ————— */
-@media (max-width:860px){
-  #chapter .name{display:none}
-}
 /* ————— reduced motion / fallback ————— */
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
@@ -423,21 +402,6 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
     <svg viewBox="0 0 32 32"><path d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/></svg>
   </a>
   <a class="chrome-cta" href="mailto:info@domenmarkeljc.com" data-hover>start a project<i><b></b></i></a>
-  <div id="chapter" aria-hidden="true">
-    <span class="num" id="chapter-num">00</span>
-    <span class="name" id="chapter-name">
-      <span data-ch="0" class="on">hero</span>
-      <span data-ch="1">work</span>
-      <span data-ch="2">about</span>
-      <span data-ch="3">start a project</span>
-      <span data-ch="4">contact</span>
-    </span>
-  </div>
-  <div id="rail" aria-hidden="true"><i id="rail-fill"></i></div>
-  <div id="hint" aria-hidden="true"><em>scroll to remember</em><span class="tick"><i></i></span></div>
-  <a id="float-cta" href="mailto:info@domenmarkeljc.com" data-hover aria-label="start a project">
-    <span class="dot"></span><span class="ftxt">start a project</span>
-  </a>
 </div>
 
 <main id="top">
@@ -650,7 +614,7 @@ if (!isTouch){
   };
   loop();
   document.addEventListener('mouseover', e => {
-    const cta = e.target.closest('.cta-btn, .chrome-cta, .fcta, #float-cta');
+    const cta = e.target.closest('.cta-btn, .chrome-cta, .fcta');
     const hoverable = e.target.closest('a,button,[data-hover]');
     // the mark itself grows to say "interactive" — no separate badge or
     // popup, difference-blend already keeps it legible on any background
@@ -658,7 +622,7 @@ if (!isTouch){
     else if (hoverable){ document.body.classList.add('cur-hover'); setScale(1.32, .35, 'back.out(2)'); }
   });
   document.addEventListener('mouseout', e => {
-    if (e.target.closest('.cta-btn, .chrome-cta, .fcta, #float-cta')){ document.body.classList.remove('cur-cta'); setScale(1, .35, 'power2.out'); }
+    if (e.target.closest('.cta-btn, .chrome-cta, .fcta')){ document.body.classList.remove('cur-cta'); setScale(1, .35, 'power2.out'); }
     else if (e.target.closest('a,button,[data-hover]')){ document.body.classList.remove('cur-hover'); setScale(1, .35, 'power2.out'); }
   });
 } else {
@@ -1256,7 +1220,7 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitFooterC
 
 /* magnetic pull on the primary actions (desktop only — needs a real cursor) */
 if (!isTouch && hasLibs){
-  $$('.chrome-cta, .cta-btn, .fcta, .mark, #float-cta').forEach(el => {
+  $$('.chrome-cta, .cta-btn, .fcta, .mark').forEach(el => {
     const sx = gsap.quickTo(el, 'x', { duration:.55, ease:'power3.out' });
     const sy = gsap.quickTo(el, 'y', { duration:.55, ease:'power3.out' });
     el.addEventListener('mousemove', e => {
@@ -1272,7 +1236,7 @@ if (!isTouch && hasLibs){
    the site's transitions-dev token pass: a quick, near-linear press-down
    (--btn-press) and a springy release (--btn-release) */
 if (hasLibs && !prefersReduced){
-  $$('.chrome-cta, .cta-btn, .fcta, .mark, #float-cta').forEach(el => {
+  $$('.chrome-cta, .cta-btn, .fcta, .mark').forEach(el => {
     // magnetic elements already own their transform via GSAP's x/y quickTo —
     // adding a separate scale quickTo composes into the same matrix rather
     // than fighting it, which a plain CSS :active transform would
@@ -1496,43 +1460,11 @@ $('.mark').addEventListener('click', e => {
   else scrollTo({ top:0, behavior: prefersReduced ? 'auto' : 'smooth' });
 });
 
-/* ————————————————— chapter indicator ————————————————— */
-function setChapter(n){
-  $('#chapter-num').textContent = '0' + n;
-  $$('#chapter-name span').forEach(s => s.classList.toggle('on', +s.dataset.ch === n));
-  document.body.className = document.body.className.replace(/\bchapter-\d\b/g, '').trim();
-  document.body.classList.add('chapter-' + n);
-}
-
-/* the floating cta picks up attention once the hero hint has faded,
-   and steps aside once the final invitation's own cta is on screen */
-function setFloatCta(on){
-  const el = $('#float-cta');
-  if (!el) return;
-  el.classList.toggle('on', on);
-  gsap.to(el, { opacity: on ? 1 : 0, duration:.5, ease:'power2.out' });
-}
-
-
 /* ——————————————— the film — scroll choreography ——————————————— */
 function buildFilm(){
   buildGallery();
   buildWorkFlat();
   buildAboutReveal();
-
-  /* chapter tracking */
-  $$('[data-chapter]').forEach(sec => {
-    ScrollTrigger.create({
-      trigger: sec, start: 'top 55%', end: 'bottom 55%',
-      onEnter: () => setChapter(+sec.dataset.chapter),
-      onEnterBack: () => setChapter(+sec.dataset.chapter)
-    });
-  });
-
-  ScrollTrigger.create({ trigger:'#work', start:'top 85%',
-    onEnter: () => setFloatCta(true), onLeaveBack: () => setFloatCta(false) });
-  ScrollTrigger.create({ trigger:'#cta', start:'top 75%',
-    onEnter: () => setFloatCta(false), onLeaveBack: () => setFloatCta(true) });
 
   // the footer returns to the hero's paper colour, so the fixed nav chrome
   // (logo mark, "start a project", chapter label, rail, hint) needs to flip
@@ -1544,30 +1476,6 @@ function buildFilm(){
   ScrollTrigger.create({ trigger:'#site-footer', start:'top 55%',
     onLeaveBack: () => document.body.classList.remove('chrome-light') });
 
-/* the rail — a thin, precious line marking passage through the film.
-     also carries the fix for the fixed "scroll to remember" hint: it sits
-     bottom-right for the whole film, but the footer's own bottom-right
-     content (email, copy-email button) lands in that exact same corner
-     once you actually reach the end, and #chrome's children all take
-     pointer events — so the hint was silently eating every click meant for
-     the copy button underneath it. An onEnter/onLeaveBack trigger on the
-     footer looked right but proved unreliable this close to the very
-     bottom of the page: a late ScrollTrigger.refresh() (fired after a
-     lazy-loaded image resolves) can silently snap progress to 1 without
-     ever calling onEnter. This piggybacks on the rail's own onUpdate
-     instead — already proven reliable across this whole file — so the
-     hint is corrected continuously from live progress rather than a
-     one-shot event that can be skipped. */
-  const railFill = $('#rail-fill');
-  const hintEl = $('#hint');
-  let hintForcedHidden = false;
-  if (railFill) ScrollTrigger.create({ trigger:'main', start:'top top', endTrigger:'#site-footer', end:'bottom bottom', scrub:true,
-    onUpdate: st => {
-      railFill.style.transform = `scaleY(${st.progress})`;
-      if (!hintEl) return;
-      if (st.progress > 0.985 && !hintForcedHidden){ hintForcedHidden = true; gsap.to(hintEl, { opacity:0, duration:.4, ease:'power2.out' }); }
-      else if (st.progress <= 0.985 && hintForcedHidden){ hintForcedHidden = false; gsap.to(hintEl, { opacity:1, duration:.4, ease:'power2.out' }); }
-    } });
 
   
 
@@ -1577,25 +1485,66 @@ function buildFilm(){
    own silhouette and swallows the screen, rather than a separate
    full-viewport background fade happening in parallel. The wrap's
    opacity deliberately stays at 1 the whole way through — fading it out
-   early would fade away the very thing producing the black. */
-  const heroMarkWrap = $('#hero-mark-wrap');
-  ScrollTrigger.create({
-    trigger:'#ch0', start:'top top', end:'+=30%', pin:true, scrub:true,
-    onUpdate: st => {
-      const p = st.progress;
-      // the heading and caption step aside early — they're read before the
-      // growth begins
-      gsap.set('.hero-heading', { opacity: Math.max(0, 1 - p * 6) });
-      gsap.set('.hero-caption', { opacity: Math.max(0, 1 - p * 6) });
+   early would fade away the very thing producing the black.
 
-      if (heroMarkWrap){
+   #ch0 itself carries its own opaque background (--paper, cream) in the
+   base CSS — and because it's the pinned, fixed-position element on top
+   during the whole pin, that cream sits ABOVE #bg-field the entire time,
+   which made every bit of the bg-field syncing below invisible during
+   the pin itself. The mark's own silhouette has a concave notch, so it
+   never covers 100% of the screen on its own — whatever gap it leaves
+   was showing #ch0's still-cream background straight through, reading
+   as "white pages before the black work section." Painting #ch0's own
+   background directly, on the identical growP curve as the mark's
+   scale, is what actually closes that gap — this is the fix, not
+   #bg-field (which only matters for the handoff once the pin releases
+   and #ch0 scrolls away). */
+  const heroMarkWrap = $('#hero-mark-wrap');
+  const ch0El = $('#ch0');
+  const HERO_CREAM = [245,241,232], HERO_BLACK = [10,9,8];
+  const paintCh0 = growP => {
+    if (!ch0El) return;
+    const c = [0,1,2].map(i => Math.round(HERO_CREAM[i] + (HERO_BLACK[i]-HERO_CREAM[i]) * growP));
+    ch0El.style.backgroundColor = `rgb(${c[0]},${c[1]},${c[2]})`;
+  };
+
+  if (!isTouch){
+    // pointer devices — the full pinned dive-through-the-logo: the mark
+    // scales 16x while #ch0's own background darkens on the same curve
+    ScrollTrigger.create({
+      trigger:'#ch0', start:'top top', end:'+=30%', pin:true, scrub:true,
+      onUpdate: st => {
+        const p = st.progress;
+        // the heading and caption step aside early — they're read before
+        // the growth begins
+        gsap.set('.hero-heading', { opacity: Math.max(0, 1 - p * 6) });
+        gsap.set('.hero-caption', { opacity: Math.max(0, 1 - p * 6) });
+
         const growP = easeInOutCubic(clamp01(p / 0.7));
-        const scale = 1 + growP * 15;
-        heroMarkWrap.style.transform = `translate(-50%,-50%) scale(${scale})`;
+        if (heroMarkWrap) heroMarkWrap.style.transform = `translate(-50%,-50%) scale(${1 + growP * 15})`;
+        paintCh0(growP);
+        if (heroMarkApi) heroMarkApi.setDissolve(clamp01((p - 0.35) / 0.55));
       }
-      if (heroMarkApi) heroMarkApi.setDissolve(clamp01((p - 0.35) / 0.55));
-    }
-  });
+    });
+  } else {
+    // touch devices — pinning a fixed-position element through a 16x
+    // scroll-driven scale is exactly the kind of scroll-jacking that
+    // iOS Safari (and mobile browsers generally) handle unreliably —
+    // stuck pins, content trapped mid-transform, scroll that stops
+    // responding entirely. Skip the pin outright: the mark stays put at
+    // its natural size and #ch0 just scrolls past normally like any
+    // other section, with its own background still darkening across
+    // that same natural scroll distance so the handoff into #work still
+    // reads as fading into black, just without the literal dive-through.
+    ScrollTrigger.create({
+      trigger:'#ch0', start:'top top', end:'bottom top', scrub:true,
+      onUpdate: st => {
+        const growP = easeInOutCubic(clamp01(st.progress / 0.7));
+        paintCh0(growP);
+        if (heroMarkApi) heroMarkApi.setDissolve(clamp01((st.progress - 0.6) / 0.4) * 0.3);
+      }
+    });
+  }
 
 
 
@@ -1676,10 +1625,7 @@ ScrollTrigger.refresh();
 /* ——————————————— static fallback content ——————————————— */
 function buildStatic(){
   buildGallery(); buildWorkFlat();
-  setChapter(0);
-  $$('#chapter, #hint, .mark, .chrome-cta, #float-cta, #rail').forEach(el => el && (el.style.opacity = 1));
-  const railFillStatic = $('#rail-fill'); if (railFillStatic) railFillStatic.style.transform = 'scaleY(1)';
-  const fc = $('#float-cta'); if (fc) fc.classList.add('on');
+  $$('.mark, .chrome-cta').forEach(el => el && (el.style.opacity = 1));
 }
 
 /* ————————————————— overture ————————————————— */
@@ -1710,11 +1656,8 @@ function openVeil(){
     .to('.hero-heading', { opacity:1, duration:1.1 }, '-=.9')
     .to('.hero-caption', { opacity:1, duration:1.1 }, '-=.9')
     .to('.mark', { opacity:1, duration:1 }, '-=.9')
-    .to('.chrome-cta', { opacity:1, duration:1 }, '-=.85')
-    .to('#chapter', { opacity:1, duration:1 }, '-=.8')
-    .to('#rail', { opacity:1, duration:1 }, '-=.8')
-    .add(() => document.body.classList.add('chrome-light'), '-=.8')
-    .to('#hint', { opacity:1, duration:1, onComplete: () => { if (lenis) lenis.start(); ScrollTrigger.refresh(); } }, '-=.8');
+    .to('.chrome-cta', { opacity:1, duration:1, onComplete: () => { if (lenis) lenis.start(); ScrollTrigger.refresh(); } }, '-=.85')
+    .add(() => document.body.classList.add('chrome-light'), '-=.8');
 
   try { buildFilm(); }
   catch (err) {
