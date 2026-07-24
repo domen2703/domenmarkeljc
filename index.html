@@ -273,15 +273,27 @@ html.static .work-flat{display:block}
 
 /* ————— 02 about — full-width portrait, no frame ————— */
 #about{max-width:1400px;margin:0 auto}
-.about-grid{display:grid;grid-template-columns:minmax(0,.56fr) minmax(0,1fr);gap:clamp(40px,6vw,100px);align-items:start}
-.about-portrait-wrap{overflow:hidden;border-radius:4px;background:none;box-shadow:none}
-.about-portrait{display:block;width:100%;height:auto;background:none;box-shadow:none;filter:grayscale(.08) contrast(1.02);transition:transform .8s var(--ease-out)}
+.about-grid{display:grid;grid-template-columns:minmax(0,.56fr) minmax(0,1fr);gap:clamp(40px,6vw,100px);align-items:stretch}
+.about-portrait-wrap{overflow:hidden;border-radius:4px;background:none;box-shadow:none;height:100%}
+.about-portrait{display:block;width:100%;height:100%;object-fit:cover;object-position:center top;background:none;box-shadow:none;filter:grayscale(.08) contrast(1.02);transition:transform .8s var(--ease-out)}
 .about-portrait-wrap:hover .about-portrait{transform:scale(1.03)}
 .about-copy{max-width:58ch;padding-top:clamp(4px,1.2vw,14px)}
 .about-copy p{font-size:clamp(18px,1.7vw,25px);line-height:1.6;letter-spacing:-.005em;font-weight:300;color:var(--cream-70);margin-bottom:1.15em}
 .about-copy p:last-child{margin-bottom:0}
 .about-copy b{color:var(--cream);font-weight:500}
-@media (max-width:860px){.about-grid{grid-template-columns:1fr;gap:36px}}
+.about-copy .rword{display:inline-block;will-change:transform,opacity,filter}
+@media (max-width:860px){
+  /* stacked to one column — the stretch-to-match-the-copy's-height trick
+     only makes sense side-by-side. height:100% against an auto-height
+     single-column row resolves unpredictably (percentage heights against
+     a non-explicit parent height compute to auto per spec, but chained
+     through two nested height:100% elements this was rendering the
+     portrait at zero/inconsistent height on narrow screens) — reset both
+     back to natural aspect-ratio sizing. */
+  .about-grid{grid-template-columns:1fr;gap:36px}
+  .about-portrait-wrap{height:auto}
+  .about-portrait{height:auto;object-fit:initial}
+}
 
 /* ————— 03 start a project — the one bold beat ————— */
 #cta{min-height:82vh;display:flex;align-items:center;justify-content:center;text-align:center;padding-top:14vh;padding-bottom:14vh}
@@ -350,7 +362,7 @@ footer{position:relative;width:100%;height:100vh;isolation:isolate;display:flex;
 .fclose{display:flex;align-items:center;justify-content:center;gap:clamp(14px,1.8vw,30px);width:100vw;margin-left:calc(50% - 50vw);font-size:clamp(34px,7.4vw,140px)}
 .fclose__icon{height:.78em;width:auto;flex:none;display:block}
 .fclose__icon path{fill:var(--paper-ink)}
-.fclose__word{font-family:var(--sans);font-weight:600;text-transform:lowercase;letter-spacing:-.02em;line-height:1;font-size:1em;color:var(--paper-ink)}
+.fclose__word{font-family:var(--sans);font-weight:500;text-transform:lowercase;letter-spacing:-.02em;line-height:1;font-size:1em;color:var(--paper-ink);white-space:nowrap}
 @media (max-width:760px){
   footer{height:auto;min-height:100vh}
   .ftop{flex-direction:column;align-items:flex-start}
@@ -481,10 +493,10 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
       <div class="about-portrait-wrap" data-io>
         <img class="about-portrait" src="assets/img/domen-portrait.png" alt="domen markeljc">
       </div>
-      <div class="about-copy">
-        <p data-io>i work across brand identity, packaging, and digital product design — usually all three on the same project, because <b>the mark on a label and the button on a screen are solving the same problem: be understood in half a second.</b></p>
-        <p data-io>most of what i do starts with a restriction — a shelf, a thumb, a viewport — and ends with the smallest version of the idea that still says everything. <b>i'm not interested in decoration for its own sake.</b></p>
-        <p data-io>based in slovenia. working further out.</p>
+      <div class="about-copy" id="about-copy">
+        <p>i work across brand identity, packaging, and digital product design — usually all three on the same project, because <b>the mark on a label and the button on a screen are solving the same problem: be understood in half a second.</b></p>
+        <p>most of what i do starts with a restriction — a shelf, a thumb, a viewport — and ends with the smallest version of the idea that still says everything. <b>i'm not interested in decoration for its own sake.</b></p>
+        <p>based in slovenia. working further out.</p>
       </div>
     </div>
   </section>
@@ -783,11 +795,11 @@ function buildHeroMark(){
           vec4 colA = texture2D(uTexA, duv);
           vec4 colB = texture2D(uTexB, duv);
           vec4 photo = mix(colA, colB, uMix);
-          // reveal is either the cursor's own trail, or the scroll-driven
-          // dissolve taking over as the mark scales up and tears open —
-          // the pieces you're about to dive through should be visible even
-          // if the cursor never touched the mark
-          float trail = max(texture2D(uTrail, uv).r, uDissolve);
+          // reveal is hover-only — the mark stays solid black through the
+          // scroll dive (uDissolve only feeds the ripple-tear distortion
+          // above), so scaling it up genuinely reads as black growing from
+          // the logo, not the logo dissolving into a peek of the photos
+          float trail = texture2D(uTrail, uv).r;
           vec3 blackMark = vec3(0.043, 0.035, 0.031);
           vec3 finalColor = mix(blackMark, photo.rgb, trail);
           gl_FragColor = vec4(finalColor, photo.a);
@@ -1145,6 +1157,32 @@ function buildWorkFlat(){
   $$('.wf-item', el).forEach(item => item.addEventListener('click', () => openProjectModal(+item.dataset.i)));
 }
 
+/* ————————————————— about — word-by-word text reveal ————————————————— */
+function buildAboutReveal(){
+  const paras = $$('#about-copy p');
+  if (!paras.length || !hasLibs) return;
+  paras.forEach(p => {
+    const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(node => {
+      const words = node.textContent.split(/(\s+)/);
+      const frag = document.createDocumentFragment();
+      words.forEach(w => {
+        if (/^\s+$/.test(w)) frag.appendChild(document.createTextNode(w));
+        else if (w){ const span = document.createElement('span'); span.className = 'rword'; span.textContent = w; frag.appendChild(span); }
+      });
+      node.parentNode.replaceChild(frag, node);
+    });
+  });
+  const words = $$('#about-copy .rword');
+  gsap.set(words, { opacity:0, y:12, filter:'blur(6px)' });
+  ScrollTrigger.create({
+    trigger:'#about-copy', start:'top 82%',
+    onEnter: () => gsap.to(words, { opacity:1, y:0, filter:'blur(0px)', duration:.7, ease:'power2.out', stagger:0.012 })
+  });
+}
+
 /* ————————————————— newsletter — quiet footer signup ————————————————— */
 {
   const form = $('#fnews');
@@ -1160,6 +1198,34 @@ function buildWorkFlat(){
   }
   const y = $('#fyear'); if (y) y.textContent = new Date().getFullYear();
 }
+
+/* footer closing line — "domen markeljc" + the mark, sized so the pair
+   actually spans the full content width (matching the page's own side
+   padding) rather than just sitting centered-with-room-to-spare inside a
+   full-width container. A fixed vw-based font-size can't guarantee an
+   exact edge-to-edge fit for a specific fixed string, so this measures
+   the natural width at a baseline size and solves for the size that
+   closes the gap. Runs regardless of reduced-motion/no-JS-animation
+   state — it's a layout fit, not a motion effect. */
+function fitFooterClose(){
+  const el = $('.fclose'), inner = $('.footer-inner');
+  if (!el || !inner) return;
+  const padPx = parseFloat(getComputedStyle(inner).paddingLeft) || 0;
+  const targetWidth = innerWidth - padPx * 2;
+  el.style.fontSize = '100px';
+  // .fclose is forced to width:100vw for the full-bleed centering trick,
+  // so its own scrollWidth always just reports 100vw back — not the
+  // actual (narrower) content width. Let it size to content for one
+  // measurement, then restore.
+  const prevWidth = el.style.width;
+  el.style.width = 'fit-content';
+  const naturalWidth = el.scrollWidth;
+  el.style.width = prevWidth;
+  if (naturalWidth > 0) el.style.fontSize = Math.max(24, 100 * (targetWidth / naturalWidth)) + 'px';
+}
+fitFooterClose();
+addEventListener('resize', fitFooterClose);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitFooterClose);
 
 /* chrome-light baseline — works with plain browser APIs, independent of
    whether GSAP/ScrollTrigger loaded, so the fixed nav (mark, "start a
@@ -1327,12 +1393,12 @@ function initFooterGradient(){
         // stains rather than a felt-more-than-seen tint.
         vec3 base = vec3(1.0, 1.0, 1.0);
         vec3 col = base;
-        col -= blob(uv, c1, 0.62) * vec3(0.16, 0.10, 0.0);
-        col -= blob(uv, c2, 0.58) * vec3(0.0, 0.06, 0.19);
+        col -= blob(uv, c1, 0.7) * vec3(0.27, 0.17, 0.0);
+        col -= blob(uv, c2, 0.66) * vec3(0.0, 0.11, 0.32);
 
-        float mr = 0.24 + uMouseEnergy * 0.12;
+        float mr = 0.26 + uMouseEnergy * 0.13;
         float mGlow = blob(uv, m, mr) * uMouseActive;
-        col -= mGlow * vec3(0.09, 0.06, 0.0) * (0.4 + uMouseEnergy * 0.35);
+        col -= mGlow * vec3(0.15, 0.10, 0.0) * (0.45 + uMouseEnergy * 0.4);
 
         // the footer's own top edge fades from cta's black down into the
         // white/blob ground over the first ~1/4 of the footer's height —
@@ -1452,6 +1518,7 @@ function setFloatCta(on){
 function buildFilm(){
   buildGallery();
   buildWorkFlat();
+  buildAboutReveal();
 
   /* chapter tracking */
   $$('[data-chapter]').forEach(sec => {
@@ -1494,7 +1561,7 @@ function buildFilm(){
   const railFill = $('#rail-fill');
   const hintEl = $('#hint');
   let hintForcedHidden = false;
-  if (railFill) ScrollTrigger.create({ trigger:'main', start:'top top', end:'bottom bottom', scrub:true,
+  if (railFill) ScrollTrigger.create({ trigger:'main', start:'top top', endTrigger:'#site-footer', end:'bottom bottom', scrub:true,
     onUpdate: st => {
       railFill.style.transform = `scaleY(${st.progress})`;
       if (!hintEl) return;
@@ -1504,10 +1571,13 @@ function buildFilm(){
 
   
 
-/* 00 · the mark, as a window — the photo-collage mark scales up until its
-   silhouette has grown past the edges of the screen, so scrolling reads
-   as diving straight through it, dissolving into the gallery directly
-   behind it with no bridging screen in between. */
+/* 00 · the mark, as a window — the mark itself is solid black (its resting
+   state — see the shader's blackMark mix), so scaling it up 16x IS the
+   black transition: black quite literally grows outward from the logo's
+   own silhouette and swallows the screen, rather than a separate
+   full-viewport background fade happening in parallel. The wrap's
+   opacity deliberately stays at 1 the whole way through — fading it out
+   early would fade away the very thing producing the black. */
   const heroMarkWrap = $('#hero-mark-wrap');
   ScrollTrigger.create({
     trigger:'#ch0', start:'top top', end:'+=30%', pin:true, scrub:true,
@@ -1521,9 +1591,7 @@ function buildFilm(){
       if (heroMarkWrap){
         const growP = easeInOutCubic(clamp01(p / 0.7));
         const scale = 1 + growP * 15;
-        const fadeP = clamp01((p - 0.62) / 0.3);
         heroMarkWrap.style.transform = `translate(-50%,-50%) scale(${scale})`;
-        heroMarkWrap.style.opacity = 1 - easeInOutCubic(fadeP);
       }
       if (heroMarkApi) heroMarkApi.setDissolve(clamp01((p - 0.35) / 0.55));
     }
@@ -1549,20 +1617,32 @@ function buildFilm(){
     const lerp3 = (a,b,t) => [0,1,2].map(i => Math.round(a[i] + (b[i]-a[i]) * t));
     function paintBgField(){
       const vh = innerHeight;
-      // synced to the hero pin's own scroll range (end:'+=30%' below), not
-      // #work's position — darkening starts the instant scroll begins (no
-      // white/cream hold first) and is fully black well before the pin
-      // even releases, so diving through the mark reads as entering black
-      // space immediately rather than a white page that later goes dark
+      // matched exactly to the mark's own growP easing (same trigger, same
+      // curve) — the mark's black silhouette is the primary thing filling
+      // the screen as it scales, but its concave "M" shape doesn't
+      // guarantee full pixel coverage at every point mid-grow (the notch
+      // can still show background through it). Backing it with a field
+      // darkening at the identical pace means any gap in the shape is
+      // already sitting on the right intermediate shade instead of raw
+      // cream, so the two reinforce one another rather than racing.
       const pinDist = vh * 0.3;
-      const p1 = clamp01(window.scrollY / (pinDist * 0.45));
+      const p1 = easeInOutCubic(clamp01(window.scrollY / (pinDist * 0.7)));
       const footerTop = footerEl.getBoundingClientRect().top + window.scrollY;
       const p2 = clamp01((window.scrollY - (footerTop - vh)) / (vh * 0.65));
       const mid = lerp3(CREAM, BLACK, p1);
       const final = lerp3(mid, WHITE, p2);
       bgField.style.backgroundColor = `rgb(${final[0]},${final[1]},${final[2]})`;
     }
-    ScrollTrigger.create({ trigger:'main', start:'top top', end:'bottom bottom', scrub:true, onUpdate: paintBgField });
+    // endTrigger extends this all the way to the footer's own bottom, not
+    // main's — <footer> is a sibling of <main>, sitting exactly at its
+    // bottom edge, so a plain trigger:'main' end:'bottom bottom' stops
+    // updating the instant the footer starts, freezing bg-field's colour
+    // (mid-transition) for the whole time spent scrolling through it. That
+    // used to be invisible because the footer painted its own opaque white
+    // over it — now that the footer relies on this field showing through
+    // for its gradient, the freeze was directly visible as a broken/black
+    // footer.
+    ScrollTrigger.create({ trigger:'main', start:'top top', endTrigger:'#site-footer', end:'bottom bottom', scrub:true, onUpdate: paintBgField });
     paintBgField();
   }
 
