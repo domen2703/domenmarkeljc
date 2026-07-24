@@ -303,20 +303,29 @@ footer{position:relative;width:100%;height:100vh;isolation:isolate;display:flex;
 #footer-canvas{position:absolute;inset:0;z-index:-1;width:100%;height:100%;display:block;touch-action:pan-y;opacity:0;transition:opacity 1.2s var(--ease-out)}
 #footer-canvas.is-in{opacity:1}
 
-.ftop{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:24px;padding-bottom:clamp(14px,3vh,28px);border-bottom:1px solid rgba(20,18,16,.1)}
-.fkicker{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(20px,3vw,40px);line-height:1.18;max-width:15ch;color:var(--paper-ink)}
-.fkicker__ghost{color:rgba(20,18,16,.32)}
-.fcta{display:inline-flex;align-items:center;gap:14px;flex:none;font-weight:500;font-size:11px;letter-spacing:.26em;text-transform:lowercase;color:var(--paper);padding:16px 26px;border-radius:99px;background:var(--paper-ink);position:relative;overflow:hidden;will-change:transform}
+/* a shared 6-column grid is the alignment system for every row in the
+   footer — each row is its own grid (not one giant grid) so the border-
+   rule dividers between them stay simple, but they all share the same 6
+   columns/gap, so anything placed at column-line 1 lines up with the
+   closing wordmark's icon (also flush to the container's own left edge)
+   and anything ending at column-line 7 lines up with the wordmark's own
+   right edge (fitFooterClose fits its font-size to the same container) */
+.fgrid{display:grid;grid-template-columns:repeat(6,1fr);column-gap:clamp(12px,1.8vw,28px)}
+
+.ftop{align-items:flex-start;row-gap:20px;padding-bottom:clamp(14px,3vh,28px);border-bottom:1px solid rgba(20,18,16,.14)}
+.fkicker{grid-column:1/5;font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(20px,3vw,40px);line-height:1.18;max-width:15ch;color:var(--paper-ink)}
+.fkicker__ghost{color:rgba(20,18,16,.46)}
+.fcta{grid-column:5/7;justify-self:end;align-self:start;display:inline-flex;align-items:center;gap:14px;flex:none;font-weight:500;font-size:11px;letter-spacing:.26em;text-transform:lowercase;color:var(--paper);padding:16px 26px;border-radius:99px;background:var(--paper-ink);position:relative;overflow:hidden;will-change:transform}
 .fcta .arrow{width:18px;height:1px;background:currentColor;position:relative;transition:width .5s var(--ease-out)}
 .fcta .arrow::after{content:"";position:absolute;right:0;top:-3px;width:6px;height:6px;border-top:1px solid currentColor;border-right:1px solid currentColor;transform:rotate(45deg)}
 .fcta:hover .arrow{width:28px}
 
-.fcontact{display:flex;flex-direction:column;gap:12px;padding:clamp(10px,2.4vh,22px) 0;border-bottom:1px solid rgba(20,18,16,.1)}
-.fcontact__block{display:flex;align-items:baseline;gap:20px;flex-wrap:wrap}
-.fcontact__loc{font-size:10px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:rgba(20,18,16,.4);min-width:6em}
+.fcontact{align-items:center;row-gap:16px;padding:clamp(10px,2.4vh,22px) 0;border-bottom:1px solid rgba(20,18,16,.14)}
+.fcontact__block{grid-column:1/5;display:flex;align-items:baseline;gap:20px;flex-wrap:wrap}
+.fcontact__loc{font-size:10px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:rgba(20,18,16,.62);min-width:6em}
 .fmail{font-weight:500;font-size:clamp(15px,1.5vw,20px);letter-spacing:-.01em;color:var(--paper-ink);border-bottom:1px solid rgba(20,18,16,.4);padding-bottom:3px;transition:color .4s,border-color .4s}
 .fmail:hover{color:var(--accent);border-color:var(--accent)}
-.copy-email{appearance:none;background:none;border:1px solid rgba(20,18,16,.22);border-radius:99px;color:rgba(20,18,16,.55);font:inherit;font-size:11px;letter-spacing:.05em;padding:6px 14px;width:fit-content;position:relative;transition:border-color .4s,color .4s,transform .15s cubic-bezier(0.4,0,0.2,1)}
+.copy-email{appearance:none;background:none;border:1px solid rgba(20,18,16,.3);border-radius:99px;color:rgba(20,18,16,.7);font:inherit;font-size:11px;letter-spacing:.05em;padding:6px 14px;width:fit-content;position:relative;transition:border-color .4s,color .4s,transform .15s cubic-bezier(0.4,0,0.2,1)}
 .copy-email:hover{border-color:var(--accent);color:var(--paper-ink)}
 .copy-email:active{transform:scale(.97)}
 .copy-email.is-copied{border-color:var(--red);color:var(--red)}
@@ -326,30 +335,37 @@ footer{position:relative;width:100%;height:100vh;isolation:isolate;display:flex;
 .copy-email[data-state="b"] .ce-a{opacity:0;filter:blur(4px);transform:translateY(-8px)}
 .copy-email[data-state="b"] .ce-b{opacity:1;filter:blur(0);transform:translateY(0)}
 
-.fnews{display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(20,18,16,.22);padding-bottom:5px;width:fit-content;transition:border-color .35s}
+.fnews{grid-column:5/7;justify-self:end;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(20,18,16,.3);padding-bottom:5px;width:fit-content;transition:border-color .35s}
 .fnews:focus-within{border-color:var(--accent)}
-.fnews input{appearance:none;background:none;border:none;outline:none;font:inherit;font-size:12px;letter-spacing:-.005em;color:var(--paper-ink);width:170px;padding:2px 0}
-.fnews input::placeholder{color:rgba(20,18,16,.4)}
-.fnews button{appearance:none;background:none;border:none;font:inherit;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:lowercase;color:rgba(20,18,16,.55);cursor:pointer;white-space:nowrap;transition:color .3s}
+.fnews input{appearance:none;background:none;border:none;outline:none;font:inherit;font-size:12px;letter-spacing:-.005em;color:var(--paper-ink);width:150px;padding:2px 0}
+.fnews input::placeholder{color:rgba(20,18,16,.5)}
+.fnews button{appearance:none;background:none;border:none;font:inherit;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:lowercase;color:rgba(20,18,16,.78);cursor:pointer;white-space:nowrap;transition:color .3s}
 .fnews button:hover{color:var(--accent)}
 .fnews.is-sent input,.fnews.is-sent button.fn-submit{display:none}
-.fnews .fn-done{display:none;font-size:12px;color:rgba(20,18,16,.55)}
+.fnews .fn-done{display:none;font-size:12px;color:rgba(20,18,16,.7)}
 .fnews.is-sent .fn-done{display:inline}
 
-.fbottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;padding:clamp(10px,2.4vh,22px) 0;font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:lowercase;color:rgba(20,18,16,.4)}
-.fbottom__social,.fbottom__nav,.fbottom__meta{display:flex;gap:20px;flex-wrap:wrap}
+.fbottom{align-items:center;row-gap:14px;padding:clamp(10px,2.4vh,22px) 0;font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:lowercase;color:rgba(20,18,16,.68)}
+.fbottom__social{grid-column:1/3;display:flex;gap:20px;flex-wrap:wrap}
+.fbottom__nav{grid-column:3/6;display:flex;gap:20px;flex-wrap:wrap}
+.fbottom__meta{grid-column:5/7;justify-self:end;display:flex;gap:20px;flex-wrap:wrap;text-align:right}
 .fbottom a{color:inherit;transition:color .35s}
 .fbottom a:hover{color:var(--paper-ink)}
 
-/* closing line — the mark and the wordmark on one baseline, full width */
-.fclose{display:flex;align-items:center;justify-content:center;gap:clamp(14px,1.8vw,30px);width:100vw;margin-left:calc(50% - 50vw);margin-top:auto;padding-top:clamp(20px,4vh,60px);font-size:clamp(34px,7.4vw,140px)}
+/* closing line — the mark and the wordmark on one baseline. Spans the
+   same container width as the grid rows above (not a 100vw full-bleed
+   anymore) so the icon's left edge and the wordmark's right edge are the
+   actual left/right bounds the grid columns above line up against —
+   fitFooterClose() sizes the font so the two together fill exactly that
+   width, flush on both ends. */
+.fclose{display:flex;align-items:center;justify-content:flex-start;gap:clamp(14px,1.8vw,30px);width:100%;margin-top:auto;padding-top:clamp(20px,4vh,60px);font-size:clamp(34px,7.4vw,140px)}
 .fclose__icon{height:.78em;width:auto;flex:none;display:block}
 .fclose__icon path{fill:var(--paper-ink)}
 .fclose__word{font-family:var(--sans);font-weight:500;text-transform:lowercase;letter-spacing:-.02em;line-height:1;font-size:1em;color:var(--paper-ink);white-space:nowrap}
 @media (max-width:760px){
   footer{height:auto;min-height:100vh}
-  .ftop{flex-direction:column;align-items:flex-start}
-  .fbottom{flex-direction:column;align-items:flex-start}
+  .ftop,.fcontact,.fbottom{grid-template-columns:1fr;row-gap:18px}
+  .fkicker,.fcta,.fcontact__block,.fnews,.fbottom__social,.fbottom__nav,.fbottom__meta{grid-column:1/-1;justify-self:start}
 }
 
 /* ————— floating 3d logo canvas (module script owns the drawing) ————— */
@@ -483,13 +499,13 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
 <footer id="site-footer" data-chapter="4" class="sec">
   <canvas id="footer-canvas" aria-hidden="true"></canvas>
   <div class="footer-inner">
-  <div class="ftop" data-io>
+  <div class="ftop fgrid" data-io>
     <p class="fkicker"><span class="fkicker__ghost">have a project in mind?</span><br>let's see it through.</p>
     <a class="fcta" href="mailto:info@domenmarkeljc.com" data-hover>
       <span>start a project</span><span class="arrow"></span>
     </a>
   </div>
-  <div class="fcontact" data-io>
+  <div class="fcontact fgrid" data-io>
     <div class="fcontact__block">
       <span class="fcontact__loc">slovenia</span>
       <a class="fmail" href="mailto:info@domenmarkeljc.com" data-hover>info@domenmarkeljc.com</a>
@@ -504,7 +520,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
       <span class="fn-done">thanks — you're in</span>
     </form>
   </div>
-  <div class="fbottom" data-io>
+  <div class="fbottom fgrid" data-io>
     <div class="fbottom__social">
       <a href="https://www.instagram.com/domen_markeljc/" data-hover target="_blank" rel="noopener">instagram</a>
       <a href="https://www.facebook.com/domen.markeljc.98" data-hover target="_blank" rel="noopener">facebook</a>
@@ -1174,18 +1190,34 @@ function buildAboutReveal(){
 function fitFooterClose(){
   const el = $('.fclose'), inner = $('.footer-inner');
   if (!el || !inner) return;
+  // target the container's own content-box width, not the viewport's —
+  // .fclose lives inside .footer-inner's max-width:1400px cap now (it's
+  // no longer a 100vw full-bleed row), so the grid rows above it and this
+  // closing line share the exact same left/right bounds
   const padPx = parseFloat(getComputedStyle(inner).paddingLeft) || 0;
-  const targetWidth = innerWidth - padPx * 2;
+  const targetWidth = inner.clientWidth - padPx * 2;
+  // the gap between icon and wordmark is set in a viewport-relative unit
+  // (clamp(...vw...)), not em — it does NOT scale with .fclose's own
+  // font-size the way the icon (sized in em) and wordmark (font-size:1em)
+  // do. Solving naively for fontSize = 100 * (targetWidth / naturalWidth)
+  // implicitly assumes the whole measured width scales linearly, which
+  // left the gap's fixed pixel amount out of proportion once scaled up
+  // from the 100px baseline to the ~130px+ final size — the wordmark's
+  // right edge landed consistently short of the container's actual right
+  // edge. Pulling the (non-scaling) gap out of both sides of the ratio
+  // fixes the solve.
+  const gapPx = parseFloat(getComputedStyle(el).columnGap) || 0;
   el.style.fontSize = '100px';
-  // .fclose is forced to width:100vw for the full-bleed centering trick,
-  // so its own scrollWidth always just reports 100vw back — not the
-  // actual (narrower) content width. Let it size to content for one
-  // measurement, then restore.
+  // .fclose is forced to width:100% of that container, so its own
+  // scrollWidth always just reports the container width back — not the
+  // actual (narrower) natural content width. Let it size to content for
+  // one measurement, then restore.
   const prevWidth = el.style.width;
   el.style.width = 'fit-content';
   const naturalWidth = el.scrollWidth;
   el.style.width = prevWidth;
-  if (naturalWidth > 0) el.style.fontSize = Math.max(24, 100 * (targetWidth / naturalWidth)) + 'px';
+  const scalablePart = naturalWidth - gapPx;
+  if (scalablePart > 0) el.style.fontSize = Math.max(24, 100 * ((targetWidth - gapPx) / scalablePart)) + 'px';
 }
 fitFooterClose();
 addEventListener('resize', fitFooterClose);
@@ -1510,7 +1542,18 @@ function buildFilm(){
 
   if (!isTouch){
     // pointer devices — the full pinned dive-through-the-logo: the mark
-    // scales 16x while #ch0's own background darkens on the same curve
+    // scales 16x while #ch0's own background darkens on the same curve.
+    // growP and dissolve both now ride the pin's *entire* progress range
+    // (0->1), reaching their peak exactly as the pin releases — previously
+    // they saturated at p=0.7/p=0.9 and just sat there fully-grown for the
+    // pin's last stretch, a dead hold where scrolling kept happening but
+    // nothing on screen responded. That idle tail is what made the release
+    // itself read as a sudden jump instead of a continuous dive: the pin
+    // holds scroll to 0 page-movement the whole time it's active, so the
+    // instant it lets go, page movement resumes at full speed — if that
+    // resume lands while the visuals are already static, the speed change
+    // is the only thing left to notice. Keeping the animation active right
+    // up to p=1 means the release coincides with peak motion instead.
     ScrollTrigger.create({
       trigger:'#ch0', start:'top top', end:'+=30%', pin:true, scrub:true,
       onUpdate: st => {
@@ -1520,10 +1563,10 @@ function buildFilm(){
         gsap.set('.hero-heading', { opacity: Math.max(0, 1 - p * 6) });
         gsap.set('.hero-caption', { opacity: Math.max(0, 1 - p * 6) });
 
-        const growP = easeInOutCubic(clamp01(p / 0.7));
+        const growP = easeInOutCubic(p);
         if (heroMarkWrap) heroMarkWrap.style.transform = `translate(-50%,-50%) scale(${1 + growP * 15})`;
         paintCh0(growP);
-        if (heroMarkApi) heroMarkApi.setDissolve(clamp01((p - 0.35) / 0.55));
+        if (heroMarkApi) heroMarkApi.setDissolve(clamp01((p - 0.25) / 0.75));
       }
     });
   } else {
@@ -1548,24 +1591,24 @@ function buildFilm(){
 
 
 
-  /* background field — cream hero fades to near-black entering work, stays
-     black through about/cta, fades to white entering the footer (the
-     footer paints its own opaque white ground regardless, but this keeps
-     the field itself consistent behind it — no cream flash at the edges).
-     Deliberately ONE function computing the whole piecewise gradient from
-     absolute scroll position, rather than two independent gsap.to() scrub
-     tweens on the same property — two tweens each capture their own
-     implicit "from" colour the first time they render, so the footer's
-     cream-\>white tween was re-asserting cream (its own "from") on every
-     scroll tick anywhere *before* the footer too, fighting the work
-     tween's black and leaving the whole work/about/cta stretch cream. */
+  /* background field — cream hero fades to near-black entering work, then
+     simply STAYS black for the rest of the film (work/about/cta all read
+     it through their own transparent section backgrounds). It intentionally
+     does not fade toward the footer's colour at all any more: the footer is
+     fully opaque on its own (its shader canvas paints true white, and that
+     shader already bakes in a black->white fade across its own top edge —
+     see initFooterGradient's topFade) so the seam is a real spatial
+     gradient exactly at the cta/footer boundary, not a second, separately-
+     timed scroll-scrubbed fade fighting to land at the same place. Trying
+     to time this field's own fade to arrive "at the same time" as the
+     footer's shader-baked one was the actual bug: the two fades didn't
+     line up, so cta's still-visible black text sat on a field that had
+     already started greying out well before the footer even appeared. */
   const bgField = $('#bg-field');
   if (bgField && hasLibs){
-    const footerEl = $('#site-footer');
-    const CREAM = [245,241,232], BLACK = [10,9,8], WHITE = [255,255,255];
+    const CREAM = [245,241,232], BLACK = [10,9,8];
     const lerp3 = (a,b,t) => [0,1,2].map(i => Math.round(a[i] + (b[i]-a[i]) * t));
     function paintBgField(){
-      const vh = innerHeight;
       // matched exactly to the mark's own growP easing (same trigger, same
       // curve) — the mark's black silhouette is the primary thing filling
       // the screen as it scales, but its concave "M" shape doesn't
@@ -1574,24 +1617,14 @@ function buildFilm(){
       // darkening at the identical pace means any gap in the shape is
       // already sitting on the right intermediate shade instead of raw
       // cream, so the two reinforce one another rather than racing.
-      const pinDist = vh * 0.3;
-      const p1 = easeInOutCubic(clamp01(window.scrollY / (pinDist * 0.7)));
-      const footerTop = footerEl.getBoundingClientRect().top + window.scrollY;
-      const p2 = clamp01((window.scrollY - (footerTop - vh)) / (vh * 0.65));
-      const mid = lerp3(CREAM, BLACK, p1);
-      const final = lerp3(mid, WHITE, p2);
-      bgField.style.backgroundColor = `rgb(${final[0]},${final[1]},${final[2]})`;
+      const pinDist = innerHeight * 0.3;
+      const p1 = easeInOutCubic(clamp01(window.scrollY / pinDist));
+      const c = lerp3(CREAM, BLACK, p1);
+      bgField.style.backgroundColor = `rgb(${c[0]},${c[1]},${c[2]})`;
     }
-    // endTrigger extends this all the way to the footer's own bottom, not
-    // main's — <footer> is a sibling of <main>, sitting exactly at its
-    // bottom edge, so a plain trigger:'main' end:'bottom bottom' stops
-    // updating the instant the footer starts, freezing bg-field's colour
-    // (mid-transition) for the whole time spent scrolling through it. That
-    // used to be invisible because the footer painted its own opaque white
-    // over it — now that the footer relies on this field showing through
-    // for its gradient, the freeze was directly visible as a broken/black
-    // footer.
-    ScrollTrigger.create({ trigger:'main', start:'top top', endTrigger:'#site-footer', end:'bottom bottom', scrub:true, onUpdate: paintBgField });
+    // only the hero's own pin distance can move this any more — nothing
+    // past it changes the colour, so the trigger only needs to span that
+    ScrollTrigger.create({ trigger:'#ch0', start:'top top', end:'+=30%', scrub:true, onUpdate: paintBgField });
     paintBgField();
   }
 
