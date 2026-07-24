@@ -152,10 +152,6 @@ section{position:relative}
 #ch0.hero-mask{background:var(--paper)}
 
 .hero-mark-wrap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(1);width:min(30vw,340px);aspect-ratio:1;z-index:1;opacity:0;will-change:transform,opacity}
-.hero-blob{position:absolute;border-radius:52% 48% 55% 45%/48% 52% 48% 52%;background:radial-gradient(circle at 35% 30%,rgba(70,68,64,.5),rgba(70,68,64,.18) 70%,transparent 100%);filter:blur(26px);opacity:.85}
-.hero-blob--1{width:62%;height:52%;top:-30%;right:-32%}
-.hero-blob--2{width:26%;height:22%;bottom:6%;right:-30%}
-.hero-blob--3{width:18%;height:15%;top:38%;right:-42%}
 .hero-mark-svg{position:relative;z-index:2;width:100%;height:100%;display:block;filter:drop-shadow(0 30px 50px rgba(20,18,16,.16))}
 .hero-mark-canvas{position:relative;z-index:2;width:100%;height:100%;display:block;filter:drop-shadow(0 30px 50px rgba(20,18,16,.16))}
 .hero-mark-fallback{display:none}
@@ -178,29 +174,34 @@ html.static .hero-mark-fallback,html.no-webgl .hero-mark-fallback{display:block}
 .hero-tag .dot{color:var(--red)}
 
 
-/* ————— project case modal (transitions.dev P7) ————— */
-.t-modal-backdrop{position:fixed;inset:0;z-index:220;background:rgba(5,4,3,.72);backdrop-filter:blur(6px);opacity:0;visibility:hidden;transition:opacity var(--p7-close-dur) var(--p7-ease),visibility 0s linear var(--p7-close-dur)}
-.t-modal-backdrop[data-open="true"]{opacity:1;visibility:visible;transition:opacity var(--p7-open-dur) var(--p7-ease),visibility 0s linear}
-.t-modal{position:fixed;inset:0;z-index:221;display:flex;align-items:center;justify-content:center;padding:6vh var(--pad);transform:scale(var(--p7-scale));opacity:0;visibility:hidden;transition:transform var(--p7-close-dur) var(--p7-ease),opacity var(--p7-close-dur) var(--p7-ease),visibility 0s linear var(--p7-close-dur);pointer-events:none}
-.t-modal[data-open="true"]{transform:none;opacity:1;visibility:visible;transition:transform var(--p7-open-dur) var(--p7-ease),opacity var(--p7-open-dur) var(--p7-ease),visibility 0s linear;pointer-events:auto}
-.modal-card{position:relative;max-width:920px;width:100%;max-height:86vh;overflow-y:auto;background:var(--ink-2);border:1px solid var(--cream-10);border-radius:10px;padding:clamp(28px,4vw,56px)}
-.modal-close{position:sticky;top:0;float:right;margin:-8px -8px 0 0;width:38px;height:38px;border-radius:50%;background:var(--cream-06);border:1px solid var(--cream-24);color:var(--cream);font-size:16px;cursor:none;z-index:2}
-body.touch .modal-close{cursor:pointer}
-.modal-num{font-size:11px;letter-spacing:.3em;color:var(--cream-40)}
-.modal-title{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(30px,4vw,52px);margin:6px 0 18px}
-.modal-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
-.modal-tags span{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--cream-70);border:1px solid var(--cream-24);padding:6px 12px;border-radius:99px}
-.modal-copy{font-size:clamp(15px,1.3vw,18px);line-height:1.75;color:var(--cream-70);max-width:64ch;margin-bottom:8px}
-.modal-copy b{color:var(--cream);font-weight:500}
-.modal-link{display:inline-flex;align-items:center;gap:10px;margin:14px 0 30px;font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:lowercase;color:var(--accent);border-bottom:1px solid currentColor;padding-bottom:6px}
-.modal-link::after{content:"↗";font-size:12px}
-.modal-gallery{display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.4vw,18px)}
-.modal-gallery figure{margin:0}
-.modal-gallery img,.modal-gallery video{display:block;width:100%;height:auto;border-radius:4px}
-.modal-gallery .wide{grid-column:1/-1}
-@media (max-width:640px){.modal-gallery{grid-template-columns:1fr}}
+/* ————— project view — a dedicated, scrollable full-page case study,
+   not a small modal card. opens over the whole viewport so there's real
+   room to explain the project, not just a gallery grid ————— */
+.project-view{position:fixed;inset:0;z-index:220;background:var(--ink);opacity:0;visibility:hidden;transition:opacity .5s var(--ease-io),visibility 0s linear .5s;pointer-events:none}
+.project-view[data-open="true"]{opacity:1;visibility:visible;transition:opacity .5s var(--ease-io),visibility 0s linear;pointer-events:auto}
+.pv-scroll{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.pv-inner{max-width:1000px;margin:0 auto;padding:clamp(90px,12vh,140px) var(--pad) 14vh}
+.pv-close{position:fixed;top:var(--pad);right:var(--pad);z-index:2;display:inline-flex;align-items:center;gap:10px;background:var(--cream-06);border:1px solid var(--cream-24);border-radius:99px;padding:10px 18px 10px 20px;color:var(--cream);font-size:11px;font-weight:500;letter-spacing:.2em;text-transform:lowercase;cursor:none}
+body.touch .pv-close{cursor:pointer}
+.pv-close i{width:12px;height:12px;position:relative;flex:none}
+.pv-close i::before,.pv-close i::after{content:"";position:absolute;top:50%;left:0;width:100%;height:1px;background:currentColor}
+.pv-close i::before{transform:rotate(45deg)}
+.pv-close i::after{transform:rotate(-45deg)}
+.pv-num{font-size:11px;letter-spacing:.3em;color:var(--cream-40)}
+.pv-title{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(40px,7vw,96px);line-height:.98;margin:10px 0 24px}
+.pv-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8vh}
+.pv-tags span{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--cream-70);border:1px solid var(--cream-24);padding:6px 12px;border-radius:99px}
+.pv-copy{font-size:clamp(17px,1.8vw,24px);line-height:1.75;font-weight:300;color:var(--cream-70);max-width:70ch;margin-bottom:6vh}
+.pv-copy b{color:var(--cream);font-weight:500}
+.pv-link{display:inline-flex;align-items:center;gap:10px;margin:-4vh 0 6vh;font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:lowercase;color:var(--accent);border-bottom:1px solid currentColor;padding-bottom:6px}
+.pv-link::after{content:"↗";font-size:12px}
+.pv-gallery{display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.4vw,18px)}
+.pv-gallery figure{margin:0}
+.pv-gallery img,.pv-gallery video{display:block;width:100%;height:auto;border-radius:6px}
+.pv-gallery .wide{grid-column:1/-1}
+@media (max-width:640px){.pv-gallery{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){
-  .t-modal,.t-modal-backdrop{transition:opacity 120ms ease,visibility 0s linear 120ms !important;transform:none !important}
+  .project-view{transition:opacity 120ms ease,visibility 0s linear 120ms !important}
 }
 
 /* ————— next-page teaser — fades in during the tail of the hero's own
@@ -332,9 +333,12 @@ footer{position:relative;padding:14vh 0 40px;width:100%;isolation:isolate;backgr
 .fbottom a{color:inherit;transition:color .35s}
 .fbottom a:hover{color:var(--paper-ink)}
 
-.fwordmark{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:min(14vh,140px) 0 min(8vh,70px);position:relative;z-index:1}
-.fwordmark span{display:block;font-family:var(--sans);font-weight:600;text-transform:lowercase;letter-spacing:-.02em;line-height:.92;font-size:clamp(48px,10vw,160px);color:var(--paper-ink);opacity:.92}
+.fwordmark{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;width:100vw;margin-left:calc(50% - 50vw);padding:min(14vh,140px) var(--pad) min(6vh,60px);position:relative;z-index:1}
+.fwordmark span{display:block;font-family:var(--sans);font-weight:600;text-transform:lowercase;letter-spacing:-.02em;line-height:.92;font-size:clamp(48px,15vw,320px);color:var(--paper-ink);opacity:.92}
 .fwordmark span:last-child{opacity:.16}
+.ficon{display:flex;align-items:center;justify-content:center;padding:0 0 min(7vh,64px);position:relative;z-index:1}
+.ficon svg{width:34px;height:34px;display:block}
+.ficon path{fill:var(--paper-ink);opacity:.55}
 @media (max-width:760px){
   .ftop{flex-direction:column;align-items:flex-start}
   .fbottom{flex-direction:column;align-items:flex-start}
@@ -419,9 +423,6 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
   <section id="ch0" data-chapter="0" class="hero-mask">
     <div class="pinwrap">
       <div class="hero-mark-wrap" id="hero-mark-wrap">
-        <div class="hero-blob hero-blob--1" aria-hidden="true"></div>
-        <div class="hero-blob hero-blob--2" aria-hidden="true"></div>
-        <div class="hero-blob hero-blob--3" aria-hidden="true"></div>
         <canvas class="hero-mark-canvas" id="hero-mark-canvas" aria-hidden="true"></canvas>
         <svg class="hero-mark-svg hero-mark-fallback" viewBox="0 0 32 32" aria-hidden="true">
           <defs>
@@ -532,21 +533,25 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
     </div>
   </div>
   <div class="fwordmark" aria-hidden="true"><span>domen</span><span>markeljc</span></div>
+  <div class="ficon" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/></svg></div>
   </div>
 </footer>
 
 <div id="next-tease" aria-hidden="true"><div class="ntg" id="next-tease-grid"></div><span>selected work</span></div>
 
-<div class="t-modal-backdrop" id="modal-backdrop" data-open="false"></div>
-<div class="t-modal" id="modal" data-open="false" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-  <div class="modal-card">
-    <button type="button" class="modal-close" id="modal-close" data-hover aria-label="close">✕</button>
-    <span class="modal-num" id="modal-num"></span>
-    <h3 class="modal-title" id="modal-title"></h3>
-    <p class="modal-tags" id="modal-tags"></p>
-    <p class="modal-copy" id="modal-copy"></p>
-    <a class="modal-link" id="modal-link" href="#" target="_blank" rel="noopener" data-hover hidden>visit the live site</a>
-    <div class="modal-gallery" id="modal-gallery"></div>
+<div class="project-view" id="modal" data-open="false" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="pv-scroll" id="pv-scroll">
+    <div class="pv-inner">
+      <button type="button" class="pv-close" id="modal-close" data-hover aria-label="close, back to work">
+        <span>close</span><i></i>
+      </button>
+      <span class="pv-num" id="modal-num"></span>
+      <h1 class="pv-title" id="modal-title"></h1>
+      <p class="pv-tags" id="modal-tags"></p>
+      <p class="pv-copy" id="modal-copy"></p>
+      <a class="pv-link" id="modal-link" href="#" target="_blank" rel="noopener" data-hover hidden>visit the live site</a>
+      <div class="pv-gallery" id="modal-gallery"></div>
+    </div>
   </div>
 </div>
 
@@ -730,12 +735,30 @@ function buildHeroMark(){
     let w = r0.width || 340, h = r0.height || 340;
     renderer.setSize(w, h, false);
 
+    // reveal trail — a small offscreen canvas storing "how recently was the
+    // cursor here", painted as a fading white glow at the pointer each
+    // frame and decayed by an opaque low-alpha overlay every tick. Sampled
+    // in the shader to mix between solid black (default) and the photo
+    // montage, so the mark reads as a plain black mark that the cursor
+    // wipes open — the reveal-via-mouse-trail idea evidenced directly from
+    // podium.global's own compiled fragment shader (pulled from the live
+    // WebGL program via gl.getShaderSource — it warps UVs through a
+    // similarly-updated mouse-trail texture), adapted here to reveal photo
+    // content instead of warping a shape's edge.
+    const TRAIL_SIZE = 256;
+    const trailCanvas = document.createElement('canvas');
+    trailCanvas.width = trailCanvas.height = TRAIL_SIZE;
+    const trailCtx = trailCanvas.getContext('2d');
+    const trailTex = new THREE.CanvasTexture(trailCanvas);
+    let hovering = false;
+
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
     const texA = new THREE.CanvasTexture(canvasA);
     const texB = new THREE.CanvasTexture(canvasB);
     const uniforms = {
       uTexA:{ value:texA }, uTexB:{ value:texB }, uMix:{ value:0 },
+      uTrail:{ value:trailTex },
       uMouse:{ value:new THREE.Vector2(.5,.5) },
       uEnergy:{ value:0 }, uTime:{ value:0 }, uDissolve:{ value:0 }
     };
@@ -745,6 +768,7 @@ function buildHeroMark(){
       fragmentShader:`
         precision highp float;
         uniform sampler2D uTexA; uniform sampler2D uTexB; uniform float uMix;
+        uniform sampler2D uTrail;
         uniform vec2 uMouse; uniform float uEnergy; uniform float uTime; uniform float uDissolve;
         varying vec2 vUv;
         void main(){
@@ -762,7 +786,15 @@ function buildHeroMark(){
           duv = clamp(duv, 0.0, 1.0);
           vec4 colA = texture2D(uTexA, duv);
           vec4 colB = texture2D(uTexB, duv);
-          gl_FragColor = mix(colA, colB, uMix);
+          vec4 photo = mix(colA, colB, uMix);
+          // reveal is either the cursor's own trail, or the scroll-driven
+          // dissolve taking over as the mark scales up and tears open —
+          // the pieces you're about to dive through should be visible even
+          // if the cursor never touched the mark
+          float trail = max(texture2D(uTrail, uv).r, uDissolve);
+          vec3 blackMark = vec3(0.043, 0.035, 0.031);
+          vec3 finalColor = mix(blackMark, photo.rgb, trail);
+          gl_FragColor = vec4(finalColor, photo.a);
         }`
     });
     scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2), mat));
@@ -771,9 +803,11 @@ function buildHeroMark(){
     addEventListener('pointermove', e => {
       const r = canvas.getBoundingClientRect();
       tmx = (e.clientX - r.left)/r.width; tmy = 1 - (e.clientY - r.top)/r.height;
+      hovering = tmx >= 0 && tmx <= 1 && tmy >= 0 && tmy <= 1;
       if (lastX !== null) energy = Math.min(1, energy + Math.hypot(e.clientX-lastX, e.clientY-lastY)*0.02);
       lastX = e.clientX; lastY = e.clientY;
     }, { passive:true });
+    canvas.addEventListener('pointerleave', () => { hovering = false; }, { passive:true });
 
     // cycle — crossfade the montage into the next rotation of project
     // covers every ~2.8s, alternating which offscreen canvas is redrawn
@@ -802,6 +836,23 @@ function buildHeroMark(){
       mx += (tmx-mx)*0.08; my += (tmy-my)*0.08; energy *= 0.94;
       uniforms.uMouse.value.set(mx, my);
       uniforms.uEnergy.value = energy;
+
+      // decay the trail toward black, then re-light it under the cursor —
+      // reads as a soft glow wiping the black mark open as it moves
+      trailCtx.fillStyle = 'rgba(0,0,0,0.05)';
+      trailCtx.fillRect(0, 0, TRAIL_SIZE, TRAIL_SIZE);
+      if (hovering){
+        const tx = mx * TRAIL_SIZE, ty = (1 - my) * TRAIL_SIZE, r = TRAIL_SIZE * 0.24;
+        const grad = trailCtx.createRadialGradient(tx, ty, 0, tx, ty, r);
+        grad.addColorStop(0, 'rgba(255,255,255,0.85)');
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        trailCtx.globalCompositeOperation = 'lighter';
+        trailCtx.fillStyle = grad;
+        trailCtx.beginPath(); trailCtx.arc(tx, ty, r, 0, Math.PI * 2); trailCtx.fill();
+        trailCtx.globalCompositeOperation = 'source-over';
+      }
+      trailTex.needsUpdate = true;
+
       renderer.render(scene, camera);
     }
     tick();
@@ -891,6 +942,7 @@ function buildGallery(){
   const SLICES = 10;
   const imgW = Math.min(Math.max(120, vw * 0.14), 210);
   const imgH = imgW * 2 / 3;
+  const cardAspect = imgW / imgH;
   const orbitR = (vw * 0.34 + 500) / 2;
   const bendRad = imgW / orbitR;
   const cylR = orbitR;
@@ -898,123 +950,146 @@ function buildGallery(){
   const totalBendDeg = bendRad * 180 / Math.PI;
   const stepDeg = totalBendDeg / SLICES;
 
-  const cards = PROJECTS.map((p, i) => {
-    const card = document.createElement('div');
-    card.className = 'gallery-card';
-    card.setAttribute('data-hover', '');
-    card.setAttribute('role', 'button');
-    card.setAttribute('aria-label', `open ${p.title} case study`);
-    card.style.width = imgW.toFixed(1) + 'px';
-    card.style.height = imgH.toFixed(1) + 'px';
-    for (let s = 0; s < SLICES; s++){
-      const sl = document.createElement('div');
-      sl.className = 'cg-slice';
-      const displayW = sliceW + 1.5;
-      sl.style.width = displayW.toFixed(1) + 'px';
-      sl.style.left = '50%';
-      sl.style.marginLeft = (-displayW / 2).toFixed(1) + 'px';
-      sl.style.backgroundImage = `url(${p.cover})`;
-      sl.style.backgroundSize = imgW.toFixed(1) + 'px ' + imgH.toFixed(1) + 'px';
-      sl.style.backgroundPosition = (-s * sliceW).toFixed(1) + 'px 0';
-      sl.style.transformOrigin = '50% 50% ' + (-cylR).toFixed(1) + 'px';
-      const angle = (s - (SLICES - 1) / 2) * stepDeg;
-      sl.style.transform = 'rotateY(' + angle.toFixed(2) + 'deg)';
-      card.appendChild(sl);
-    }
-    card.addEventListener('click', () => openProjectModal(i));
-    pin.appendChild(card);
-    return card;
-  });
-
-  // the same word-by-word blur reveal as the source's phrase, rebuilt
-  // generically so it works on whatever copy sits in #gallery-phrase
-  (function wrapPhraseWords(el){
-    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-    const nodes = [];
-    while (walker.nextNode()) nodes.push(walker.currentNode);
-    nodes.forEach(node => {
-      const words = node.textContent.split(/(\s+)/);
-      const frag = document.createDocumentFragment();
-      words.forEach(w => {
-        if (/^\s+$/.test(w)) frag.appendChild(document.createTextNode(w));
-        else if (w){ const span = document.createElement('span'); span.className = 'word'; span.textContent = w; frag.appendChild(span); }
-      });
-      node.parentNode.replaceChild(frag, node);
+  function loadImage(src){
+    return new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => resolve(null);
+      img.src = src;
     });
-  })(phraseEl);
-  const phraseWords = $$('.word', phraseEl);
-
-  const count = cards.length;
-  const rx = vw * 0.34, rz = 500;
-  const tiltY = vw <= 768 ? 80 : 180;
-  const entryAngle = Math.PI / 2;
-  const offX = vw * 0.85;
-
-  // three-phase motion per card, keyed by its own local time t in [0,1]:
-  // slide in flat from the side -> one full orbit + self-spin -> slide out
-  function getPos(t){
-    if (t <= 0.12){
-      const p = t / 0.12;
-      return { x: -offX * (1 - p), y: tiltY, z: rz * p, rotY: 0 };
-    }
-    if (t <= 0.88){
-      const p = (t - 0.12) / 0.76;
-      const angle = entryAngle - p * Math.PI * 2;
-      const x = Math.cos(angle) * rx;
-      const z = Math.sin(angle) * rz;
-      return { x, y: (z / rz) * tiltY, z, rotY: p * Math.PI * 2 };
-    }
-    const p = (t - 0.88) / 0.12;
-    return { x: offX * p, y: tiltY, z: rz * (1 - p), rotY: Math.PI * 2 };
   }
 
-  const stagger = 0.09;
-  const totalRange = 1 + stagger * (count - 1);
-  cards.forEach(c => c.style.opacity = '0');
-
-  const phraseStart = 0.25, phraseEnd = 0.75, travelY = 200, revealEnd = 0.4;
-
-  ScrollTrigger.create({
-    trigger:'#gallery', start:'top top', end:'bottom bottom', pin:'#gallery-pin', scrub:true,
-    onUpdate: self => {
-      const progress = self.progress;
-      cards.forEach((card, i) => {
-        const imgT = progress * totalRange - i * stagger;
-        if (imgT <= 0 || imgT >= 1){ card.style.opacity = '0'; return; }
-        let alpha = 1;
-        if (imgT < 0.06) alpha = imgT / 0.06;
-        else if (imgT > 0.94) alpha = (1 - imgT) / 0.06;
-        const pos = getPos(imgT);
-        const rotDeg = (pos.rotY * 180 / Math.PI).toFixed(1);
-        card.style.transform = `translate3d(${pos.x.toFixed(1)}px,${pos.y.toFixed(1)}px,${pos.z.toFixed(1)}px) rotateY(${rotDeg}deg)`;
-        card.style.opacity = alpha;
-        card.style.zIndex = Math.round(pos.z + 600);
-      });
-
-      if (progress < phraseStart || progress > phraseEnd){
-        phraseEl.style.opacity = '0';
-      } else {
-        const globalP = (progress - phraseStart) / (phraseEnd - phraseStart);
-        const yOffset = travelY * (0.5 - globalP);
-        phraseEl.style.transform = `translate(-50%,-50%) translateY(${yOffset.toFixed(1)}px)`;
-        phraseWords.forEach((w, wi) => {
-          if (globalP < revealEnd){
-            const revealP = globalP / revealEnd;
-            const wordT = revealP * (phraseWords.length + 4) - wi;
-            const wP = Math.max(0, Math.min(1, wordT / 3));
-            w.style.opacity = wP;
-            w.style.filter = `blur(${(8 * (1 - wP)).toFixed(1)}px)`;
-          } else { w.style.opacity = '1'; w.style.filter = 'blur(0px)'; }
-        });
-        let alpha = 1;
-        if (globalP < 0.1) alpha = globalP / 0.1;
-        else if (globalP > 0.75) alpha = (1 - globalP) / 0.25;
-        phraseEl.style.opacity = alpha;
+  Promise.all(PROJECTS.map(p => loadImage(p.cover))).then(images => {
+    const cards = PROJECTS.map((p, i) => {
+      // cover-fit the source photo's own aspect ratio into the imgW x imgH
+      // card (like CSS background-size:cover) instead of stretching it to
+      // fit — otherwise any cover whose ratio isn't exactly 3:2 skews
+      // visibly across the sliced strips
+      const img = images[i];
+      let coverW = imgW, coverH = imgH, offX = 0, offY = 0;
+      if (img && img.naturalWidth && img.naturalHeight){
+        const ir = img.naturalWidth / img.naturalHeight;
+        if (ir > cardAspect){ coverH = imgH; coverW = imgH * ir; offX = (coverW - imgW) / 2; }
+        else { coverW = imgW; coverH = imgW / ir; offY = (coverH - imgH) / 2; }
       }
-    }
-  });
+      const card = document.createElement('div');
+      card.className = 'gallery-card';
+      card.setAttribute('data-hover', '');
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', `open ${p.title} case study`);
+      card.style.width = imgW.toFixed(1) + 'px';
+      card.style.height = imgH.toFixed(1) + 'px';
+      for (let s = 0; s < SLICES; s++){
+        const sl = document.createElement('div');
+        sl.className = 'cg-slice';
+        const displayW = sliceW + 1.5;
+        sl.style.width = displayW.toFixed(1) + 'px';
+        sl.style.left = '50%';
+        sl.style.marginLeft = (-displayW / 2).toFixed(1) + 'px';
+        sl.style.backgroundImage = `url(${p.cover})`;
+        sl.style.backgroundSize = coverW.toFixed(1) + 'px ' + coverH.toFixed(1) + 'px';
+        sl.style.backgroundPosition = (-offX - s * sliceW).toFixed(1) + 'px ' + (-offY).toFixed(1) + 'px';
+        sl.style.transformOrigin = '50% 50% ' + (-cylR).toFixed(1) + 'px';
+        const angle = (s - (SLICES - 1) / 2) * stepDeg;
+        sl.style.transform = 'rotateY(' + angle.toFixed(2) + 'deg)';
+        card.appendChild(sl);
+      }
+      card.addEventListener('click', () => openProjectModal(i));
+      pin.appendChild(card);
+      return card;
+    });
 
-  galleryApi = { cards };
+    // the same word-by-word blur reveal as the source's phrase, rebuilt
+    // generically so it works on whatever copy sits in #gallery-phrase
+    (function wrapPhraseWords(el){
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(node => {
+        const words = node.textContent.split(/(\s+)/);
+        const frag = document.createDocumentFragment();
+        words.forEach(w => {
+          if (/^\s+$/.test(w)) frag.appendChild(document.createTextNode(w));
+          else if (w){ const span = document.createElement('span'); span.className = 'word'; span.textContent = w; frag.appendChild(span); }
+        });
+        node.parentNode.replaceChild(frag, node);
+      });
+    })(phraseEl);
+    const phraseWords = $$('.word', phraseEl);
+
+    const count = cards.length;
+    const rx = vw * 0.34, rz = 500;
+    const tiltY = vw <= 768 ? 80 : 180;
+    const entryAngle = Math.PI / 2;
+    const offX = vw * 0.85;
+
+    // three-phase motion per card, keyed by its own local time t in [0,1]:
+    // slide in flat from the side -> one full orbit + self-spin -> slide out
+    function getPos(t){
+      if (t <= 0.12){
+        const p = t / 0.12;
+        return { x: -offX * (1 - p), y: tiltY, z: rz * p, rotY: 0 };
+      }
+      if (t <= 0.88){
+        const p = (t - 0.12) / 0.76;
+        const angle = entryAngle - p * Math.PI * 2;
+        const x = Math.cos(angle) * rx;
+        const z = Math.sin(angle) * rz;
+        return { x, y: (z / rz) * tiltY, z, rotY: p * Math.PI * 2 };
+      }
+      const p = (t - 0.88) / 0.12;
+      return { x: offX * p, y: tiltY, z: rz * (1 - p), rotY: Math.PI * 2 };
+    }
+
+    const stagger = 0.09;
+    const totalRange = 1 + stagger * (count - 1);
+    cards.forEach(c => c.style.opacity = '0');
+
+    const phraseStart = 0.25, phraseEnd = 0.75, travelY = 200, revealEnd = 0.4;
+
+    ScrollTrigger.create({
+      trigger:'#gallery', start:'top top', end:'bottom bottom', pin:'#gallery-pin', scrub:true,
+      onUpdate: self => {
+        const progress = self.progress;
+        cards.forEach((card, i) => {
+          const imgT = progress * totalRange - i * stagger;
+          if (imgT <= 0 || imgT >= 1){ card.style.opacity = '0'; return; }
+          let alpha = 1;
+          if (imgT < 0.06) alpha = imgT / 0.06;
+          else if (imgT > 0.94) alpha = (1 - imgT) / 0.06;
+          const pos = getPos(imgT);
+          const rotDeg = (pos.rotY * 180 / Math.PI).toFixed(1);
+          card.style.transform = `translate3d(${pos.x.toFixed(1)}px,${pos.y.toFixed(1)}px,${pos.z.toFixed(1)}px) rotateY(${rotDeg}deg)`;
+          card.style.opacity = alpha;
+          card.style.zIndex = Math.round(pos.z + 600);
+        });
+
+        if (progress < phraseStart || progress > phraseEnd){
+          phraseEl.style.opacity = '0';
+        } else {
+          const globalP = (progress - phraseStart) / (phraseEnd - phraseStart);
+          const yOffset = travelY * (0.5 - globalP);
+          phraseEl.style.transform = `translate(-50%,-50%) translateY(${yOffset.toFixed(1)}px)`;
+          phraseWords.forEach((w, wi) => {
+            if (globalP < revealEnd){
+              const revealP = globalP / revealEnd;
+              const wordT = revealP * (phraseWords.length + 4) - wi;
+              const wP = Math.max(0, Math.min(1, wordT / 3));
+              w.style.opacity = wP;
+              w.style.filter = `blur(${(8 * (1 - wP)).toFixed(1)}px)`;
+            } else { w.style.opacity = '1'; w.style.filter = 'blur(0px)'; }
+          });
+          let alpha = 1;
+          if (globalP < 0.1) alpha = globalP / 0.1;
+          else if (globalP > 0.75) alpha = (1 - globalP) / 0.25;
+          phraseEl.style.opacity = alpha;
+        }
+      }
+    });
+
+    galleryApi = { cards };
+    ScrollTrigger.refresh();
+  });
 }
 
 /* ————————————————— project case modal ————————————————— */
@@ -1034,21 +1109,19 @@ function openProjectModal(i){
   const link = $('#modal-link');
   if (p.link){ link.href = p.link; link.hidden = false; } else link.hidden = true;
   $('#modal-gallery').innerHTML = (p.gallery || []).map(galleryFigureHTML).join('');
-  $('#modal-backdrop').dataset.open = 'true';
   $('#modal').dataset.open = 'true';
+  $('#pv-scroll').scrollTop = 0;
   document.body.style.overflow = 'hidden';
   if (lenis) lenis.stop();
 }
 function closeProjectModal(){
-  $('#modal-backdrop').dataset.open = 'false';
   $('#modal').dataset.open = 'false';
   document.body.style.overflow = '';
   if (lenis) lenis.start();
 }
 {
-  const closeBtn = $('#modal-close'), backdrop = $('#modal-backdrop');
+  const closeBtn = $('#modal-close');
   if (closeBtn) closeBtn.addEventListener('click', closeProjectModal);
-  if (backdrop) backdrop.addEventListener('click', closeProjectModal);
   addEventListener('keydown', e => { if (e.key === 'Escape' && $('#modal').dataset.open === 'true') closeProjectModal(); });
 }
 
@@ -1250,8 +1323,8 @@ function initFooterGradient(){
         // two clear, subtle stains — cool blue (reduces red/green, leaves
         // blue relatively high) and warm yellow (reduces blue, leaves
         // red/green relatively high) — kept faint, felt more than seen
-        col -= blob(uv, c1, 0.56) * vec3(0.05, 0.03, 0.0) * 0.9;
-        col -= blob(uv, c2, 0.52) * vec3(0.0, 0.02, 0.06) * 0.9;
+        col -= blob(uv, c1, 0.56) * vec3(0.05, 0.03, 0.0) * 1.0;
+        col -= blob(uv, c2, 0.52) * vec3(0.0, 0.02, 0.06) * 1.0;
 
         float mr = 0.22 + uMouseEnergy * 0.1;
         float mGlow = blob(uv, m, mr) * uMouseActive;
@@ -1468,13 +1541,35 @@ function buildFilm(){
   /* background field — cream hero fades to near-black entering work, stays
      black through about/cta, fades to white entering the footer (the
      footer paints its own opaque white ground regardless, but this keeps
-     the field itself consistent behind it — no cream flash at the edges) */
+     the field itself consistent behind it — no cream flash at the edges).
+     Deliberately ONE function computing the whole piecewise gradient from
+     absolute scroll position, rather than two independent gsap.to() scrub
+     tweens on the same property — two tweens each capture their own
+     implicit "from" colour the first time they render, so the footer's
+     cream-\>white tween was re-asserting cream (its own "from") on every
+     scroll tick anywhere *before* the footer too, fighting the work
+     tween's black and leaving the whole work/about/cta stretch cream. */
   const bgField = $('#bg-field');
   if (bgField && hasLibs){
-    gsap.to(bgField, { backgroundColor:'#0a0908', ease:'none',
-      scrollTrigger:{ trigger:'#work', start:'top bottom', end:'top 40%', scrub:true } });
-    gsap.to(bgField, { backgroundColor:'#ffffff', ease:'none',
-      scrollTrigger:{ trigger:'#site-footer', start:'top bottom', end:'top 35%', scrub:true } });
+    const footerEl = $('#site-footer');
+    const CREAM = [245,241,232], BLACK = [10,9,8], WHITE = [255,255,255];
+    const lerp3 = (a,b,t) => [0,1,2].map(i => Math.round(a[i] + (b[i]-a[i]) * t));
+    function paintBgField(){
+      const vh = innerHeight;
+      // synced to the hero pin's own scroll range (end:'+=30%' below), not
+      // #work's position — darkening now happens *during* the mark's own
+      // dissolve, landing on black exactly as the pin releases, instead of
+      // only starting once #work has already scrolled into view
+      const pinDist = vh * 0.3;
+      const p1 = clamp01((window.scrollY - pinDist * 0.3) / (pinDist * 0.7));
+      const footerTop = footerEl.getBoundingClientRect().top + window.scrollY;
+      const p2 = clamp01((window.scrollY - (footerTop - vh)) / (vh * 0.65));
+      const mid = lerp3(CREAM, BLACK, p1);
+      const final = lerp3(mid, WHITE, p2);
+      bgField.style.backgroundColor = `rgb(${final[0]},${final[1]},${final[2]})`;
+    }
+    ScrollTrigger.create({ trigger:'main', start:'top top', end:'bottom bottom', scrub:true, onUpdate: paintBgField });
+    paintBgField();
   }
 
   /* generic reveals — every [data-io] element rises in once it's in view */
