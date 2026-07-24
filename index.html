@@ -124,9 +124,14 @@ section{position:relative}
 .pinwrap{height:100vh;width:100%;position:relative;overflow:hidden}
 #ch0.hero-mask{background:var(--paper)}
 
-.hero-mark-wrap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(1);width:min(30vw,340px);aspect-ratio:1;z-index:1;opacity:0;will-change:transform,opacity}
+/* the shader canvas spans the whole hero: the mark travels toward the
+   camera during the transition and has to be free to grow past the screen
+   edges. it used to live inside the 340px .hero-mark-wrap box, which
+   clipped it — the wrap now only carries the no-webgl svg fallback. */
+.hero-mark-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;opacity:1;pointer-events:none}
+.hero-mark-wrap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(30vw,340px);aspect-ratio:1;z-index:1;opacity:0;will-change:opacity}
+html.no-webgl .hero-mark-wrap,html.static .hero-mark-wrap{opacity:1}
 .hero-mark-svg{position:relative;z-index:2;width:100%;height:100%;display:block;filter:drop-shadow(0 30px 50px rgba(20,18,16,.16))}
-.hero-mark-canvas{position:relative;z-index:2;width:100%;height:100%;display:block;filter:drop-shadow(0 30px 50px rgba(20,18,16,.16))}
 .hero-mark-fallback{display:none}
 html.static .hero-mark-canvas,html.no-webgl .hero-mark-canvas{display:none}
 html.static .hero-mark-fallback,html.no-webgl .hero-mark-fallback{display:block}
@@ -135,7 +140,7 @@ html.static .hero-mark-fallback,html.no-webgl .hero-mark-fallback{display:block}
 .hero-caption{position:absolute;left:var(--pad);bottom:var(--pad);z-index:2;opacity:0;max-width:min(46vw,520px)}
 .hero-sub{font-family:var(--sans);font-weight:500;font-size:12px;letter-spacing:.28em;color:rgba(20,18,16,.5);text-transform:lowercase;margin-bottom:18px}
 .hero-heading{opacity:1}
-.hero-heading h1{font-family:var(--sans);font-weight:600;font-size:clamp(34px,4.6vw,64px);line-height:.98;letter-spacing:-.015em;color:var(--paper-ink);text-transform:lowercase;margin-bottom:16px}
+.hero-heading h1{font-family:var(--sans);font-weight:600;font-size:clamp(34px,4.6vw,64px);line-height:.98;letter-spacing:-.024em;color:var(--paper-ink);text-transform:lowercase;margin-bottom:16px}
 .hero-heading .rd{color:var(--red)}
 .hero-tag{font-size:clamp(13px,1.1vw,15px);font-weight:400;letter-spacing:.01em;color:rgba(20,18,16,.6);text-transform:none;line-height:1.5;max-width:38ch}
 @media (max-width:760px){
@@ -208,7 +213,11 @@ html.static #bg-field{display:none}
 footer.sec{color:var(--paper-ink)}
 .sec-head{display:flex;align-items:baseline;gap:22px;margin-bottom:clamp(48px,7vh,90px);max-width:1400px;margin-left:auto;margin-right:auto}
 .sec-idx{font-size:11px;font-weight:400;letter-spacing:.34em;color:var(--cream-55)}
-.sec-head h2{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(30px,4.4vw,68px);line-height:1}
+/* tracking is size-specific throughout: letters read progressively too far
+   apart as type grows, so every display size here carries its own negative
+   value, scaled to it (-.022em at 68px up to -.032em at 132px on .cta-h).
+   A single global letter-spacing would be wrong at one end or the other. */
+.sec-head h2{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(30px,4.4vw,68px);line-height:1;letter-spacing:-.022em}
 .sec-head .rule{flex:1;height:1px;background:var(--cream-10)}
 
 /* ————— 01 work — 3d orbit gallery —————
@@ -238,7 +247,7 @@ body.touch .wf-item{cursor:pointer}
 .wf-item__media{border-radius:6px;overflow:hidden;margin-bottom:22px;background:var(--ink-2)}
 .wf-item__media img,.wf-item__media video{display:block;width:100%;height:auto}
 .wf-item__num{font-size:10px;letter-spacing:.3em;color:var(--cream-55)}
-.wf-item__name{display:block;font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(24px,4vw,34px);margin:6px 0 14px;color:var(--cream)}
+.wf-item__name{display:block;font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(24px,4vw,34px);letter-spacing:-.015em;margin:6px 0 14px;color:var(--cream)}
 .wf-item__copy{font-size:15px;line-height:1.7;color:var(--cream-70)}
 .wf-item__copy b{color:var(--cream);font-weight:500}
 .wf-item__link{display:inline-flex;align-items:center;gap:10px;margin-top:18px;font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:lowercase;color:var(--accent);border-bottom:1px solid currentColor;padding-bottom:6px}
@@ -265,6 +274,40 @@ html.static .work-flat{display:block}
 .about-copy p:last-child{margin-bottom:0}
 .about-copy b{color:var(--cream);font-weight:500}
 .about-copy .rword{display:inline-block;will-change:transform,opacity,filter}
+
+/* the availability dot's breathing pulse. This keyframe went missing when
+   the floating cta chrome was removed — it was defined alongside it — and
+   .cta-avail::before has been referencing a non-existent animation ever
+   since, so that dot silently stopped breathing. Both users of it are
+   reduced-motion guarded at their own rules. */
+@keyframes pulse-dot{
+  0%,100%{ opacity:1;   transform:scale(1) }
+  50%    { opacity:.45; transform:scale(.82) }
+}
+
+/* ---- facts: a quiet spec sheet under the copy ----------------------
+   Tracking is set per size, not once globally (apple-design): the labels
+   are 10px and take positive tracking to stay legible at that size, while
+   the values sit near 0. Weight carries the hierarchy so the block adds
+   information without competing with the paragraphs above it. */
+.facts{margin-top:clamp(30px,5vh,54px);border-top:1px solid var(--cream-10);display:grid;gap:0}
+.fact{display:grid;grid-template-columns:minmax(88px,.24fr) 1fr;gap:clamp(14px,2vw,28px);align-items:baseline;padding:clamp(12px,1.7vh,18px) 0;border-bottom:1px solid var(--cream-10)}
+.fact dt{font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--cream-40);margin:0}
+.fact dd{margin:0;font-size:clamp(14px,1.25vw,17px);line-height:1.45;letter-spacing:0;color:var(--cream-70)}
+.fact--live{display:flex;align-items:center;gap:10px;color:var(--cream)}
+.fact--live i{width:6px;height:6px;border-radius:50%;background:var(--red);flex:none;animation:pulse-dot 2.6s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.fact--live i{animation:none}}
+
+/* ---- practice band: the disciplines, as a numbered index ------------
+   Large display type, so tracking goes negative — letters read too far
+   apart as they grow. Leading tightens to match. */
+.practice{max-width:1400px;margin:clamp(60px,10vh,120px) auto 0;padding-top:clamp(28px,4.5vh,52px);border-top:1px solid var(--cream-10)}
+.practice__label{display:block;font-size:10px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:var(--cream-40);margin-bottom:clamp(20px,3.4vh,38px)}
+.practice__list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:0 clamp(20px,3vw,48px)}
+.practice__item{display:flex;align-items:baseline;gap:clamp(10px,1.2vw,18px);padding:clamp(11px,1.6vh,17px) 0;border-bottom:1px solid var(--cream-10)}
+.practice__num{font-size:10px;font-weight:500;letter-spacing:.12em;color:var(--cream-40);flex:none;font-variant-numeric:tabular-nums}
+.practice__name{font-family:var(--sans);font-weight:300;text-transform:lowercase;font-size:clamp(21px,2.5vw,34px);line-height:1.06;letter-spacing:-.018em;color:var(--cream)}
+.practice__count{margin-left:auto;font-size:10px;letter-spacing:.1em;color:var(--cream-40);font-variant-numeric:tabular-nums}
 @media (max-width:860px){
   /* stacked to one column — the stretch-to-match-the-copy's-height trick
      only makes sense side-by-side. height:100% against an auto-height
@@ -276,12 +319,17 @@ html.static .work-flat{display:block}
   .about-grid{grid-template-columns:1fr;gap:36px}
   .about-portrait-wrap{height:auto}
   .about-portrait{height:auto;object-fit:initial}
+  /* the label column costs too much of a narrow screen — stack instead,
+     and let the practice band run as one full-width column so each
+     discipline keeps its own line rather than cramming two per row */
+  .fact{grid-template-columns:1fr;gap:5px}
+  .practice__list{grid-template-columns:1fr}
 }
 
 /* ————— 03 start a project — the one bold beat ————— */
 #cta{min-height:82vh;display:flex;align-items:center;justify-content:center;text-align:center;padding-top:14vh;padding-bottom:14vh}
 .cta-inner{max-width:900px}
-.cta-h{font-family:var(--sans);font-weight:600;text-transform:lowercase;font-size:clamp(48px,9vw,132px);line-height:.92;letter-spacing:-.01em;color:var(--cream)}
+.cta-h{font-family:var(--sans);font-weight:600;text-transform:lowercase;font-size:clamp(48px,9vw,132px);line-height:.92;letter-spacing:-.032em;color:var(--cream)}
 .cta-sub{margin-top:4vh;font-size:clamp(16px,1.5vw,21px);line-height:1.7;color:var(--cream-70);max-width:48ch;margin-left:auto;margin-right:auto}
 .cta-btn{display:inline-flex;align-items:center;gap:18px;margin-top:7vh;font-weight:500;font-size:13px;letter-spacing:.32em;text-transform:lowercase;color:var(--ink);padding:24px 42px;border-radius:99px;background:var(--cream);position:relative;overflow:hidden;will-change:transform}
 .cta-btn .arrow{width:24px;height:1px;background:currentColor;position:relative;transition:width .5s var(--ease-out)}
@@ -424,8 +472,8 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
 <!-- 00 · the dark -->
   <section id="ch0" data-chapter="0" class="hero-mask">
     <div class="pinwrap">
+      <canvas class="hero-mark-canvas" id="hero-mark-canvas" aria-hidden="true"></canvas>
       <div class="hero-mark-wrap" id="hero-mark-wrap">
-        <canvas class="hero-mark-canvas" id="hero-mark-canvas" aria-hidden="true"></canvas>
         <svg class="hero-mark-svg hero-mark-fallback" viewBox="0 0 32 32" aria-hidden="true">
           <defs>
             <clipPath id="heroMarkClip" clipPathUnits="userSpaceOnUse">
@@ -476,8 +524,30 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
       <div class="about-copy" id="about-copy">
         <p>i work across brand identity, packaging, and digital product design — usually all three on the same project, because <b>the mark on a label and the button on a screen are solving the same problem: be understood in half a second.</b></p>
         <p>most of what i do starts with a restriction — a shelf, a thumb, a viewport — and ends with the smallest version of the idea that still says everything. <b>i'm not interested in decoration for its own sake.</b></p>
-        <p>based in slovenia. working further out.</p>
+
+        <dl class="facts" data-io>
+          <div class="fact">
+            <dt>based</dt>
+            <dd>slovenia — working further out</dd>
+          </div>
+          <div class="fact">
+            <dt>works in</dt>
+            <dd id="fact-disciplines">—</dd>
+          </div>
+          <div class="fact">
+            <dt>status</dt>
+            <dd class="fact--live"><i aria-hidden="true"></i>open for new projects</dd>
+          </div>
+        </dl>
       </div>
+    </div>
+
+    <!-- the practice band: one numbered line per discipline, built at
+         runtime from the tags the projects actually carry so it can never
+         drift out of step with the work above it -->
+    <div class="practice" id="practice" data-io>
+      <span class="practice__label">practice</span>
+      <ol class="practice__list" id="practice-list"></ol>
     </div>
   </section>
 
@@ -554,7 +624,10 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
       <h1 class="pv-title" id="modal-title"></h1>
       <p class="pv-tags" id="modal-tags"></p>
       <p class="pv-copy" id="modal-copy"></p>
-      <a class="pv-link" id="modal-link" href="#" target="_blank" rel="noopener" data-hover hidden>visit the live site</a>
+      <!-- no default href: openProjectModal sets a real one and unhides
+           this only for projects that have a link. An href="#" here made it
+           focusable and clickable in the meantime, opening a blank tab. -->
+      <a class="pv-link" id="modal-link" target="_blank" rel="noopener" data-hover hidden>visit the live site</a>
       <div class="pv-gallery" id="modal-gallery"></div>
     </div>
   </div>
@@ -596,7 +669,14 @@ if (hasLibs){ gsap.registerPlugin(ScrollTrigger); ScrollTrigger.config({ ignoreM
 
 let lenis = null;
 if (CINEMA && window.Lenis){
-  lenis = new Lenis({ lerp: 0.085, smoothWheel: true, syncTouch: false });
+  // anchors:true is required, not cosmetic — while Lenis owns the scroll it
+  // ignores plain <a href="#section"> clicks, so the four footer nav links
+  // (#top/#work/#about/#cta) were hard-jumping the page instead of
+  // scrolling. Verified: a #about click teleported straight to y=6169.
+  lenis = new Lenis({
+    lerp: 0.085, smoothWheel: true, syncTouch: false,
+    anchors: { duration: 1.5, easing: t => 1 - Math.pow(1 - t, 4) }
+  });
   lenis.on('scroll', () => ScrollTrigger.update());
   gsap.ticker.add(t => lenis.raf(t*1000));
   gsap.ticker.lagSmoothing(0);
@@ -650,18 +730,29 @@ if (!isTouch){
 
 
 
-/* ————————————————— hero — shader-distorted, cycling mark —————————————————
-   the mark's own silhouette, with four project photos composited into it
-   (2D canvas clip — reliable, no SDF math needed), then that composite is
-   handed to WebGL as a texture and run through a ripple-distortion
-   fragment shader so the photos warp with the cursor. Two composites (A/B)
-   are kept so the montage can crossfade into the next rotation of project
-   covers every few seconds — the mark reads as alive, not a fixed collage.
-   A uDissolve uniform, driven from the hero's own scroll-pin transition,
-   adds extra tearing distortion as the mark scales up and hands off to the
-   work section. Falls back to the plain SVG version under reduced-motion
-   or no WebGL. */
+/* ————————————————— hero — the mark, and the flight through it —————————————
+   The silhouette is a signed distance field built from the mark's own path
+   at startup (buildMarkSdf), so its edge is reconstructed per-pixel rather
+   than sampled from a bitmap — it stays razor sharp however far the
+   transition magnifies it. Inside that silhouette sits a montage of four
+   project covers, warped by a ripple that follows the cursor; two
+   composites (A/B) crossfade every few seconds so the mark reads as alive
+   rather than a fixed collage. The montage is hidden behind solid black by
+   default and wiped open by a mouse-trail texture.
+
+   Scrolling flies the camera through the mark: the mesh translates on Z
+   through a perspective frustum (see the fly-through rig below), which is
+   the mechanism the reference implementation uses and the reason it reads
+   as travelling through an opening rather than zooming a logo.
+
+   Falls back to the plain SVG mark under reduced-motion or no WebGL. */
 let heroMarkApi = null;
+/* the shader initialises asynchronously (it waits on the project covers to
+   decode), so the intro tween and the scroll trigger can both run before
+   heroMarkApi exists. They write here instead of straight to uniforms, and
+   the shader seeds itself from this on startup — otherwise a slow image
+   decode leaves the mark stuck invisible or stuck at scroll 0. */
+const heroState = { intro:0, scroll:0 };
 function buildHeroMark(){
   const canvas = $('#hero-mark-canvas');
   const wrap = $('#hero-mark-wrap');
@@ -701,6 +792,114 @@ function buildHeroMark(){
     ctx.restore();
   }
 
+  /* ---- signed distance field of the mark ----------------------------
+     The transition flies the mark toward the camera until it swallows the
+     screen (see the scroll wiring below). A rasterised silhouette can't
+     survive that: by the time it covers the viewport it's magnified ~10x
+     and its edge turns to mush. A signed distance field can — the edge is
+     reconstructed per-pixel from the distance value via smoothstep, so it
+     stays exactly as crisp at 10x as at 1x. This is the single technique
+     that makes a real fly-through possible rather than a blurry zoom.
+
+     Built once at init: rasterise the mark path to a binary mask, run an
+     exact Euclidean distance transform over the inside and the outside
+     separately, then store (outside - inside) normalised into a texture.
+     The distance transform is Felzenszwalb & Huttenlocher's O(n) method —
+     a 1D parabola-envelope pass along every column, then every row. */
+  function buildMarkSdf(res){
+    const c = document.createElement('canvas');
+    c.width = c.height = res;
+    const cx = c.getContext('2d');
+    // the mark is drawn inset by a margin so the field has room to measure
+    // real outside-distance around the silhouette instead of clipping at 0
+    const margin = res * 0.22, inner = res - margin * 2;
+    cx.fillStyle = '#fff';
+    cx.save();
+    cx.translate(margin, margin);
+    cx.scale(inner / 32, inner / 32);
+    cx.fill(new Path2D(MARK_PATH));
+    cx.restore();
+
+    const px = cx.getImageData(0, 0, res, res).data;
+    const N = res * res, INF = 1e20;
+    const fIn = new Float64Array(N), fOut = new Float64Array(N);
+    for (let i = 0; i < N; i++){
+      const solid = px[i * 4 + 3] > 127;
+      fOut[i] = solid ? 0 : INF;   // distance to nearest solid pixel
+      fIn[i]  = solid ? INF : 0;   // distance to nearest empty pixel
+    }
+
+    // 1D squared-distance transform of one row/column (parabola envelope)
+    const d = new Float64Array(res), v = new Int32Array(res), z = new Float64Array(res + 1);
+    function edt1d(f){
+      let k = 0; v[0] = 0; z[0] = -INF; z[1] = INF;
+      for (let q = 1; q < res; q++){
+        let s = ((f[q] + q*q) - (f[v[k]] + v[k]*v[k])) / (2*q - 2*v[k]);
+        while (s <= z[k]){
+          k--;
+          s = ((f[q] + q*q) - (f[v[k]] + v[k]*v[k])) / (2*q - 2*v[k]);
+        }
+        k++; v[k] = q; z[k] = s; z[k+1] = INF;
+      }
+      k = 0;
+      for (let q = 0; q < res; q++){
+        while (z[k+1] < q) k++;
+        const dx = q - v[k];
+        d[q] = dx*dx + f[v[k]];
+      }
+      for (let q = 0; q < res; q++) f[q] = d[q];
+    }
+    function edt2d(f){
+      const col = new Float64Array(res);
+      for (let x = 0; x < res; x++){
+        for (let y = 0; y < res; y++) col[y] = f[y*res + x];
+        edt1d(col);
+        for (let y = 0; y < res; y++) f[y*res + x] = col[y];
+      }
+      const row = new Float64Array(res);
+      for (let y = 0; y < res; y++){
+        for (let x = 0; x < res; x++) row[x] = f[y*res + x];
+        edt1d(row);
+        for (let x = 0; x < res; x++) f[y*res + x] = row[x];
+      }
+    }
+    edt2d(fOut); edt2d(fIn);
+
+    // SPREAD sets how many texture pixels of distance map across the byte
+    // range, and it is the single control over edge quality at full travel.
+    // A wide spread (0.18 of the texture) quantises to ~0.7 texture px per
+    // step — wider than a texel, so neighbouring texels share a value and
+    // bilinear filtering has flat plateaus it cannot interpolate out. That
+    // shows up as visible stair-steps along the mark's diagonals once the
+    // fly-through magnifies it ~10x. Only the values *near* the silhouette
+    // are ever read (the mask is a smoothstep across the edge; everything
+    // further just saturates), so the spread can be tightened aggressively:
+    // 0.025 gives ~0.1 texture px per step, comfortably sub-pixel even at
+    // full travel.
+    //
+    // Deliberately single-channel: packing 16 bits across two channels is
+    // the obvious way to buy precision, but hardware bilinear filtering
+    // interpolates channels independently, so the remainder byte wrapping
+    // 255->0 at each coarse step decodes to a wrong intermediate and bands
+    // the edge. Tightening the spread is correct under linear filtering.
+    const SPREAD = res * 0.025;
+    const data = new Uint8Array(N * 4);
+    for (let i = 0; i < N; i++){
+      const sd = Math.sqrt(fOut[i]) - Math.sqrt(fIn[i]); // >0 outside, <0 inside
+      const enc = Math.round(128 - (sd / SPREAD) * 127);  // inside -> bright
+      const val = enc < 0 ? 0 : enc > 255 ? 255 : enc;
+      data[i*4] = data[i*4+1] = data[i*4+2] = val;
+      data[i*4+3] = 255;
+    }
+    const tex = new THREE.DataTexture(data, res, res, THREE.RGBAFormat);
+    tex.minFilter = tex.magFilter = THREE.LinearFilter;
+    tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+    tex.needsUpdate = true;
+    // the drawn mark occupies `inner/res` of the texture — the shader needs
+    // this to place the silhouette at the right apparent size
+    return { tex, inset: inner / res };
+  }
+
   Promise.all(covers.map(loadImage)).then(images => {
     if (!images.some(Boolean)){ document.documentElement.classList.add('no-webgl'); return; }
     startHeroShader(images);
@@ -719,9 +918,21 @@ function buildHeroMark(){
 
     const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true, powerPreference:'low-power' });
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    const r0 = wrap.getBoundingClientRect();
-    let w = r0.width || 340, h = r0.height || 340;
+    // the canvas is the full viewport now, not the small logo box it used
+    // to be — the mark has to be able to grow past the screen edges during
+    // the fly-through, which it can't do while clipped to a 340px element
+    let w = innerWidth, h = innerHeight;
     renderer.setSize(w, h, false);
+
+    // how much of the viewport the mark spans at rest. mirrors the css the
+    // static/no-webgl fallback uses (min(30vw, 340px), or 52vw on narrow
+    // screens) so the shader mark and the svg fallback are the same size.
+    function markFraction(){
+      const px = innerWidth <= 760
+        ? Math.min(innerWidth * 0.52, 260)
+        : Math.min(innerWidth * 0.30, 340);
+      return { x: px / innerWidth, y: px / innerHeight };
+    }
 
     // reveal trail — a small offscreen canvas storing "how recently was the
     // cursor here", painted as a fading white glow at the pointer each
@@ -740,52 +951,161 @@ function buildHeroMark(){
     const trailTex = new THREE.CanvasTexture(trailCanvas);
     let hovering = false;
 
+    /* ---- the fly-through rig -----------------------------------------
+       Ported from podium.global's own hero transition, whose mechanism was
+       read directly off its live WebGL program (runtime uniform sampling +
+       gl.getShaderSource) rather than guessed from video — see
+       .web-shader-extractor/extraction-report.md. Their canvas and its
+       wrapper carry NO css transform at any scroll position; what actually
+       moves is the mesh, on Z, through a real perspective camera:
+
+           meshZ = -5 * (1 - scrollProgress)
+
+       verified numerically against their modelViewMatrix at four scroll
+       positions. That distinction is the whole effect. Scaling a flat quad
+       (what this used to do) grows every pixel uniformly and reads as a
+       zoom; translating a plane through a perspective frustum grows the
+       edges faster than the centre and sweeps them out past the viewport,
+       which is what makes it read as travelling *through* an opening.
+
+       One deliberate deviation: we stop at z = -0.5 rather than their 0.
+       At exactly 0 the plane is coincident with the camera and the
+       projection degenerates (and anything nearer than `near` is clipped
+       outright). Since scrub can land exactly on p=1, we clamp. -5 -> -0.5
+       is still a 10x perspective growth, which covers the viewport
+       diagonal with room to spare. */
+    const CAM_FOV = 50, Z_REST = -5, Z_END = -0.5;
     const scene = new THREE.Scene();
-    const camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+    const camera = new THREE.PerspectiveCamera(CAM_FOV, w / h, 0.1, 100);
+    camera.position.z = 0;
+
+    // plane sized to exactly fill the frustum at the resting distance, so
+    // its uv space maps 1:1 onto the viewport at p=0
+    const restH = 2 * Math.abs(Z_REST) * Math.tan(CAM_FOV * Math.PI / 360);
+    const plane = new THREE.PlaneGeometry(restH * (w / h), restH);
+
+    const sdf = buildMarkSdf(512);
     const texA = new THREE.CanvasTexture(canvasA);
     const texB = new THREE.CanvasTexture(canvasB);
     const uniforms = {
       uTexA:{ value:texA }, uTexB:{ value:texB }, uMix:{ value:0 },
+      uSdf:{ value:sdf.tex }, uSdfInset:{ value:sdf.inset },
       uTrail:{ value:trailTex },
       uMouse:{ value:new THREE.Vector2(.5,.5) },
-      uEnergy:{ value:0 }, uTime:{ value:0 }, uDissolve:{ value:0 }
+      uEnergy:{ value:0 }, uTime:{ value:0 },
+      // seeded from heroState, not 0 — if the covers were slow to decode
+      // the intro tween and/or the scroll trigger have already run and
+      // their values would otherwise be silently discarded
+      uScroll:{ value:heroState.scroll },
+      // fraction of the viewport the mark spans at rest, per axis
+      uMarkScale:{ value:new THREE.Vector2(0.35, 0.35) },
+      uIntro:{ value:heroState.intro }
     };
     const mat = new THREE.ShaderMaterial({
-      uniforms, transparent:true,
-      vertexShader:`varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position,1.0); }`,
+      uniforms, transparent:true, depthWrite:false,
+      // three r128 still creates a WebGL1 context, where fwidth() lives
+      // behind GL_OES_standard_derivatives. Without this the fragment
+      // shader fails to compile outright and the mark never renders.
+      extensions:{ derivatives:true },
+      vertexShader:`
+        varying vec2 vUv;
+        void main(){
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }`,
       fragmentShader:`
         precision highp float;
         uniform sampler2D uTexA; uniform sampler2D uTexB; uniform float uMix;
+        uniform sampler2D uSdf; uniform float uSdfInset;
         uniform sampler2D uTrail;
-        uniform vec2 uMouse; uniform float uEnergy; uniform float uTime; uniform float uDissolve;
+        uniform vec2 uMouse; uniform vec2 uMarkScale;
+        uniform float uEnergy, uTime, uScroll, uIntro;
         varying vec2 vUv;
+
+        float hash(vec2 p){
+          return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+        }
+        float noise(vec2 p){
+          vec2 i = floor(p), f = fract(p);
+          vec2 u = f * f * (3.0 - 2.0 * f);
+          return mix(mix(hash(i), hash(i + vec2(1,0)), u.x),
+                     mix(hash(i + vec2(0,1)), hash(i + vec2(1,1)), u.x), u.y);
+        }
+        // barrel/pincushion — bends uv space so the plane reads as a curved
+        // lens rather than a flat card, the "portal" cue in the reference
+        vec2 barrel(vec2 uv, float amt){
+          vec2 c = uv - 0.5;
+          return 0.5 + c * (1.0 + amt * dot(c, c));
+        }
+
         void main(){
-          vec2 uv = vUv;
-          vec2 toMouse = uv - uMouse;
+          float p = uScroll;
+
+          // ---- place the mark inside the plane -------------------------
+          // the plane covers the viewport at rest; the mark occupies a
+          // centred fraction of it. perspective does the growing, so this
+          // mapping never changes with scroll.
+          vec2 markUv = (vUv - 0.5) / uMarkScale + 0.5;
+          markUv = barrel(markUv, 0.06);
+          // intra-shape parallax: the montage drifts vertically inside the
+          // silhouette as the transition runs (reference does the same on
+          // its shape texture)
+          vec2 sdfUv = markUv;
+          sdfUv.y += (1.0 - p) * 0.012;
+          // remap into the sdf's inset drawing area
+          sdfUv = (sdfUv - 0.5) * uSdfInset + 0.5;
+
+          // outside the texture there is no shape at all — guard before
+          // sampling so clamped edge texels can't smear a false silhouette
+          vec2 g = step(vec2(0.0), sdfUv) * step(sdfUv, vec2(1.0));
+          float inBounds = g.x * g.y;
+
+          // ---- silhouette from the distance field ----------------------
+          // decode: 128/255 = the edge, brighter = inside. reconstructing
+          // the edge per-pixel from distance is why this stays sharp at any
+          // magnification, where a rasterised silhouette would go to mush.
+          float sd = texture2D(uSdf, sdfUv).r - (128.0 / 255.0);
+          // fwidth keeps the edge exactly one pixel wide no matter how far
+          // the plane has been magnified by perspective
+          float aa = max(fwidth(sd), 0.0008);
+          float mask = smoothstep(-aa, aa, sd) * inBounds;
+
+          // ---- fill: photo montage, revealed by the cursor trail --------
+          // uMouse arrives in viewport space (0..1 across the canvas), but
+          // the montage is sampled in the mark's own local space — so the
+          // pointer has to be carried through the same remap the uv was,
+          // or the ripple centres somewhere other than the actual cursor.
+          vec2 mouseMark = (uMouse - 0.5) / uMarkScale + 0.5;
+          vec2 toMouse = markUv - mouseMark;
           float dist = length(toMouse);
           float falloff = smoothstep(0.55, 0.0, dist);
-          float ripple = sin(dist*22.0 - uTime*3.2) * 0.022 * (0.3 + uEnergy) * falloff;
-          vec2 dir = dist > 0.0001 ? toMouse/dist : vec2(0.0);
-          vec2 duv = uv + dir * ripple;
-          duv += vec2(sin(uv.y*6.0+uTime*0.4), cos(uv.x*6.0+uTime*0.35)) * 0.0025;
-          // dissolve — extra tearing distortion as the mark scales up and
-          // hands off into the next chapter
-          duv += vec2(sin(uv.y*40.0+uTime*6.0), cos(uv.x*40.0-uTime*5.0)) * 0.05 * uDissolve;
+          float ripple = sin(dist * 22.0 - uTime * 3.2) * 0.022 * (0.3 + uEnergy) * falloff;
+          vec2 dir = dist > 0.0001 ? toMouse / dist : vec2(0.0);
+          vec2 duv = markUv + dir * ripple;
+          duv += vec2(sin(markUv.y * 6.0 + uTime * 0.4),
+                      cos(markUv.x * 6.0 + uTime * 0.35)) * 0.0025;
           duv = clamp(duv, 0.0, 1.0);
-          vec4 colA = texture2D(uTexA, duv);
-          vec4 colB = texture2D(uTexB, duv);
-          vec4 photo = mix(colA, colB, uMix);
-          // reveal is hover-only — the mark stays solid black through the
-          // scroll dive (uDissolve only feeds the ripple-tear distortion
-          // above), so scaling it up genuinely reads as black growing from
-          // the logo, not the logo dissolving into a peek of the photos
-          float trail = texture2D(uTrail, uv).r;
+          vec3 photo = mix(texture2D(uTexA, duv), texture2D(uTexB, duv), uMix).rgb;
+
+          // grain fades on a quartic curve as the transition runs, so the
+          // surface visibly cleans up as it rushes past — straight from the
+          // reference's pow(1.0 - scroll, 4.0) falloff
+          float grain = pow(1.0 - p, 4.0) * (noise(markUv * 900.0) - 0.5) * 0.05;
+
+          // the trail canvas is painted at the pointer's *viewport* position
+          // each frame, so it has to be read back in that same space (vUv),
+          // not the mark's local space — otherwise the reveal lands offset
+          // from the cursor by the mark's own scale factor
+          float trail = texture2D(uTrail, vUv).r;
           vec3 blackMark = vec3(0.043, 0.035, 0.031);
-          vec3 finalColor = mix(blackMark, photo.rgb, trail);
-          gl_FragColor = vec4(finalColor, photo.a);
+          vec3 col = mix(blackMark, photo, trail * (1.0 - p)) + grain;
+
+          gl_FragColor = vec4(col, mask * uIntro);
         }`
     });
-    scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2), mat));
+    const markMesh = new THREE.Mesh(plane, mat);
+    markMesh.position.z = Z_REST;
+    scene.add(markMesh);
 
     let mx=.5, my=.5, tmx=.5, tmy=.5, energy=0, lastX=null, lastY=null;
     addEventListener('pointermove', e => {
@@ -799,10 +1119,14 @@ function buildHeroMark(){
 
     // cycle — crossfade the montage into the next rotation of project
     // covers every ~2.8s, alternating which offscreen canvas is redrawn
-    // while it's hidden so the swap never pops mid-frame
+    // while it's hidden so the swap never pops mid-frame. Skipped entirely
+    // while the hero is off screen: each cycle re-clips four full-size
+    // images through the mark path and re-uploads a 640px texture, which
+    // is a real hitch to pay for something nobody can see.
     if (hasLibs && !prefersReduced && n > 1){
       let activeIsA = true, nextIndex = 1;
       setInterval(() => {
+        if (!tabVisible || !onScreen) return;
         const targetCtx = activeIsA ? ctxB : ctxA;
         const targetTex = activeIsA ? texB : texA;
         drawArrangement(targetCtx, arrangementAt(nextIndex));
@@ -815,11 +1139,25 @@ function buildHeroMark(){
     }
 
     const clock = new THREE.Clock();
-    let visible = true;
-    document.addEventListener('visibilitychange', () => visible = !document.hidden);
+    let tabVisible = true, onScreen = true;
+    document.addEventListener('visibilitychange', () => tabVisible = !document.hidden);
+    // ...and stop rendering once the hero has scrolled away. Without this
+    // the shader, the trail canvas repaint and the montage crossfade all
+    // keep running at 60fps for the entire rest of the page — invisible
+    // work that costs battery on laptops and real frame budget on phones,
+    // where it competes with the scroll-driven animations that ARE on
+    // screen. Gated on #ch0 rather than the canvas, because the canvas is
+    // inside the pin and its box stops being a reliable proxy while pinned.
+    if ('IntersectionObserver' in window){
+      const heroEl = $('#ch0');
+      if (heroEl) new IntersectionObserver(
+        entries => { onScreen = entries.some(e => e.isIntersecting); },
+        { rootMargin:'10% 0px' }
+      ).observe(heroEl);
+    }
     function tick(){
       requestAnimationFrame(tick);
-      if (!visible) return;
+      if (!tabVisible || !onScreen) return;
       uniforms.uTime.value = clock.getElapsedTime();
       mx += (tmx-mx)*0.08; my += (tmy-my)*0.08; energy *= 0.94;
       uniforms.uMouse.value.set(mx, my);
@@ -845,13 +1183,36 @@ function buildHeroMark(){
     }
     tick();
 
-    addEventListener('resize', () => {
-      const r = wrap.getBoundingClientRect();
-      w = r.width || w; h = r.height || h;
+    function resize(){
+      w = innerWidth; h = innerHeight;
       renderer.setSize(w, h, false);
-    });
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      // rebuild the plane so it still exactly fills the frustum at rest
+      const rh = 2 * Math.abs(Z_REST) * Math.tan(CAM_FOV * Math.PI / 360);
+      markMesh.geometry.dispose();
+      markMesh.geometry = new THREE.PlaneGeometry(rh * (w / h), rh);
+      const f = markFraction();
+      uniforms.uMarkScale.value.set(f.x, f.y);
+    }
+    resize();
+    addEventListener('resize', resize);
 
-    heroMarkApi = { setDissolve: v => { uniforms.uDissolve.value = v; } };
+    heroMarkApi = {
+      // scroll progress 0..1 drives the whole transition. the mesh travels
+      // toward the camera on Z (that translation IS the effect — see the
+      // rig comment above); the shader only uses p for the grain falloff
+      // and the intra-shape drift.
+      setScroll: v => {
+        const p = v < 0 ? 0 : v > 1 ? 1 : v;
+        heroState.scroll = p;
+        uniforms.uScroll.value = p;
+        markMesh.position.z = Z_REST + (Z_END - Z_REST) * p;
+      },
+      setIntro: v => { heroState.intro = v; uniforms.uIntro.value = v; }
+    };
+    // apply whatever scroll position was already reached while loading
+    heroMarkApi.setScroll(heroState.scroll);
   }
 }
 
@@ -1172,6 +1533,47 @@ function buildWorkFlat(){
   }
 }
 
+/* ————————————————— about — the practice index —————————————————
+   Both the disciplines line and the practice band are derived from the
+   tags the projects actually carry, rather than typed out separately.
+   Adding a project with a new discipline updates this on its own, and
+   there's no second list to forget to update. Counts are real too. */
+function buildPractice(){
+  const tally = new Map();
+  PROJECTS.forEach(p => (p.tags || []).forEach(t => tally.set(t, (tally.get(t) || 0) + 1)));
+  // most-practised first, alphabetical within a tie so the order is stable
+  const ranked = [...tally.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  if (!ranked.length) return;
+
+  const list = $('#practice-list');
+  if (list) list.innerHTML = ranked.map(([name, count], i) => `
+    <li class="practice__item">
+      <span class="practice__num">${String(i + 1).padStart(2, '0')}</span>
+      <span class="practice__name">${name}</span>
+      <span class="practice__count">${count} ${count === 1 ? 'project' : 'projects'}</span>
+    </li>`).join('');
+
+  const disc = $('#fact-disciplines');
+  if (disc) disc.textContent = ranked.slice(0, 4).map(([n]) => n).join(' · ');
+}
+
+/* the practice rows arrive one after another as the band enters view.
+   ease-out, because they're entering — anything easing in feels sluggish
+   at exactly the moment the eye lands on it. The stagger is small (45ms):
+   enough to read as a sequence rather than a block, short enough that the
+   whole band has settled before you've finished scanning it. */
+function buildPracticeReveal(){
+  const items = $$('#practice-list .practice__item');
+  if (!items.length || !hasLibs) return;
+  gsap.set(items, { opacity:0, y:18 });
+  ScrollTrigger.create({
+    trigger:'#practice', start:'top 85%',
+    onEnter: () => gsap.to(items, {
+      opacity:1, y:0, duration:.62, ease:'power3.out', stagger:0.045
+    })
+  });
+}
+
 /* ————————————————— about — word-by-word text reveal ————————————————— */
 function buildAboutReveal(){
   const paras = $$('#about-copy p');
@@ -1462,12 +1864,22 @@ function initFooterGradient(){
   addEventListener('pointermove', onPointerMove, { passive:true });
   addEventListener('pointerleave', () => targetActive = 0);
 
-  let visible = true;
-  document.addEventListener('visibilitychange', () => visible = !document.hidden);
+  let tabVisible = true, onScreen = true;
+  document.addEventListener('visibilitychange', () => tabVisible = !document.hidden);
+  // same idling rule as the hero: the footer's gradient is the last thing
+  // on the page, so without this it renders every frame from the moment it
+  // is first constructed — through the whole work/about/cta stretch above
+  // it, where it cannot be seen at all.
+  if ('IntersectionObserver' in window && footerEl){
+    new IntersectionObserver(
+      entries => { onScreen = entries.some(e => e.isIntersecting); },
+      { rootMargin:'10% 0px' }
+    ).observe(footerEl);
+  }
   const clock = new THREE.Clock();
   const tick = () => {
     requestAnimationFrame(tick);
-    if (!visible) return;
+    if (!tabVisible || !onScreen) return;
     uniforms.uTime.value = clock.getElapsedTime();
     curMouse.x = lerp(curMouse.x, targetMouse.x, .07);
     curMouse.y = lerp(curMouse.y, targetMouse.y, .07);
@@ -1531,7 +1943,9 @@ $('.mark').addEventListener('click', e => {
 function buildFilm(){
   buildGallery();
   buildWorkFlat();
+  buildPractice();
   buildAboutReveal();
+  buildPracticeReveal();
 
   // the footer returns to the hero's paper colour, so the fixed nav chrome
   // (logo mark, "start a project", chapter label, rail, hint) needs to flip
@@ -1566,7 +1980,6 @@ function buildFilm(){
    scale, is what actually closes that gap — this is the fix, not
    #bg-field (which only matters for the handoff once the pin releases
    and #ch0 scrolls away). */
-  const heroMarkWrap = $('#hero-mark-wrap');
   const ch0El = $('#ch0');
   const HERO_CREAM = [245,241,232], HERO_BLACK = [10,9,8];
   const paintCh0 = growP => {
@@ -1575,54 +1988,48 @@ function buildFilm(){
     ch0El.style.backgroundColor = `rgb(${c[0]},${c[1]},${c[2]})`;
   };
 
+  /* the mark is no longer scaled by css at all — heroMarkApi.setScroll
+     translates the mesh toward the camera through a perspective frustum,
+     which is what the reference implementation actually does and what
+     makes it read as travelling through the mark rather than zooming it.
+     paintCh0 stays as the backing colour so the cream ground is already
+     the right shade in any pixel the silhouette hasn't covered yet
+     (its concave notch means it never covers 100% on its own). */
+  const driveHero = p => {
+    const growP = easeInOutCubic(clamp01(p));
+    paintCh0(growP);
+    heroState.scroll = growP;              // survives a not-yet-ready shader
+    if (heroMarkApi) heroMarkApi.setScroll(growP);
+  };
+
   if (!isTouch){
-    // pointer devices — the full pinned dive-through-the-logo: the mark
-    // scales 16x while #ch0's own background darkens on the same curve.
-    // growP and dissolve both now ride the pin's *entire* progress range
-    // (0->1), reaching their peak exactly as the pin releases — previously
-    // they saturated at p=0.7/p=0.9 and just sat there fully-grown for the
-    // pin's last stretch, a dead hold where scrolling kept happening but
-    // nothing on screen responded. That idle tail is what made the release
-    // itself read as a sudden jump instead of a continuous dive: the pin
-    // holds scroll to 0 page-movement the whole time it's active, so the
-    // instant it lets go, page movement resumes at full speed — if that
-    // resume lands while the visuals are already static, the speed change
-    // is the only thing left to notice. Keeping the animation active right
-    // up to p=1 means the release coincides with peak motion instead.
+    // pointer devices — pinned, so the transition owns a fixed stretch of
+    // scroll and plays at a controlled rate. progress rides the pin's
+    // entire range (0->1) and peaks exactly as the pin releases; letting it
+    // saturate early leaves a dead tail where scrolling continues but
+    // nothing moves, and the pin's release then reads as a jump.
     ScrollTrigger.create({
-      trigger:'#ch0', start:'top top', end:'+=30%', pin:true, scrub:true,
+      trigger:'#ch0', start:'top top', end:'+=60%', pin:true, scrub:true,
       onUpdate: st => {
         const p = st.progress;
         // the heading and caption step aside early — they're read before
-        // the growth begins
+        // the travel begins
         gsap.set('.hero-heading', { opacity: Math.max(0, 1 - p * 6) });
         gsap.set('.hero-caption', { opacity: Math.max(0, 1 - p * 6) });
-
-        const growP = easeInOutCubic(p);
-        if (heroMarkWrap) heroMarkWrap.style.transform = `translate(-50%,-50%) scale(${1 + growP * 15})`;
-        paintCh0(growP);
-        if (heroMarkApi) heroMarkApi.setDissolve(clamp01((p - 0.25) / 0.75));
+        driveHero(p);
       }
     });
   } else {
     // touch devices — pinning a fixed-position element through a scroll-
-    // driven scale is exactly the kind of scroll-jacking that iOS Safari
-    // (and mobile browsers generally) handle unreliably: stuck pins,
-    // content trapped mid-transform, scroll that stops responding
-    // entirely. Skip the pin outright — but the mark still grows and
-    // dissolves, it just does it while scrolling *naturally* past instead
-    // of being held in place: since .pinwrap has overflow:hidden, growing
-    // the mark while it rides normal scroll motion upward off-screen reads
-    // as it rushing up and swelling past the viewport, a smaller-scale
-    // echo of the desktop dive rather than a flat colour-only fade.
+    // driven transform is exactly the kind of scroll-jacking that iOS
+    // Safari (and mobile browsers generally) handle unreliably: stuck
+    // pins, content trapped mid-transform, scroll that stops responding.
+    // Skip the pin outright. The fly-through still runs — it just plays
+    // across #ch0's own natural scroll distance while the section scrolls
+    // past normally, which needs no scroll interception at all.
     ScrollTrigger.create({
       trigger:'#ch0', start:'top top', end:'bottom top', scrub:true,
-      onUpdate: st => {
-        const growP = easeInOutCubic(clamp01(st.progress / 0.7));
-        paintCh0(growP);
-        if (heroMarkWrap) heroMarkWrap.style.transform = `translate(-50%,-50%) scale(${1 + growP * 5})`;
-        if (heroMarkApi) heroMarkApi.setDissolve(clamp01((st.progress - 0.45) / 0.5));
-      }
+      onUpdate: st => driveHero(st.progress / 0.8)
     });
   }
 
@@ -1744,6 +2151,7 @@ ScrollTrigger.refresh();
 /* ——————————————— static fallback content ——————————————— */
 function buildStatic(){
   buildGallery(); buildWorkFlat();
+  buildPractice();   // content, not motion — belongs in the still edition too
   $$('.mark, .chrome-cta').forEach(el => el && (el.style.opacity = 1));
 }
 
@@ -1769,9 +2177,15 @@ function openVeil(){
     .to('#veil-word', { opacity:0, duration:.4 }, '-=.2')
     .to(veil, { clipPath:'inset(0 0 100% 0)', duration:1.25, ease:'expo.inOut' })
     .set(veil, { display:'none' })
-    /* the mark opens its eyes — a plain scale+fade reveal now, no shader
-       uniforms involved */
-    .fromTo('#hero-mark-wrap', { opacity:0, scale:.92 }, { opacity:1, scale:1, duration:1.3, ease:'power2.out' }, '-=1.1')
+    /* the mark opens its eyes. the silhouette lives in the shader now, so
+       this fades the shader's own output in via uIntro rather than the
+       wrapper's css opacity — the wrapper only holds the no-webgl svg.
+       Written through heroState so a shader that finishes loading *after*
+       this has run still picks the value up (see buildHeroMark). */
+    .to(heroState, {
+      intro:1, duration:1.3, ease:'power2.out',
+      onUpdate(){ if (heroMarkApi) heroMarkApi.setIntro(heroState.intro); }
+    }, '-=1.1')
     .to('.hero-heading', { opacity:1, duration:1.1 }, '-=.9')
     .to('.hero-caption', { opacity:1, duration:1.1 }, '-=.9')
     .to('.mark', { opacity:1, duration:1 }, '-=.9')
