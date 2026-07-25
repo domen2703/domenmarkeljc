@@ -107,7 +107,15 @@ body.touch a,body.touch button{cursor:pointer}
 body.touch #cur-dot{display:none}
 
 /* ————— fixed chrome ————— */
-#chrome{position:fixed;inset:0;z-index:100;pointer-events:none}
+/* Safe areas. The mark and the cta are absolutely positioned inside this
+   layer at var(--pad), which resolves to 20px at phone widths — on a
+   notched iPhone that puts both of them underneath the status bar, and in
+   landscape underneath the rounded corners. An absolutely positioned child
+   is laid out against its containing block's PADDING box, so padding here
+   insets both controls in one rule without touching either of them. */
+#chrome{position:fixed;inset:0;z-index:100;pointer-events:none;
+  padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px)
+          env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
 #chrome>*{pointer-events:auto}
 .mark{position:absolute;top:var(--pad);left:var(--pad);width:30px;height:30px;display:block;opacity:0}
 .mark svg{width:100%;height:100%;display:block}
@@ -129,6 +137,17 @@ section{position:relative}
    edges. it used to live inside the 340px .hero-mark-wrap box, which
    clipped it — the wrap now only carries the no-webgl svg fallback. */
 .hero-mark-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;opacity:1;pointer-events:none}
+/* On touch the flight cannot be pinned — pinning is exactly what breaks
+   scrolling on phones. But un-pinned, the canvas scrolls away *while the
+   flight is still playing*: measured at 375x812, by the time the mark was
+   halfway through growing, the canvas had already slid 400px up and the
+   work section was arriving underneath it, so two things moved at once and
+   the hero tore in half. Fixing the canvas to the viewport solves that
+   without touching the scroll at all: it simply stops scrolling away, the
+   page scrolls normally beneath it, and the flight fades out at the end to
+   hand over. z-index has to clear .sec (z-index:10) or the work section
+   would render on top of the very thing that's still transitioning. */
+body.touch .hero-mark-canvas{position:fixed;z-index:50}
 .hero-mark-wrap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(34.5vw,391px);aspect-ratio:1;z-index:1;opacity:0;will-change:opacity}
 html.no-webgl .hero-mark-wrap,html.static .hero-mark-wrap{opacity:1}
 .hero-mark-svg{position:relative;z-index:2;width:100%;height:100%;display:block;filter:drop-shadow(0 30px 50px rgba(20,18,16,.16))}
@@ -137,7 +156,12 @@ html.static .hero-mark-canvas,html.no-webgl .hero-mark-canvas{display:none}
 html.static .hero-mark-fallback,html.no-webgl .hero-mark-fallback{display:block}
 .hero-mark-svg image{filter:saturate(.92)}
 
-.hero-caption{position:absolute;left:var(--pad);bottom:var(--pad);z-index:2;opacity:0;max-width:min(46vw,520px)}
+/* bottom inset keeps the tagline clear of the home indicator, inline inset
+   keeps it clear of the rounded corners in landscape */
+.hero-caption{position:absolute;
+  left:calc(var(--pad) + env(safe-area-inset-left,0px));
+  bottom:calc(var(--pad) + env(safe-area-inset-bottom,0px));
+  z-index:2;opacity:0;max-width:min(46vw,520px)}
 .hero-sub{font-family:var(--sans);font-weight:500;font-size:12px;letter-spacing:.28em;color:rgba(20,18,16,.5);text-transform:lowercase;margin-bottom:18px}
 .hero-heading{opacity:1}
 .hero-heading h1{font-family:var(--sans);font-weight:600;font-size:clamp(34px,4.6vw,64px);line-height:.98;letter-spacing:-.024em;color:var(--paper-ink);text-transform:lowercase;margin-bottom:16px}
@@ -209,7 +233,13 @@ body.touch .pv-close{cursor:pointer}
 #bg-field{position:fixed;inset:0;z-index:1;pointer-events:none;background:var(--paper)}
 html.static #bg-field{display:none}
 
-.sec{position:relative;z-index:10;padding:16vh var(--pad);color:var(--cream)}
+/* logical inline padding, plus the landscape safe area — a notched phone
+   turned sideways puts ~44px of rounded corner over each edge, which would
+   otherwise clip the first and last characters of every line */
+.sec{position:relative;z-index:10;color:var(--cream);
+  padding-block:16vh;
+  padding-inline:calc(var(--pad) + env(safe-area-inset-left,0px))
+                 calc(var(--pad) + env(safe-area-inset-right,0px))}
 footer.sec{color:var(--paper-ink)}
 .sec-head{display:flex;align-items:baseline;gap:22px;margin-bottom:clamp(48px,7vh,90px);max-width:1400px;margin-left:auto;margin-right:auto}
 .sec-idx{font-size:11px;font-weight:400;letter-spacing:.34em;color:var(--cream-55)}
@@ -429,15 +459,37 @@ footer{position:relative;width:100%;height:100vh;isolation:isolate;display:flex;
 .copy-email[data-state="b"] .ce-a{opacity:0;filter:blur(4px);transform:translateY(-8px)}
 .copy-email[data-state="b"] .ce-b{opacity:1;filter:blur(0);transform:translateY(0)}
 
-.fnews{grid-column:5/7;justify-self:end;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(20,18,16,.3);padding-bottom:5px;width:fit-content;transition:border-color .35s}
+/* position:relative anchors the absolutely-placed confirmation below */
+.fnews{position:relative;grid-column:5/7;justify-self:end;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(20,18,16,.3);padding-bottom:5px;width:fit-content;transition:border-color .35s}
 .fnews:focus-within{border-color:var(--accent)}
 .fnews input{appearance:none;background:none;border:none;outline:none;font:inherit;font-size:12px;letter-spacing:-.005em;color:var(--paper-ink);width:150px;padding:2px 0}
 .fnews input::placeholder{color:rgba(20,18,16,.5)}
 .fnews button{appearance:none;background:none;border:none;font:inherit;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:lowercase;color:rgba(20,18,16,.78);cursor:pointer;white-space:nowrap;transition:color .3s}
 .fnews button:hover{color:var(--accent)}
-.fnews.is-sent input,.fnews.is-sent button.fn-submit{display:none}
-.fnews .fn-done{display:none;font-size:12px;color:rgba(20,18,16,.7)}
-.fnews.is-sent .fn-done{display:inline}
+/* The confirmation used to be a display:none swap — the field and button
+   vanished and "thanks" appeared in the same frame, with nothing bridging
+   them. This is a once-ever moment, which is exactly where a little care
+   is affordable. The field fades up and out while the confirmation rises
+   into its place, slightly staggered so it reads as a handover rather than
+   a cut. Kept at opacity/transform (not display) so the row holds its
+   width and nothing reflows around it. */
+.fnews input,.fnews button.fn-submit{
+  transition:opacity .2s var(--ease-out),transform .2s var(--ease-out)}
+.fnews.is-sent input,.fnews.is-sent button.fn-submit{
+  opacity:0;transform:translateY(-7px);pointer-events:none}
+.fnews .fn-done{position:absolute;left:0;bottom:5px;white-space:nowrap;
+  font-size:12px;color:rgba(20,18,16,.7);opacity:0;transform:translateY(7px);
+  transition:opacity .28s var(--ease-out) .1s,transform .28s var(--ease-out) .1s}
+.fnews.is-sent .fn-done{opacity:1;transform:translateY(0)}
+/* press feedback, matching the sibling controls. The big ctas get theirs
+   from gsap instead — they carry a magnetic transform that a css :active
+   would fight — but this one is static, so css is the right tool. */
+.fnews button.fn-submit{transition:opacity .2s var(--ease-out),transform .2s var(--ease-out),color .3s}
+.fnews button.fn-submit:active{transform:scale(.96)}
+@media (prefers-reduced-motion:reduce){
+  .fnews input,.fnews button.fn-submit,.fnews .fn-done{transition-duration:.12s;transform:none}
+  .fnews.is-sent input,.fnews.is-sent button.fn-submit{transform:none}
+}
 
 .fbottom{align-items:center;row-gap:14px;padding:clamp(10px,2.4vh,22px) 0;font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:lowercase;color:rgba(20,18,16,.68)}
 .fbottom__social{grid-column:1/3;display:flex;gap:20px;flex-wrap:wrap}
@@ -1072,7 +1124,11 @@ function buildHeroMark(){
       uScroll:{ value:heroState.scroll },
       // fraction of the viewport the mark spans at rest, per axis
       uMarkScale:{ value:new THREE.Vector2(0.35, 0.35) },
-      uIntro:{ value:heroState.intro }
+      uIntro:{ value:heroState.intro },
+      // gates the resting breath + sheen. Off under reduced-motion: it is
+      // ambient, unprompted, looping motion, which is exactly the category
+      // that setting exists to suppress.
+      uIdle:{ value: prefersReduced ? 0 : 1 }
     };
     const mat = new THREE.ShaderMaterial({
       uniforms, transparent:true, depthWrite:false,
@@ -1092,7 +1148,7 @@ function buildHeroMark(){
         uniform sampler2D uSdf; uniform float uSdfInset;
         uniform sampler2D uTrail;
         uniform vec2 uMouse; uniform vec2 uMarkScale;
-        uniform float uEnergy, uTime, uScroll, uIntro;
+        uniform float uEnergy, uTime, uScroll, uIntro, uIdle;
         varying vec2 vUv;
 
         float hash(vec2 p){
@@ -1118,7 +1174,12 @@ function buildHeroMark(){
           // the plane covers the viewport at rest; the mark occupies a
           // centred fraction of it. perspective does the growing, so this
           // mapping never changes with scroll.
-          vec2 markUv = (vUv - 0.5) / uMarkScale + 0.5;
+          // idle breathing — the mark is solid black at rest, so without
+          // this nothing on the hero moves at all until you scroll or move
+          // the cursor. ~1.4%, slow: it should read as the shape being
+          // alive, not as a pulsing button.
+          float breath = 1.0 + sin(uTime * 0.5) * 0.014 * uIdle;
+          vec2 markUv = (vUv - 0.5) / (uMarkScale * breath) + 0.5;
           markUv = barrel(markUv, 0.06);
           // intra-shape parallax: the montage drifts vertically inside the
           // silhouette as the transition runs (reference does the same on
@@ -1173,6 +1234,14 @@ function buildHeroMark(){
           vec3 blackMark = vec3(0.043, 0.035, 0.031);
           vec3 col = mix(blackMark, photo, trail * (1.0 - p)) + grain;
 
+          // a soft sheen drifting across the silhouette, so the mark is
+          // never entirely inert. Deliberately low contrast and slow — it
+          // should register as the surface catching light rather than as
+          // something moving on top of it. Fades out as the flight starts,
+          // where there is already plenty happening.
+          float sweep = sin((markUv.x + markUv.y) * 1.5 - uTime * 0.4);
+          col += pow(max(sweep, 0.0), 7.0) * 0.05 * uIdle * (1.0 - p);
+
           gl_FragColor = vec4(col, mask * uIntro);
         }`
     });
@@ -1181,6 +1250,7 @@ function buildHeroMark(){
     scene.add(markMesh);
 
     let mx=.5, my=.5, tmx=.5, tmy=.5, energy=0, lastX=null, lastY=null;
+    let prevTrailX=.5, prevTrailY=.5;
     addEventListener('pointermove', e => {
       const r = canvas.getBoundingClientRect();
       tmx = (e.clientX - r.left)/r.width; tmy = 1 - (e.clientY - r.top)/r.height;
@@ -1236,14 +1306,25 @@ function buildHeroMark(){
       uniforms.uMouse.value.set(mx, my);
       uniforms.uEnergy.value = energy;
 
-      // decay the trail toward black, then re-light it under the cursor —
-      // reads as a soft glow wiping the black mark open as it moves
-      trailCtx.fillStyle = 'rgba(0,0,0,0.05)';
+      // Decay the trail toward black, then re-light it under the cursor.
+      //
+      // The paint is proportional to how far the pointer actually travelled
+      // this frame, and that is not a refinement — it is the fix for the
+      // mark "bugging out". Painting a flat 0.85 alpha every frame through
+      // `lighter` compositing, against a 5% decay, saturates to pure white
+      // in about two frames and then never clears: park the cursor anywhere
+      // over the hero and the photo reveal burns in as a permanent white
+      // blob. Tying the paint to movement makes it behave like an actual
+      // trail — a still cursor stops adding and the glow decays away.
+      trailCtx.fillStyle = 'rgba(0,0,0,0.075)';
       trailCtx.fillRect(0, 0, TRAIL_SIZE, TRAIL_SIZE);
-      if (hovering){
+      const moved = Math.hypot(mx - prevTrailX, my - prevTrailY);
+      prevTrailX = mx; prevTrailY = my;
+      const paint = Math.min(0.55, moved * 7.5);
+      if (hovering && paint > 0.004){
         const tx = mx * TRAIL_SIZE, ty = (1 - my) * TRAIL_SIZE, r = TRAIL_SIZE * 0.24;
         const grad = trailCtx.createRadialGradient(tx, ty, 0, tx, ty, r);
-        grad.addColorStop(0, 'rgba(255,255,255,0.85)');
+        grad.addColorStop(0, `rgba(255,255,255,${paint.toFixed(3)})`);
         grad.addColorStop(1, 'rgba(255,255,255,0)');
         trailCtx.globalCompositeOperation = 'lighter';
         trailCtx.fillStyle = grad;
@@ -1945,12 +2026,22 @@ function initFooterGradient(){
         // stains rather than a felt-more-than-seen tint.
         vec3 base = vec3(1.0, 1.0, 1.0);
         vec3 col = base;
-        col -= blob(uv, c1, 0.7) * vec3(0.27, 0.17, 0.0);
-        col -= blob(uv, c2, 0.66) * vec3(0.0, 0.11, 0.32);
+        // Pushed well up from the previous pass. Subtractive against a
+        // white ground, so the ceiling here is set by legibility, not
+        // taste: the deepest stain lands around 0.52 luminance, which still
+        // clears WCAG AA comfortably for the lightest text sitting on it
+        // (the footer's quietest tone is rgba(20,18,16,.68) on this).
+        col -= blob(uv, c1, 0.82) * vec3(0.40, 0.26, 0.02);
+        col -= blob(uv, c2, 0.78) * vec3(0.02, 0.17, 0.48);
+        // a third, slower stain keeps the field from reading as just two
+        // lamps — it drifts on a different period so the pair never settle
+        // into an obvious repeating rhythm
+        vec2 c3 = vec2(0.5 + sin(t*0.62)*0.26, 0.72 + cos(t*0.74)*0.22) * vec2(aspect,1.0) + pull*0.4;
+        col -= blob(uv, c3, 0.62) * vec3(0.16, 0.05, 0.20);
 
-        float mr = 0.26 + uMouseEnergy * 0.13;
+        float mr = 0.30 + uMouseEnergy * 0.16;
         float mGlow = blob(uv, m, mr) * uMouseActive;
-        col -= mGlow * vec3(0.15, 0.10, 0.0) * (0.45 + uMouseEnergy * 0.4);
+        col -= mGlow * vec3(0.22, 0.15, 0.0) * (0.5 + uMouseEnergy * 0.45);
 
         // the footer's own top edge fades from cta's black down into the
         // white/blob ground over the first ~1/4 of the footer's height —
@@ -2149,11 +2240,11 @@ function buildFilm(){
     // saturate early leaves a dead tail where scrolling continues but
     // nothing moves, and the pin's release then reads as a jump.
     ScrollTrigger.create({
-      // +=30% of the viewport: the pin holds the page still for exactly
+      // +=20% of the viewport: the pin holds the page still for exactly
       // this much scrolling, so it also sets how long the work section is
       // held back. 60% made the flight luxurious but left you scrolling at
-      // a frozen page for too long before the hand-off.
-      trigger:'#ch0', start:'top top', end:'+=30%', pin:true, scrub:true,
+      // a frozen page for too long; 30% was still a beat more than it needed.
+      trigger:'#ch0', start:'top top', end:'+=20%', pin:true, scrub:true,
       onUpdate: st => {
         const p = st.progress;
         // the heading and caption step aside early — they're read before
@@ -2171,9 +2262,28 @@ function buildFilm(){
     // Skip the pin outright. The fly-through still runs — it just plays
     // across #ch0's own natural scroll distance while the section scrolls
     // past normally, which needs no scroll interception at all.
+    const heroCanvas = $('#hero-mark-canvas');
     ScrollTrigger.create({
       trigger:'#ch0', start:'top top', end:'bottom top', scrub:true,
-      onUpdate: st => driveHero(st.progress / 0.8)
+      onUpdate: st => {
+        const p = st.progress;
+        // the heading and caption step aside early, exactly as they do on
+        // the pinned path. They sit *behind* the fixed canvas, and the
+        // canvas is only opaque where the mark actually covers — so left
+        // alone they stay legible straight through the transparent parts
+        // of the silhouette and ghost over the whole flight.
+        gsap.set('.hero-heading', { opacity: Math.max(0, 1 - p * 5) });
+        gsap.set('.hero-caption', { opacity: Math.max(0, 1 - p * 5) });
+        // the flight finishes a little before the section does, leaving the
+        // tail of the scroll to hand over rather than cutting straight from
+        // "mark fills the screen" to "work section"
+        driveHero(p / 0.72);
+        // the canvas is fixed on touch, so it has to retire deliberately —
+        // otherwise it stays parked over the work section for good. By the
+        // time this starts, #bg-field beneath is already solid black, so
+        // fading out reads as the black simply continuing.
+        if (heroCanvas) heroCanvas.style.opacity = String(1 - clamp01((p - 0.78) / 0.22));
+      }
     });
   }
 
