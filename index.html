@@ -265,8 +265,17 @@ footer.sec{color:var(--paper-ink)}
 #work.sec--gallery{padding:0}
 .gallery{position:relative;width:100vw;margin-left:calc(50% - 50vw);height:480vh;overflow:hidden}
 .gallery-pin{position:relative;width:100%;height:100vh;display:flex;align-items:center;justify-content:center;perspective:1200px}
-.gallery-card{position:absolute;transform-style:preserve-3d;opacity:0;will-change:transform,opacity}
-.gallery-card .cg-slice{position:absolute;top:0;height:100%;will-change:transform}
+/* opacity and 3d are deliberately on different elements — see the note in
+   buildGallery. An opacity below 1 flattens transform-style per spec, and
+   Safari enforces that where Chrome does not, so keeping the two on the
+   same element collapsed the cylinder every time a card faded. */
+.gallery-card{position:absolute;opacity:0;will-change:transform,opacity}
+.gallery-card__3d{position:absolute;inset:0;transform-style:preserve-3d}
+/* no will-change here: a slice's transform is written once at build time
+   and never touched again, so promoting all fifty of them buys nothing and
+   spends compositor layers — which Safari is markedly stingier with than
+   Chrome, and which is the other half of why this ran worse there. */
+.gallery-card .cg-slice{position:absolute;top:0;height:100%}
 .gallery-phrase{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--sans);font-weight:300;font-size:clamp(20px,2.8vw,36px);line-height:1.4;color:var(--cream);text-align:center;max-width:620px;z-index:900;pointer-events:none;opacity:0}
 .gallery-phrase .word{display:inline-block;opacity:0;filter:blur(8px)}
 .gallery-phrase em{font-style:italic;font-family:Georgia,'Times New Roman',serif;color:var(--cream-70)}
@@ -1027,9 +1036,12 @@ function buildHeroMark(){
       void main(){
         float p = uScroll;
 
-        // cells coarsen as the dissolve runs, so the mark visibly breaks
-        // apart into its own grain rather than simply fading
-        float cellPx = uPixel * (1.0 + p * 9.0);
+        // Cell size is CONSTANT for the whole dissolve. The grain stays
+        // exactly the size it is at rest and the dissolve is carried purely
+        // by how many cells switch on (see the flood below) — mark thickens
+        // into its own halftone and the field fills in around it at the
+        // same dot pitch, rather than the dots swelling into blocks.
+        float cellPx = uPixel;
         vec2 grid = uResolution / cellPx;
         vec2 cellId = floor(vUv * grid);
         vec2 cellUv = (cellId + 0.5) / grid;
@@ -1054,9 +1066,15 @@ function buildHeroMark(){
         // light up empty cells and flood the viewport with grain
         th = clamp(th, 0.004, 1.0);
 
-        // the dissolve floods every cell toward "on"; with the coarsening
-        // above, the mark disintegrates and its grain fills the screen,
-        // landing on solid ink exactly as the work section arrives
+        // This is the dissolve, and now the whole of it. Every cell's value
+        // is lifted toward 1, so progressively more of them clear their own
+        // Bayer threshold and switch on — density rises at a fixed dot
+        // pitch until every cell is ink and the screen is solid, right as
+        // the work section arrives. Because the lift is proportional, the
+        // mark stays ahead of the field the entire way: cells already
+        // carrying the object start higher and fill first, so it reads as
+        // the logo thickening into halftone and bleeding outward rather
+        // than a flat grey wash rising everywhere at once.
         float v = mix(lum, 1.0, p);
 
         gl_FragColor = vec4(uInk, step(th, v) * uIntro);
@@ -1300,6 +1318,18 @@ function buildGallery(){
       card.setAttribute('aria-label', `open ${p.title} case study`);
       card.style.width = imgW.toFixed(1) + 'px';
       card.style.height = imgH.toFixed(1) + 'px';
+      /* The slices live one level in, and that separation is load-bearing
+         rather than tidiness. Per the css transforms spec, an opacity below
+         1 forces an element's transform-style back to flat — and this card
+         animates its own opacity for the fade in and out. So while a card
+         was fading, its preserve-3d was being cancelled and the ten slices
+         collapsed out of their cylinder into a flat plane. Chrome applies
+         that rule loosely and keeps the curve; Safari applies it strictly,
+         which is why the effect looks right in one and wrong in the other.
+         Opacity now sits on .gallery-card and the 3d lives on this inner
+         element, which is never anything other than fully opaque. */
+      const inner = document.createElement('div');
+      inner.className = 'gallery-card__3d';
       for (let s = 0; s < SLICES; s++){
         const sl = document.createElement('div');
         sl.className = 'cg-slice';
@@ -1313,8 +1343,9 @@ function buildGallery(){
         sl.style.transformOrigin = '50% 50% ' + (-cylR).toFixed(1) + 'px';
         const angle = (s - (SLICES - 1) / 2) * stepDeg;
         sl.style.transform = 'rotateY(' + angle.toFixed(2) + 'deg)';
-        card.appendChild(sl);
+        inner.appendChild(sl);
       }
+      card.appendChild(inner);
       card.addEventListener('click', () => openProjectModal(i));
       pin.appendChild(card);
       return card;
