@@ -130,7 +130,12 @@ body.touch #cur-dot{display:none}
 main{position:relative;z-index:10}
 section{position:relative}
 .pinwrap{height:100vh;width:100%;position:relative;overflow:hidden}
-#ch0.hero-mask{background:var(--paper)}
+/* deliberately no background: #bg-field (fixed, full-viewport, behind
+   everything) owns the hero colour on its own. When both painted, they
+   ran on different curves and the boundary where #ch0 ended showed as a
+   hard horizontal seam mid-dissolve — grey above, black below. One
+   painter makes that seam structurally impossible. */
+#ch0.hero-mask{background:transparent}
 
 /* the shader canvas spans the whole hero: the mark travels toward the
    camera during the transition and has to be free to grow past the screen
@@ -146,13 +151,6 @@ section{position:relative}
    over the very thing still transitioning. */
 .hero-mark-canvas{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:50;opacity:1;pointer-events:none}
 .hero-mark-wrap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(34.5vw,391px);aspect-ratio:1;z-index:1;opacity:0;will-change:opacity}
-/* The Spline canvas is a texture source, not something to look at — the
-   dithered version on the canvas above is the visible mark. opacity:0
-   rather than display:none or visibility:hidden: it must keep a real box
-   and keep compositing, or the runtime stops producing frames and the
-   texture freezes on whatever it last drew. */
-.hero-spline{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;pointer-events:none}
-html.no-webgl .hero-spline{display:none}
 html.no-webgl .hero-mark-wrap,html.static .hero-mark-wrap{opacity:1}
 .hero-mark-svg{position:relative;z-index:2;width:100%;height:100%;display:block;filter:drop-shadow(0 30px 50px rgba(20,18,16,.16))}
 .hero-mark-fallback{display:none}
@@ -585,11 +583,6 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
     <div class="pinwrap">
       <canvas class="hero-mark-canvas" id="hero-mark-canvas" aria-hidden="true"></canvas>
       <div class="hero-mark-wrap" id="hero-mark-wrap">
-        <!-- Spline renders the 3d mark here. Never shown directly — the
-             visible canvas above samples it and draws the dithered version.
-             It has to stay laid out (not display:none) or the runtime has
-             no box to size its renderer against. -->
-        <canvas class="hero-spline" id="hero-spline" aria-hidden="true"></canvas>
         <svg class="hero-mark-svg hero-mark-fallback" viewBox="0 0 32 32" aria-hidden="true">
           <defs>
             <clipPath id="heroMarkClip" clipPathUnits="userSpaceOnUse">
@@ -763,15 +756,8 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
 
 
 
-<!-- Warms the Spline runtime fetch in parallel with the rest of boot. The
-     hero does its own import() of this exact url; the module map dedupes,
-     so it stays one download. Deliberately NOT the place the hero reads
-     from — module scripts are deferred, so this runs *after* the classic
-     script below, and anything depending on a global set here would find
-     it undefined. Version pinned: unpinned would let the scene's renderer
-     change under the site without warning. -->
-<link rel="modulepreload" href="https://unpkg.com/@splinetool/runtime@1.12.98/build/runtime.js" crossorigin>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/lenis@1.3.23/dist/lenis.css">
@@ -866,39 +852,34 @@ if (!isTouch){
 
 
 /* ————————————————— hero — the dithered mark —————————————————
-   The mark is a 3D object authored in Spline, drawn through an ordered
-   (Bayer) dither so it reads as a halftone print rather than a rendered
-   solid — the "dithered object" look, implemented here rather than pulled
-   in as a package: both the Canvas UI component and Spline's own React
-   binding assume a React/Next build, and this site is a single static file
-   with no bundler. Spline ships a framework-free runtime, so the scene
-   itself is genuinely theirs; only the dithering is reimplemented.
+   The mark is the real 3d logo (assets/3d/dm-logo.glb, 20kb) rendered
+   straight into the page's own three.js instance, then put through an
+   ordered (Bayer) dither so it reads as a halftone print rather than a
+   shaded solid.
 
-   Two canvases:
-     #hero-spline   a square, off-screen-ish canvas that Spline renders into
-     #hero-mark-canvas  the visible full-viewport canvas, which samples the
-                    first as a texture and dithers it
+   Two passes, one renderer:
+     1. the model -> a WebGLRenderTarget, lit, on a transparent clear
+     2. a fullscreen quad that samples that target and dithers it
 
-   Rendering Spline into its own small square rather than full-screen keeps
-   the mark's on-screen size under our control (markFraction, as before) and
-   keeps the per-frame texture upload small.
+   Rendering to a target rather than reading a second canvas as a texture
+   means the dither samples the model 1:1 in screen space — there is no
+   region-remapping step left to get wrong, and no per-frame canvas upload.
 
-   Scrolling dissolves the dither into black: the cells coarsen while the
-   threshold floods, so the object breaks apart into its own grain and the
-   grain fills the screen. */
+   The model carries no material, no texture and no animation clip: it is
+   geometry plus normals. So the material, the lighting and the motion are
+   all ours, which is what makes the dither interesting — the tonal falloff
+   across a lit form is the thing the dither has to describe. */
 let heroMarkApi = null;
-/* The runtime is an ES module and the scene is a network fetch, so the
-   shader can be running long before there is anything to sample — and the
-   intro tween and scroll trigger both fire regardless. They write here and
-   the hero seeds itself from it, so nothing is silently dropped. */
+/* The glb is a network fetch, so the shader can be running before there is
+   anything to draw — and the intro tween and scroll trigger both fire
+   regardless. They write here, and the hero seeds itself from it. */
 const heroState = { intro:0, scroll:0 };
 
-/* Bayer threshold matrix, generated rather than typed out: each level is
-   built from the one below it (4*M, 4*M+2 / 4*M+3, 4*M+1), which is the
-   standard recursive construction. Delivered as an 8x8 DataTexture because
-   WebGL1's GLSL has no bitwise operators, so the usual bit-interleaving
-   trick for computing thresholds in-shader isn't available — a lookup is
-   both exact and cheaper. */
+/* Bayer threshold matrix, generated rather than typed: each level is built
+   from the one below it (4M, 4M+2 / 4M+3, 4M+1). Delivered as an 8x8
+   DataTexture because WebGL1's GLSL has no bitwise operators, so the usual
+   bit-interleaving trick for computing thresholds in-shader isn't
+   available — a lookup is both exact and cheaper. */
 function buildBayerTexture(){
   let m = [[0]];
   while (m.length < 8){
@@ -906,17 +887,15 @@ function buildBayerTexture(){
     for (let y = 0; y < n*2; y++) out.push(new Array(n*2).fill(0));
     for (let y = 0; y < n; y++) for (let x = 0; x < n; x++){
       const v = m[y][x] * 4;
-      out[y][x]         = v;
-      out[y][x+n]       = v + 2;
-      out[y+n][x]       = v + 3;
-      out[y+n][x+n]     = v + 1;
+      out[y][x] = v;  out[y][x+n] = v + 2;
+      out[y+n][x] = v + 3;  out[y+n][x+n] = v + 1;
     }
     m = out;
   }
   const size = 8, data = new Uint8Array(size*size*4);
   for (let y = 0; y < size; y++) for (let x = 0; x < size; x++){
-    // +0.5 centres each threshold in its band, so neither pure black nor
-    // pure white sits exactly on a boundary and flickers
+    // +0.5 centres each threshold in its band so neither extreme sits
+    // exactly on a boundary and flickers
     const v = Math.round(((m[y][x] + 0.5) / (size*size)) * 255);
     const i = (y*size + x) * 4;
     data[i] = data[i+1] = data[i+2] = v; data[i+3] = 255;
@@ -930,169 +909,266 @@ function buildBayerTexture(){
 
 function buildHeroMark(){
   const canvas = $('#hero-mark-canvas');
-  const splineCanvas = $('#hero-spline');
   const wrap = $('#hero-mark-wrap');
-  if (!canvas || !splineCanvas || !wrap || !GL){
+  if (!canvas || !wrap || !GL || !window.THREE || !THREE.GLTFLoader){
     document.documentElement.classList.add('no-webgl');
     return;
   }
 
-  // how much of the viewport the mark spans at rest. Mirrors the css on
-  // .hero-mark-wrap, which sizes the no-webgl svg fallback — if the two
-  // drift the mark changes size when the shader isn't available.
-  function markPx(){
-    return innerWidth <= 760
-      ? Math.min(innerWidth * 0.598, 299)
-      : Math.min(innerWidth * 0.345, 391);
-  }
-
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:false, powerPreference:'low-power' });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true, powerPreference:'low-power' });
+  const DPR = Math.min(devicePixelRatio, 2);
+  renderer.setPixelRatio(DPR);
+  renderer.setClearColor(0x000000, 0);
   let w = innerWidth, h = innerHeight;
   renderer.setSize(w, h, false);
 
-  const srcTex = new THREE.CanvasTexture(splineCanvas);
-  srcTex.minFilter = srcTex.magFilter = THREE.LinearFilter;
-  srcTex.wrapS = srcTex.wrapT = THREE.ClampToEdgeWrapping;
+  /* ---- pass 1: the model ------------------------------------------- */
+  // The target is sized in css pixels, not device pixels. The dither
+  // quantises everything to cells several pixels wide, so rendering the
+  // model at 2x for a 3px cell is work thrown away — and it keeps the
+  // target small on high-dpr phones.
+  const rtSize = () => ({
+    w: Math.max(2, Math.min(1600, Math.round(w))),
+    h: Math.max(2, Math.min(1600, Math.round(h)))
+  });
+  let rs = rtSize();
+  const rt = new THREE.WebGLRenderTarget(rs.w, rs.h, {
+    minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter,
+    format: THREE.RGBAFormat, depthBuffer: true
+  });
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+  const modelScene = new THREE.Scene();
+  // fraction of the viewport height the mark spans. Bigger than the old
+  // shader mark: the previous one read small on desktop.
+  const MARK_FRACTION = () => innerWidth <= 760 ? 0.30 : 0.42;
+  const FOV = 40;
+  const modelCam = new THREE.PerspectiveCamera(FOV, w/h, 0.1, 100);
+
+  function frameCamera(){
+    // model is normalised to 1 unit tall, so the distance that makes it
+    // occupy `f` of the viewport height falls straight out of the frustum
+    const f = MARK_FRACTION();
+    const d = 1 / (2 * f * Math.tan(FOV * Math.PI / 360));
+    modelCam.position.set(0, 0, d);
+    modelCam.lookAt(0, 0, 0);
+    modelCam.aspect = w / h;
+    modelCam.updateProjectionMatrix();
+  }
+  frameCamera();
+
+  // Lighting exists to give the dither something to describe. A single
+  // flat fill would quantise to one solid blob; a key with real falloff
+  // across the form is what produces the gradient the halftone reads as
+  // shading.
+  modelScene.add(new THREE.AmbientLight(0xffffff, 0.42));
+  const key = new THREE.DirectionalLight(0xffffff, 1.05);
+  key.position.set(2.2, 2.6, 3.2);
+  modelScene.add(key);
+  const rim = new THREE.DirectionalLight(0xffffff, 0.55);
+  rim.position.set(-2.8, -1.2, 1.4);
+  modelScene.add(rim);
+
+  const pivot = new THREE.Group();
+  modelScene.add(pivot);
+  let modelReady = false;
+
+  new THREE.GLTFLoader().load('assets/3d/dm-logo.glb', gltf => {
+    const root = gltf.scene;
+    // The exported geometry is not centred on the origin — it spans
+    // x -1..32, y -32..1, so its centre sits at (15.5, -15.5, 1). Left as
+    // is, it renders off to one side AND orbits around a pivot outside
+    // itself, which would make the drag tumble rather than spin. Recentre
+    // and normalise to 1 unit before anything else touches it.
+    const box = new THREE.Box3().setFromObject(root);
+    const size = box.getSize(new THREE.Vector3());
+    const mid  = box.getCenter(new THREE.Vector3());
+    const s = 1 / Math.max(size.x, size.y, size.z);
+    root.position.set(-mid.x * s, -mid.y * s, -mid.z * s);
+    root.scale.setScalar(s);
+
+    const mat = new THREE.MeshStandardMaterial({
+      color: 0xffffff, roughness: 0.52, metalness: 0.0
+    });
+    root.traverse(o => { if (o.isMesh) o.material = mat; });
+
+    pivot.add(root);
+    modelReady = true;
+    wrap.classList.add('model-on');
+  }, undefined, err => {
+    // the mark is the one thing the hero cannot do without
+    console.warn('3d mark failed to load, falling back to the static mark:', err);
+    document.documentElement.classList.add('no-webgl');
+    canvas.style.display = 'none';
+  });
+
+  /* ---- pass 2: the dither ------------------------------------------ */
+  const ditherScene = new THREE.Scene();
+  const ditherCam = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
   const uniforms = {
-    uSrc:{ value:srcTex },
-    uBayer:{ value:buildBayerTexture() },
-    uResolution:{ value:new THREE.Vector2(w, h) },
-    uMarkScale:{ value:new THREE.Vector2(0.35, 0.35) },
-    uPixel:{ value:3.0 },
-    uTime:{ value:0 },
-    uScroll:{ value:heroState.scroll },
-    uIntro:{ value:heroState.intro },
-    uIdle:{ value: prefersReduced ? 0 : 1 },
-    uInk:{ value:new THREE.Color(0.043, 0.035, 0.031) }
+    uSrc:{ value: rt.texture },
+    uBayer:{ value: buildBayerTexture() },
+    uResolution:{ value: new THREE.Vector2(w, h) },
+    uPixel:{ value: 3.0 },
+    uScroll:{ value: heroState.scroll },
+    uIntro:{ value: heroState.intro },
+    uInk:{ value: new THREE.Color(0.043, 0.035, 0.031) }
   };
-
-  const mat = new THREE.ShaderMaterial({
-    uniforms, transparent:true, depthWrite:false,
+  const ditherMat = new THREE.ShaderMaterial({
+    uniforms, transparent:true, depthWrite:false, depthTest:false,
     vertexShader:`varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position,1.0); }`,
     fragmentShader:`
       precision highp float;
       uniform sampler2D uSrc, uBayer;
-      uniform vec2 uResolution, uMarkScale;
-      uniform float uPixel, uTime, uScroll, uIntro, uIdle;
+      uniform vec2 uResolution;
+      uniform float uPixel, uScroll, uIntro;
       uniform vec3 uInk;
       varying vec2 vUv;
 
       void main(){
         float p = uScroll;
 
-        // cells coarsen as the dissolve runs, so the object visibly breaks
-        // apart into its own grain rather than just fading out
+        // cells coarsen as the dissolve runs, so the mark visibly breaks
+        // apart into its own grain rather than simply fading
         float cellPx = uPixel * (1.0 + p * 9.0);
         vec2 grid = uResolution / cellPx;
         vec2 cellId = floor(vUv * grid);
         vec2 cellUv = (cellId + 0.5) / grid;
 
-        // sample the spline canvas through the centred mark region
-        vec2 markUv = (cellUv - 0.5) / uMarkScale + 0.5;
-        vec2 g = step(vec2(0.0), markUv) * step(markUv, vec2(1.0));
-        vec4 src = texture2D(uSrc, clamp(markUv, 0.0, 1.0));
-        float lum = dot(src.rgb, vec3(0.299, 0.587, 0.114)) * g.x * g.y;
+        // the target is screen-aligned, so this is a straight 1:1 read —
+        // no region remapping, and nothing to mismatch
+        vec4 src = texture2D(uSrc, cellUv);
+        // alpha isolates the object: the target is cleared transparent, so
+        // anywhere the model didn't draw is exactly 0. Far more reliable
+        // than thresholding luminance against a background colour.
+        float lum = dot(src.rgb, vec3(0.299, 0.587, 0.114)) * src.a;
 
-        // the scene renders a bright object on its own dark ground, so
-        // luminance alone separates the two — lift the object's range and
-        // drop the background out before thresholding
-        lum = smoothstep(0.22, 0.86, lum);
-
-        // ordered threshold, tiled one texel per cell
-        float th = texture2D(uBayer, cellId / 8.0).r;
-
-        // idle: a slow wobble in the threshold makes the grain shimmer, so
-        // the hero is never completely still even untouched. Stops once the
-        // dissolve takes over, where there is already plenty happening.
-        th += sin(uTime * 0.9 + cellId.y * 0.7 + cellId.x * 0.35) * 0.055 * uIdle * (1.0 - p);
-        // clamp above zero. The lowest bayer threshold is 0.5/64 ~= 0.008,
-        // so the shimmer above can push th negative — and step(negative, 0)
-        // is 1, which lights up cells where there is no object at all. That
-        // flooded the whole viewport with grain instead of drawing the mark.
+        // +0.5 lands on texel CENTRES. cellId/8.0 lands exactly on texel
+        // boundaries, and nearest-filter sampling on a boundary is
+        // implementation-defined — it snaps to either neighbour, so instead
+        // of all 64 thresholds the lookup collapsed to a couple of values.
+        // That is what produced a flat 2-colour checkerboard across the top
+        // of the viewport and a solid block below it, rather than a dither.
+        vec2 bUv = fract((cellId + 0.5) / 8.0);
+        float th = texture2D(uBayer, bUv).r;
+        // never let the threshold reach 0: step(0.0, 0.0) is 1, which would
+        // light up empty cells and flood the viewport with grain
         th = clamp(th, 0.004, 1.0);
 
-        // the dissolve floods every cell toward "on"; combined with the
-        // coarsening above, the mark disintegrates and its grain fills the
-        // screen, landing on solid ink exactly as the work section arrives
+        // the dissolve floods every cell toward "on"; with the coarsening
+        // above, the mark disintegrates and its grain fills the screen,
+        // landing on solid ink exactly as the work section arrives
         float v = mix(lum, 1.0, p);
 
-        float on = step(th, v);
-        gl_FragColor = vec4(uInk, on * uIntro);
+        gl_FragColor = vec4(uInk, step(th, v) * uIntro);
       }`
   });
-  scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2), mat));
+  ditherScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2), ditherMat));
 
-  /* ---- Spline ----
-     Loaded through the framework-free runtime. The scene keeps rendering
-     into its own canvas; we just read that canvas as a texture. */
-  let splineReady = false;
-  (async () => {
-    try {
-      // dynamic import() rather than reading a global set by a module
-      // script: module scripts are deferred and run after this one, so any
-      // such global is still undefined at this point
-      const { Application } = await import('https://unpkg.com/@splinetool/runtime@1.12.98/build/runtime.js');
-      const app = new Application(splineCanvas);
-      await app.load('https://prod.spline.design/hB3NTxKJAq4f9hFF/scene.splinecode');
-      splineReady = true;
-      wrap.classList.add('spline-on');
-    } catch (err){
-      // the mark is the one thing the hero cannot do without, so fall back
-      // to the plain svg rather than leaving an empty screen
-      console.warn('spline scene unavailable, falling back to the static mark:', err);
-      document.documentElement.classList.add('no-webgl');
-      canvas.style.display = 'none';
-    }
-  })();
+  /* ---- drag + idle spin -------------------------------------------- */
+  /* The mark turns slowly on its own, and a drag takes it over 1:1. On
+     release the throw's velocity carries and decays, then the idle spin
+     eases back in rather than snapping — a hard cut back to constant speed
+     is the tell that the two are separate systems. */
+  const IDLE_SPEED = 0.26;          // rad/sec
+  let rotY = 0, rotX = 0;
+  let velY = 0, velX = 0;           // rad/sec, carried from a throw
+  let idleBlend = 1;                // 0 right after a drag, eases back to 1
+  let dragging = false, lastX = 0, lastY = 0, lastT = 0;
 
-  function sizeSpline(){
-    const px = Math.round(markPx() * Math.min(devicePixelRatio, 2));
-    if (splineCanvas.width !== px){
-      splineCanvas.width = splineCanvas.height = px;
-      splineCanvas.style.width = splineCanvas.style.height = markPx() + 'px';
-    }
-    const f = markPx();
-    uniforms.uMarkScale.value.set(f / innerWidth, f / innerHeight);
+  const onDown = e => {
+    dragging = true; idleBlend = 0;
+    velY = velX = 0;
+    lastX = e.clientX; lastY = e.clientY; lastT = performance.now();
+    canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId);
+  };
+  const onMove = e => {
+    if (!dragging) return;
+    const now = performance.now();
+    const dt = Math.max(1, now - lastT) / 1000;
+    const dx = e.clientX - lastX, dy = e.clientY - lastY;
+    // 260px of travel ~= half a turn
+    const ky = (dx / 260) * Math.PI, kx = (dy / 420) * Math.PI;
+    rotY += ky; rotX += kx;
+    velY = ky / dt; velX = kx / dt;      // for the throw
+    lastX = e.clientX; lastY = e.clientY; lastT = now;
+  };
+  const onUp = e => {
+    if (!dragging) return;
+    dragging = false;
+    canvas.releasePointerCapture && e.pointerId !== undefined &&
+      canvas.releasePointerCapture(e.pointerId);
+  };
+  // the canvas is pointer-events:none so it never eats page clicks; listen
+  // on the hero section instead and only claim the gesture over the mark
+  const hero = $('#ch0');
+  if (hero && !prefersReduced){
+    hero.style.touchAction = 'pan-y';   // keep vertical scrolling on touch
+    hero.addEventListener('pointerdown', e => {
+      // only start a drag near the mark, so the rest of the hero still
+      // behaves like ordinary page surface
+      const r = hero.getBoundingClientRect();
+      const cx = r.width / 2, cy = r.height / 2;
+      const reach = Math.min(r.width, r.height) * MARK_FRACTION() * 0.85;
+      if (Math.hypot(e.clientX - r.left - cx, e.clientY - r.top - cy) > reach) return;
+      onDown(e);
+    });
+    addEventListener('pointermove', onMove, { passive:true });
+    addEventListener('pointerup', onUp);
+    addEventListener('pointercancel', onUp);
   }
-  sizeSpline();
 
+  /* ---- loop --------------------------------------------------------- */
   let tabVisible = true, onScreen = true;
   document.addEventListener('visibilitychange', () => tabVisible = !document.hidden);
-  // stop drawing once the hero has scrolled away — otherwise the dither
-  // pass and the whole Spline scene keep running at 60fps behind every
-  // other section on the page
-  if ('IntersectionObserver' in window){
-    const heroEl = $('#ch0');
-    if (heroEl) new IntersectionObserver(
+  // stop drawing once the hero has scrolled away — otherwise both passes
+  // keep running at 60fps behind every other section on the page
+  if ('IntersectionObserver' in window && hero){
+    new IntersectionObserver(
       es => { onScreen = es.some(e => e.isIntersecting); }, { rootMargin:'10% 0px' }
-    ).observe(heroEl);
+    ).observe(hero);
   }
 
   const clock = new THREE.Clock();
   (function tick(){
     requestAnimationFrame(tick);
     if (!tabVisible || !onScreen) return;
-    uniforms.uTime.value = clock.getElapsedTime();
-    // the spline canvas repaints itself every frame, so its texture has to
-    // be re-uploaded every frame too
-    if (splineReady) srcTex.needsUpdate = true;
-    renderer.render(scene, camera);
+    const dt = Math.min(0.05, clock.getDelta());
+
+    if (!dragging){
+      // throw decays, idle fades back in behind it
+      velY *= 0.94; velX *= 0.94;
+      idleBlend = Math.min(1, idleBlend + dt * 0.6);
+      rotY += (velY + IDLE_SPEED * idleBlend) * dt;
+      rotX += velX * dt;
+      // vertical tilt always returns to level; a logo left face-down reads
+      // as broken rather than as a pose
+      rotX += (0 - rotX) * Math.min(1, dt * 1.6);
+    }
+    pivot.rotation.y = rotY;
+    pivot.rotation.x = rotX;
+
+    if (modelReady){
+      renderer.setRenderTarget(rt);
+      renderer.clear();
+      renderer.render(modelScene, modelCam);
+      renderer.setRenderTarget(null);
+    }
+    renderer.clear();
+    renderer.render(ditherScene, ditherCam);
   })();
 
+  /* ---- resize -------------------------------------------------------- */
   let lastW = innerWidth;
   addEventListener('resize', () => {
-    // height-only changes are the mobile address bar, not a real resize —
-    // rebuilding on those churns through every scroll
+    // height-only changes are the mobile address bar, not a real resize
     if (isTouch && innerWidth === lastW) return;
     lastW = innerWidth;
     w = innerWidth; h = innerHeight;
     renderer.setSize(w, h, false);
     uniforms.uResolution.value.set(w, h);
-    sizeSpline();
+    rs = rtSize();
+    rt.setSize(rs.w, rs.h);
+    frameCamera();
   });
 
   heroMarkApi = {
@@ -1927,13 +2003,30 @@ function buildFilm(){
 
   
 
-  const ch0El = $('#ch0');
+  /* One background, one curve. The hero dissolve and the page's colour arc
+     are the same event, so they are driven by the same value — previously
+     #ch0 and #bg-field each ran their own (0..0.68 of the dissolve vs
+     scrollY/240px), which put them out of step and drew a seam across the
+     viewport wherever #ch0's box happened to end. */
+  const bgFieldEl = $('#bg-field');
   const HERO_CREAM = [245,241,232], HERO_BLACK = [10,9,8];
-  const paintCh0 = growP => {
-    if (!ch0El) return;
-    const c = [0,1,2].map(i => Math.round(HERO_CREAM[i] + (HERO_BLACK[i]-HERO_CREAM[i]) * growP));
-    ch0El.style.backgroundColor = `rgb(${c[0]},${c[1]},${c[2]})`;
+  let bgLatched = false;
+  const paintBg = t => {
+    if (!bgFieldEl) return;
+    const k = t < 0 ? 0 : t > 1 ? 1 : t;
+    if (k >= 1) bgLatched = true; else if (k < 0.98) bgLatched = false;
+    const c = [0,1,2].map(i => Math.round(HERO_CREAM[i] + (HERO_BLACK[i]-HERO_CREAM[i]) * k));
+    bgFieldEl.style.backgroundColor = `rgb(${c[0]},${c[1]},${c[2]})`;
   };
+  // A ScrollTrigger.refresh() briefly scrolls to 0 to remeasure, which can
+  // fire this trigger's onUpdate with a genuine scrollY of 0 and repaint
+  // cream — and once refresh restores the real position, that position is
+  // outside this trigger's range so onUpdate never runs again to correct
+  // it. Re-asserting after refresh settles is what keeps the page from
+  // getting stuck light-coloured deep in the scroll.
+  ScrollTrigger.addEventListener('refresh', () => {
+    if (bgLatched && window.scrollY > innerHeight * 0.9) paintBg(1);
+  });
 
   /* One path now, on every device — no pin anywhere.
 
@@ -1967,7 +2060,7 @@ function buildFilm(){
       // the scroll to hand over on solid black rather than cutting straight
       // from "grain everywhere" to "work section"
       const d = clamp01(p / 0.68);
-      paintCh0(easeInOutCubic(d));
+      paintBg(easeInOutCubic(d));
       heroState.scroll = d;                 // survives a not-yet-ready shader
       if (heroMarkApi) heroMarkApi.setScroll(d);
 
@@ -1979,78 +2072,6 @@ function buildFilm(){
   });
 
   
-  /* background field — cream hero fades to near-black entering work, then
-     simply STAYS black for the rest of the film (work/about/cta all read
-     it through their own transparent section backgrounds). It intentionally
-     does not fade toward the footer's colour at all any more: the footer is
-     fully opaque on its own (its shader canvas paints true white, and that
-     shader already bakes in a black->white fade across its own top edge —
-     see initFooterGradient's topFade) so the seam is a real spatial
-     gradient exactly at the cta/footer boundary, not a second, separately-
-     timed scroll-scrubbed fade fighting to land at the same place. Trying
-     to time this field's own fade to arrive "at the same time" as the
-     footer's shader-baked one was the actual bug: the two fades didn't
-     line up, so cta's still-visible black text sat on a field that had
-     already started greying out well before the footer even appeared. */
-  const bgField = $('#bg-field');
-  if (bgField && hasLibs){
-    const CREAM = [245,241,232], BLACK = [10,9,8];
-    const lerp3 = (a,b,t) => [0,1,2].map(i => Math.round(a[i] + (b[i]-a[i]) * t));
-    // pinDist is captured ONCE, not recomputed from innerHeight on every
-    // call — this is what actually fixed mobile's random white/cream
-    // flashes deep in the page. innerHeight is not stable on mobile: the
-    // browser chrome (address bar / bottom bar) showing and hiding as you
-    // scroll changes it, and can report a transiently different value
-    // mid-animation. Recomputing pinDist = innerHeight*0.3 on every scroll
-    // tick meant an inflated momentary innerHeight could inflate pinDist
-    // enough that an already-past-the-hero scrollY divided by it dropped
-    // back under 1 — un-saturating p1 and repainting a lighter shade for a
-    // frame, while the user was scrolled deep into work/about/cta the
-    // whole time. A stable snapshot can't be perturbed by that. The latch
-    // below is a second, independent guard on top: once fully black, it
-    // refuses to repaint lighter while the live scroll position is still
-    // genuinely past the hero, regardless of what a stray recalculation
-    // pass might otherwise compute.
-    const pinDist = innerHeight * 0.3;
-    let bgLatched = false;
-    function paintBgField(){
-      // matched exactly to the mark's own growP easing (same trigger, same
-      // curve) — the mark's black silhouette is the primary thing filling
-      // the screen as it scales, but its concave "M" shape doesn't
-      // guarantee full pixel coverage at every point mid-grow (the notch
-      // can still show background through it). Backing it with a field
-      // darkening at the identical pace means any gap in the shape is
-      // already sitting on the right intermediate shade instead of raw
-      // cream, so the two reinforce one another rather than racing.
-      const y = window.scrollY;
-      if (bgLatched && y > pinDist) return;
-      const p1 = easeInOutCubic(clamp01(y / pinDist));
-      if (p1 >= 1) bgLatched = true; else if (y < pinDist) bgLatched = false;
-      const c = lerp3(CREAM, BLACK, p1);
-      bgField.style.backgroundColor = `rgb(${c[0]},${c[1]},${c[2]})`;
-    }
-    // only the hero's own pin distance can move this any more — nothing
-    // past it changes the colour, so the trigger only needs to span that
-    ScrollTrigger.create({ trigger:'#ch0', start:'top top', end:'+=30%', scrub:true, onUpdate: paintBgField });
-    // confirmed live (not just theorised): ScrollTrigger.refresh() — which
-    // fires often on mobile since the address bar showing/hiding trips a
-    // resize event — genuinely, if briefly, scrolls the page back to 0 to
-    // remeasure the pinned hero section, which fires this trigger's
-    // onUpdate mid-refresh with a real (if transient) scrollY of 0,
-    // painting cream. Once refresh finishes restoring the real scroll
-    // position, that position sits outside this trigger's own short
-    // start/end range, so GSAP doesn't consider its progress "changed" and
-    // never calls onUpdate again to correct the leftover cream paint —
-    // the field was left stuck light-coloured for the rest of the session
-    // even though the user never actually left work/about/cta. The latch
-    // above can't catch this because the mid-refresh call is a genuine
-    // scrollY of 0, not a stale value to distrust. Listening for GSAP's
-    // own 'refresh' event and repainting once refresh is fully settled is
-    // the actual fix: it runs after the real scroll position is restored,
-    // so it always reflects where the user truly is.
-    ScrollTrigger.addEventListener('refresh', paintBgField);
-    paintBgField();
-  }
 
   /* generic reveals — every [data-io] element rises in once it's in view */
   $$('[data-io]').forEach(el => {
