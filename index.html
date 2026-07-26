@@ -969,13 +969,32 @@ function buildHeroMark(){
   // flat fill would quantise to one solid blob; a key with real falloff
   // across the form is what produces the gradient the halftone reads as
   // shading.
-  modelScene.add(new THREE.AmbientLight(0xffffff, 0.42));
-  const key = new THREE.DirectionalLight(0xffffff, 1.05);
-  key.position.set(2.2, 2.6, 3.2);
-  modelScene.add(key);
-  const rim = new THREE.DirectionalLight(0xffffff, 0.55);
-  rim.position.set(-2.8, -1.2, 1.4);
-  modelScene.add(rim);
+  /* Lit by a close POINT light, not a directional one — and that choice is
+     the whole reason this reads as a halftone at all.
+
+     The mark is a flat extrusion facing the camera. A directional light
+     gives every point on a flat face the same normal-dot-light value, so
+     the face renders as one uniform tone: there is simply no gradient in
+     the image for a dither to describe, and no tone curve can invent one.
+     That is why tuning thresholds kept producing either a solid slab or an
+     even field of dots. A point light placed near the surface falls off
+     with distance across the face, which is an actual gradient — bright
+     where it is closest, dropping away toward the far corner — and that
+     gradient is what the dot density can then follow. */
+  modelScene.add(new THREE.AmbientLight(0xffffff, 0.16));
+  // Close in, short range, and modest intensity. Distance is what creates
+  // the gradient here, so the lamp has to sit near enough that its falloff
+  // actually crosses the mark rather than washing the whole face at full
+  // strength — and dim enough that the near side does not clip to white,
+  // which would flatten the top of the range back into a solid slab.
+  const lamp = new THREE.PointLight(0xffffff, 1.7, 2.4, 2.0);
+  lamp.position.set(0.62, 0.66, 0.72);
+  modelScene.add(lamp);
+  // a far, weak directional so the extruded side walls still catch an edge
+  // and the form does not flatten into a sticker
+  const edge = new THREE.DirectionalLight(0xffffff, 0.45);
+  edge.position.set(-2.4, -1.4, 1.8);
+  modelScene.add(edge);
 
   const pivot = new THREE.Group();
   modelScene.add(pivot);
@@ -996,7 +1015,7 @@ function buildHeroMark(){
     root.scale.setScalar(s);
 
     const mat = new THREE.MeshStandardMaterial({
-      color: 0xffffff, roughness: 0.52, metalness: 0.0
+      color: 0xffffff, roughness: 0.34, metalness: 0.0
     });
     root.traverse(o => { if (o.isMesh) o.material = mat; });
 
@@ -1017,10 +1036,18 @@ function buildHeroMark(){
     uSrc:{ value: rt.texture },
     uBayer:{ value: buildBayerTexture() },
     uResolution:{ value: new THREE.Vector2(w, h) },
-    uPixel:{ value: 3.0 },
+    uPixel:{ value: 4.0 },
+    // tone controls. uToneLo/Hi are the black and white points the model's
+    // luminance is stretched between — narrowing the gap raises contrast
+    // and pushes more of the form into the outer two bands.
+    uToneLo:{ value: 0.10 },
+    uToneHi:{ value: 1.05 },
+    // the three bands, darkest to lightest
+    uShadow:{ value: new THREE.Color(0.039, 0.035, 0.031) },
+    uMid:{    value: new THREE.Color(0.760, 0.145, 0.110) },
+    uHigh:{   value: new THREE.Color(1.000, 0.992, 0.972) },
     uScroll:{ value: heroState.scroll },
     uIntro:{ value: heroState.intro },
-    uInk:{ value: new THREE.Color(0.043, 0.035, 0.031) }
   };
   const ditherMat = new THREE.ShaderMaterial({
     uniforms, transparent:true, depthWrite:false, depthTest:false,
@@ -1029,8 +1056,8 @@ function buildHeroMark(){
       precision highp float;
       uniform sampler2D uSrc, uBayer;
       uniform vec2 uResolution;
-      uniform float uPixel, uScroll, uIntro;
-      uniform vec3 uInk;
+      uniform float uPixel, uScroll, uIntro, uToneLo, uToneHi;
+      uniform vec3 uShadow, uMid, uHigh;
       varying vec2 vUv;
 
       void main(){
@@ -1052,7 +1079,18 @@ function buildHeroMark(){
         // alpha isolates the object: the target is cleared transparent, so
         // anywhere the model didn't draw is exactly 0. Far more reliable
         // than thresholding luminance against a background colour.
-        float lum = dot(src.rgb, vec3(0.299, 0.587, 0.114)) * src.a;
+        float lit = dot(src.rgb, vec3(0.299, 0.587, 0.114));
+
+        // ---- tone mapping: this is what turns a flat blob into a print ---
+        // Two things were wrong before. First, coverage rose with
+        // brightness, so the LIT side of the form was the most inked --
+        // backwards for dark ink on a light ground, where shadows should be
+        // dense and highlights bare. Second, a lit form occupies a narrow,
+        // high band of luminance, so nearly every cell cleared its threshold
+        // and the whole mark saturated to solid with dithering only at the
+        // silhouette. Expanding that band across the full range first is
+        // what gives the dither room to describe the shading at all.
+        float t = smoothstep(uToneLo, uToneHi, lit);
 
         // +0.5 lands on texel CENTRES. cellId/8.0 lands exactly on texel
         // boundaries, and nearest-filter sampling on a boundary is
@@ -1066,18 +1104,31 @@ function buildHeroMark(){
         // light up empty cells and flood the viewport with grain
         th = clamp(th, 0.004, 1.0);
 
-        // This is the dissolve, and now the whole of it. Every cell's value
-        // is lifted toward 1, so progressively more of them clear their own
-        // Bayer threshold and switch on — density rises at a fixed dot
-        // pitch until every cell is ink and the screen is solid, right as
-        // the work section arrives. Because the lift is proportional, the
-        // mark stays ahead of the field the entire way: cells already
-        // carrying the object start higher and fill first, so it reads as
-        // the logo thickening into halftone and bleeding outward rather
-        // than a flat grey wash rising everywhere at once.
-        float v = mix(lum, 1.0, p);
+        // ---- three-tone ordered quantisation -------------------------
+        // Instead of one ink colour switched on or off, the tone is
+        // quantised into three bands and the Bayer threshold decides which
+        // of the two NEIGHBOURING bands each cell takes. That is what makes
+        // the boundaries dither rather than banding into hard steps: the
+        // shadow-to-mid edge becomes a black/red checker, the mid-to-
+        // highlight edge a red/cream one, with the mix shifting across the
+        // gradient. Two thresholds and a hard pick would give three flat
+        // posterised regions instead.
+        float tD = mix(t, 0.0, p);              // dissolve drags tone to shadow
+        float scaled = clamp(tD, 0.0, 1.0) * 2.0;
+        float lower = floor(scaled);
+        float lvl = clamp(lower + step(th, scaled - lower), 0.0, 2.0);
 
-        gl_FragColor = vec4(uInk, step(th, v) * uIntro);
+        vec3 col = mix(uShadow, uMid, step(0.5, lvl));
+        col = mix(col, uHigh, step(1.5, lvl));
+
+        // Silhouette stays clean; only the interior tone dithers. As the
+        // dissolve runs, grain opens up outside the mark too and fills the
+        // screen — and since tone is being dragged to shadow at the same
+        // time, every one of those cells is already black, so it lands on a
+        // solid black screen exactly as the work section arrives.
+        float mask = max(step(0.5, src.a), step(th, p));
+
+        gl_FragColor = vec4(col, mask * uIntro);
       }`
   });
   ditherScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2), ditherMat));
