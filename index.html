@@ -136,19 +136,23 @@ section{position:relative}
    camera during the transition and has to be free to grow past the screen
    edges. it used to live inside the 340px .hero-mark-wrap box, which
    clipped it — the wrap now only carries the no-webgl svg fallback. */
-.hero-mark-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;opacity:1;pointer-events:none}
-/* On touch the flight cannot be pinned — pinning is exactly what breaks
-   scrolling on phones. But un-pinned, the canvas scrolls away *while the
-   flight is still playing*: measured at 375x812, by the time the mark was
-   halfway through growing, the canvas had already slid 400px up and the
-   work section was arriving underneath it, so two things moved at once and
-   the hero tore in half. Fixing the canvas to the viewport solves that
-   without touching the scroll at all: it simply stops scrolling away, the
-   page scrolls normally beneath it, and the flight fades out at the end to
-   hand over. z-index has to clear .sec (z-index:10) or the work section
-   would render on top of the very thing that's still transitioning. */
-body.touch .hero-mark-canvas{position:fixed;z-index:50}
+/* Fixed on every device, not absolute. Nothing is pinned any more, so an
+   absolutely positioned canvas would scroll away while the dissolve is
+   still running — measured at 375x812 before this, the canvas had already
+   slid 400px up by the time the mark was half gone, with the work section
+   arriving underneath. Two things moving at once is what tore the hero in
+   half on phones and caused the split-second "page going up" on desktop.
+   z-index has to clear .sec (z-index:10), or the work section would paint
+   over the very thing still transitioning. */
+.hero-mark-canvas{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:50;opacity:1;pointer-events:none}
 .hero-mark-wrap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(34.5vw,391px);aspect-ratio:1;z-index:1;opacity:0;will-change:opacity}
+/* The Spline canvas is a texture source, not something to look at — the
+   dithered version on the canvas above is the visible mark. opacity:0
+   rather than display:none or visibility:hidden: it must keep a real box
+   and keep compositing, or the runtime stops producing frames and the
+   texture freezes on whatever it last drew. */
+.hero-spline{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;pointer-events:none}
+html.no-webgl .hero-spline{display:none}
 html.no-webgl .hero-mark-wrap,html.static .hero-mark-wrap{opacity:1}
 .hero-mark-svg{position:relative;z-index:2;width:100%;height:100%;display:block;filter:drop-shadow(0 30px 50px rgba(20,18,16,.16))}
 .hero-mark-fallback{display:none}
@@ -460,9 +464,18 @@ footer{position:relative;width:100%;height:100vh;isolation:isolate;display:flex;
 .copy-email[data-state="b"] .ce-b{opacity:1;filter:blur(0);transform:translateY(0)}
 
 /* position:relative anchors the absolutely-placed confirmation below */
-.fnews{position:relative;grid-column:5/7;justify-self:end;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(20,18,16,.3);padding-bottom:5px;width:fit-content;transition:border-color .35s}
+/* Spans three columns rather than two, and takes a real width instead of
+   fit-content — at 5/7 with a fixed-width input the placeholder was being
+   clipped mid-word, so the field read as "occasional notes — your em" with
+   "join" hard against it. */
+.fnews{position:relative;grid-column:4/7;justify-self:end;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(20,18,16,.3);padding-bottom:5px;width:min(100%,330px);transition:border-color .35s}
 .fnews:focus-within{border-color:var(--accent)}
-.fnews input{appearance:none;background:none;border:none;outline:none;font:inherit;font-size:12px;letter-spacing:-.005em;color:var(--paper-ink);width:150px;padding:2px 0}
+/* flex:1 with min-width:0 lets the field take whatever the row has left
+   after the button. min-width is not optional — a flex item's default
+   min-width:auto refuses to shrink below its content, which is what let it
+   overflow its own container in the first place. */
+.fnews input{appearance:none;background:none;border:none;outline:none;font:inherit;font-size:12px;letter-spacing:-.005em;color:var(--paper-ink);flex:1 1 auto;min-width:0;width:auto;padding:2px 0;text-overflow:ellipsis}
+.fnews button.fn-submit{flex:none}
 .fnews input::placeholder{color:rgba(20,18,16,.5)}
 .fnews button{appearance:none;background:none;border:none;font:inherit;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:lowercase;color:rgba(20,18,16,.78);cursor:pointer;white-space:nowrap;transition:color .3s}
 .fnews button:hover{color:var(--accent)}
@@ -572,6 +585,11 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
     <div class="pinwrap">
       <canvas class="hero-mark-canvas" id="hero-mark-canvas" aria-hidden="true"></canvas>
       <div class="hero-mark-wrap" id="hero-mark-wrap">
+        <!-- Spline renders the 3d mark here. Never shown directly — the
+             visible canvas above samples it and draws the dithered version.
+             It has to stay laid out (not display:none) or the runtime has
+             no box to size its renderer against. -->
+        <canvas class="hero-spline" id="hero-spline" aria-hidden="true"></canvas>
         <svg class="hero-mark-svg hero-mark-fallback" viewBox="0 0 32 32" aria-hidden="true">
           <defs>
             <clipPath id="heroMarkClip" clipPathUnits="userSpaceOnUse">
@@ -745,6 +763,14 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
 
 
 
+<!-- Warms the Spline runtime fetch in parallel with the rest of boot. The
+     hero does its own import() of this exact url; the module map dedupes,
+     so it stays one download. Deliberately NOT the place the hero reads
+     from — module scripts are deferred, so this runs *after* the classic
+     script below, and anything depending on a global set here would find
+     it undefined. Version pinned: unpinned would let the scene's renderer
+     change under the site without warning. -->
+<link rel="modulepreload" href="https://unpkg.com/@splinetool/runtime@1.12.98/build/runtime.js" crossorigin>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -839,535 +865,245 @@ if (!isTouch){
 
 
 
-/* ————————————————— hero — the mark, and the flight through it —————————————
-   The silhouette is a signed distance field built from the mark's own path
-   at startup (buildMarkSdf), so its edge is reconstructed per-pixel rather
-   than sampled from a bitmap — it stays razor sharp however far the
-   transition magnifies it. Inside that silhouette sits a montage of four
-   project covers, warped by a ripple that follows the cursor; two
-   composites (A/B) crossfade every few seconds so the mark reads as alive
-   rather than a fixed collage. The montage is hidden behind solid black by
-   default and wiped open by a mouse-trail texture.
+/* ————————————————— hero — the dithered mark —————————————————
+   The mark is a 3D object authored in Spline, drawn through an ordered
+   (Bayer) dither so it reads as a halftone print rather than a rendered
+   solid — the "dithered object" look, implemented here rather than pulled
+   in as a package: both the Canvas UI component and Spline's own React
+   binding assume a React/Next build, and this site is a single static file
+   with no bundler. Spline ships a framework-free runtime, so the scene
+   itself is genuinely theirs; only the dithering is reimplemented.
 
-   Scrolling flies the camera through the mark: the mesh translates on Z
-   through a perspective frustum (see the fly-through rig below), which is
-   the mechanism the reference implementation uses and the reason it reads
-   as travelling through an opening rather than zooming a logo.
+   Two canvases:
+     #hero-spline   a square, off-screen-ish canvas that Spline renders into
+     #hero-mark-canvas  the visible full-viewport canvas, which samples the
+                    first as a texture and dithers it
 
-   Falls back to the plain SVG mark under reduced-motion or no WebGL. */
+   Rendering Spline into its own small square rather than full-screen keeps
+   the mark's on-screen size under our control (markFraction, as before) and
+   keeps the per-frame texture upload small.
+
+   Scrolling dissolves the dither into black: the cells coarsen while the
+   threshold floods, so the object breaks apart into its own grain and the
+   grain fills the screen. */
 let heroMarkApi = null;
-/* the shader initialises asynchronously (it waits on the project covers to
-   decode), so the intro tween and the scroll trigger can both run before
-   heroMarkApi exists. They write here instead of straight to uniforms, and
-   the shader seeds itself from this on startup — otherwise a slow image
-   decode leaves the mark stuck invisible or stuck at scroll 0. */
+/* The runtime is an ES module and the scene is a network fetch, so the
+   shader can be running long before there is anything to sample — and the
+   intro tween and scroll trigger both fire regardless. They write here and
+   the hero seeds itself from it, so nothing is silently dropped. */
 const heroState = { intro:0, scroll:0 };
+
+/* Bayer threshold matrix, generated rather than typed out: each level is
+   built from the one below it (4*M, 4*M+2 / 4*M+3, 4*M+1), which is the
+   standard recursive construction. Delivered as an 8x8 DataTexture because
+   WebGL1's GLSL has no bitwise operators, so the usual bit-interleaving
+   trick for computing thresholds in-shader isn't available — a lookup is
+   both exact and cheaper. */
+function buildBayerTexture(){
+  let m = [[0]];
+  while (m.length < 8){
+    const n = m.length, out = [];
+    for (let y = 0; y < n*2; y++) out.push(new Array(n*2).fill(0));
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++){
+      const v = m[y][x] * 4;
+      out[y][x]         = v;
+      out[y][x+n]       = v + 2;
+      out[y+n][x]       = v + 3;
+      out[y+n][x+n]     = v + 1;
+    }
+    m = out;
+  }
+  const size = 8, data = new Uint8Array(size*size*4);
+  for (let y = 0; y < size; y++) for (let x = 0; x < size; x++){
+    // +0.5 centres each threshold in its band, so neither pure black nor
+    // pure white sits exactly on a boundary and flickers
+    const v = Math.round(((m[y][x] + 0.5) / (size*size)) * 255);
+    const i = (y*size + x) * 4;
+    data[i] = data[i+1] = data[i+2] = v; data[i+3] = 255;
+  }
+  const tex = new THREE.DataTexture(data, size, size, THREE.RGBAFormat);
+  tex.minFilter = tex.magFilter = THREE.NearestFilter;   // thresholds must not blend
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.needsUpdate = true;
+  return tex;
+}
+
 function buildHeroMark(){
   const canvas = $('#hero-mark-canvas');
+  const splineCanvas = $('#hero-spline');
   const wrap = $('#hero-mark-wrap');
-  if (!canvas || !wrap || !GL){ document.documentElement.classList.add('no-webgl'); return; }
-
-  const MARK_PATH = 'M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z';
-  const SIZE = 640;
-  const QUADS = [
-    { x:-2, y:-2, w:18, h:18 }, { x:15, y:-2, w:19, h:17 },
-    { x:-2, y:14, w:17, h:20 }, { x:14, y:15, w:20, h:19 }
-  ];
-  const covers = PROJECTS.map(p => p.cover);
-
-  function loadImage(src){
-    return new Promise(resolve => {
-      const img = new Image();
-      img.onload = () => resolve(img);
-      img.onerror = () => resolve(null);
-      img.src = src;
-    });
+  if (!canvas || !splineCanvas || !wrap || !GL){
+    document.documentElement.classList.add('no-webgl');
+    return;
   }
 
-  function drawArrangement(ctx, images){
-    const scale = SIZE / 32;
-    ctx.clearRect(0, 0, SIZE, SIZE);
-    ctx.save();
-    ctx.scale(scale, scale);
-    ctx.clip(new Path2D(MARK_PATH));
-    images.forEach((img, i) => {
-      if (!img) return;
-      const q = QUADS[i];
-      const ir = img.width/img.height, qr = q.w/q.h;
-      let sx=0, sy=0, sw=img.width, sh=img.height;
-      if (ir > qr){ sw = img.height*qr; sx = (img.width-sw)/2; } else { sh = img.width/qr; sy = (img.height-sh)/2; }
-      ctx.drawImage(img, sx, sy, sw, sh, q.x, q.y, q.w, q.h);
-    });
-    ctx.restore();
+  // how much of the viewport the mark spans at rest. Mirrors the css on
+  // .hero-mark-wrap, which sizes the no-webgl svg fallback — if the two
+  // drift the mark changes size when the shader isn't available.
+  function markPx(){
+    return innerWidth <= 760
+      ? Math.min(innerWidth * 0.598, 299)
+      : Math.min(innerWidth * 0.345, 391);
   }
 
-  /* ---- signed distance field of the mark ----------------------------
-     The transition flies the mark toward the camera until it swallows the
-     screen (see the scroll wiring below). A rasterised silhouette can't
-     survive that: by the time it covers the viewport it's magnified ~10x
-     and its edge turns to mush. A signed distance field can — the edge is
-     reconstructed per-pixel from the distance value via smoothstep, so it
-     stays exactly as crisp at 10x as at 1x. This is the single technique
-     that makes a real fly-through possible rather than a blurry zoom.
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:false, powerPreference:'low-power' });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  let w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h, false);
 
-     Built once at init: rasterise the mark path to a binary mask, run an
-     exact Euclidean distance transform over the inside and the outside
-     separately, then store (outside - inside) normalised into a texture.
-     The distance transform is Felzenszwalb & Huttenlocher's O(n) method —
-     a 1D parabola-envelope pass along every column, then every row. */
-  function buildMarkSdf(res){
-    const c = document.createElement('canvas');
-    c.width = c.height = res;
-    const cx = c.getContext('2d');
-    // the mark is drawn inset by a margin so the field has room to measure
-    // real outside-distance around the silhouette instead of clipping at 0
-    const margin = res * 0.22, inner = res - margin * 2;
-    cx.fillStyle = '#fff';
-    cx.save();
-    cx.translate(margin, margin);
-    cx.scale(inner / 32, inner / 32);
-    cx.fill(new Path2D(MARK_PATH));
-    cx.restore();
+  const srcTex = new THREE.CanvasTexture(splineCanvas);
+  srcTex.minFilter = srcTex.magFilter = THREE.LinearFilter;
+  srcTex.wrapS = srcTex.wrapT = THREE.ClampToEdgeWrapping;
 
-    const px = cx.getImageData(0, 0, res, res).data;
-    const N = res * res, INF = 1e20;
-    const fIn = new Float64Array(N), fOut = new Float64Array(N);
-    for (let i = 0; i < N; i++){
-      const solid = px[i * 4 + 3] > 127;
-      fOut[i] = solid ? 0 : INF;   // distance to nearest solid pixel
-      fIn[i]  = solid ? INF : 0;   // distance to nearest empty pixel
-    }
+  const scene = new THREE.Scene();
+  const camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+  const uniforms = {
+    uSrc:{ value:srcTex },
+    uBayer:{ value:buildBayerTexture() },
+    uResolution:{ value:new THREE.Vector2(w, h) },
+    uMarkScale:{ value:new THREE.Vector2(0.35, 0.35) },
+    uPixel:{ value:3.0 },
+    uTime:{ value:0 },
+    uScroll:{ value:heroState.scroll },
+    uIntro:{ value:heroState.intro },
+    uIdle:{ value: prefersReduced ? 0 : 1 },
+    uInk:{ value:new THREE.Color(0.043, 0.035, 0.031) }
+  };
 
-    // 1D squared-distance transform of one row/column (parabola envelope)
-    const d = new Float64Array(res), v = new Int32Array(res), z = new Float64Array(res + 1);
-    function edt1d(f){
-      let k = 0; v[0] = 0; z[0] = -INF; z[1] = INF;
-      for (let q = 1; q < res; q++){
-        let s = ((f[q] + q*q) - (f[v[k]] + v[k]*v[k])) / (2*q - 2*v[k]);
-        while (s <= z[k]){
-          k--;
-          s = ((f[q] + q*q) - (f[v[k]] + v[k]*v[k])) / (2*q - 2*v[k]);
-        }
-        k++; v[k] = q; z[k] = s; z[k+1] = INF;
-      }
-      k = 0;
-      for (let q = 0; q < res; q++){
-        while (z[k+1] < q) k++;
-        const dx = q - v[k];
-        d[q] = dx*dx + f[v[k]];
-      }
-      for (let q = 0; q < res; q++) f[q] = d[q];
-    }
-    function edt2d(f){
-      const col = new Float64Array(res);
-      for (let x = 0; x < res; x++){
-        for (let y = 0; y < res; y++) col[y] = f[y*res + x];
-        edt1d(col);
-        for (let y = 0; y < res; y++) f[y*res + x] = col[y];
-      }
-      const row = new Float64Array(res);
-      for (let y = 0; y < res; y++){
-        for (let x = 0; x < res; x++) row[x] = f[y*res + x];
-        edt1d(row);
-        for (let x = 0; x < res; x++) f[y*res + x] = row[x];
-      }
-    }
-    edt2d(fOut); edt2d(fIn);
+  const mat = new THREE.ShaderMaterial({
+    uniforms, transparent:true, depthWrite:false,
+    vertexShader:`varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position,1.0); }`,
+    fragmentShader:`
+      precision highp float;
+      uniform sampler2D uSrc, uBayer;
+      uniform vec2 uResolution, uMarkScale;
+      uniform float uPixel, uTime, uScroll, uIntro, uIdle;
+      uniform vec3 uInk;
+      varying vec2 vUv;
 
-    // SPREAD sets how many texture pixels of distance map across the byte
-    // range, and it is the single control over edge quality at full travel.
-    // A wide spread (0.18 of the texture) quantises to ~0.7 texture px per
-    // step — wider than a texel, so neighbouring texels share a value and
-    // bilinear filtering has flat plateaus it cannot interpolate out. That
-    // shows up as visible stair-steps along the mark's diagonals once the
-    // fly-through magnifies it ~10x. Only the values *near* the silhouette
-    // are ever read (the mask is a smoothstep across the edge; everything
-    // further just saturates), so the spread can be tightened aggressively:
-    // 0.025 gives ~0.1 texture px per step, comfortably sub-pixel even at
-    // full travel.
-    //
-    // Deliberately single-channel: packing 16 bits across two channels is
-    // the obvious way to buy precision, but hardware bilinear filtering
-    // interpolates channels independently, so the remainder byte wrapping
-    // 255->0 at each coarse step decodes to a wrong intermediate and bands
-    // the edge. Tightening the spread is correct under linear filtering.
-    const SPREAD = res * 0.025;
-    const data = new Uint8Array(N * 4);
-    // Rows are written bottom-up. The montage and trail are CanvasTextures,
-    // which three uploads with flipY=true, but a DataTexture defaults to
-    // flipY=false — and simply setting .flipY on it would not help, since
-    // UNPACK_FLIP_Y_WEBGL has no effect on texImage2D from an ArrayBufferView.
-    // Uploading in canvas row order therefore rendered the mark vertically
-    // mirrored against its own fill. Flipping here is the fix that actually
-    // applies to this texture type.
-    for (let y = 0; y < res; y++){
-      const src = y * res;
-      const dst = (res - 1 - y) * res;
-      for (let x = 0; x < res; x++){
-        const i = src + x, o = (dst + x) * 4;
-        const sd = Math.sqrt(fOut[i]) - Math.sqrt(fIn[i]); // >0 outside, <0 inside
-        const enc = Math.round(128 - (sd / SPREAD) * 127); // inside -> bright
-        const val = enc < 0 ? 0 : enc > 255 ? 255 : enc;
-        data[o] = data[o+1] = data[o+2] = val;
-        data[o+3] = 255;
-      }
+      void main(){
+        float p = uScroll;
+
+        // cells coarsen as the dissolve runs, so the object visibly breaks
+        // apart into its own grain rather than just fading out
+        float cellPx = uPixel * (1.0 + p * 9.0);
+        vec2 grid = uResolution / cellPx;
+        vec2 cellId = floor(vUv * grid);
+        vec2 cellUv = (cellId + 0.5) / grid;
+
+        // sample the spline canvas through the centred mark region
+        vec2 markUv = (cellUv - 0.5) / uMarkScale + 0.5;
+        vec2 g = step(vec2(0.0), markUv) * step(markUv, vec2(1.0));
+        vec4 src = texture2D(uSrc, clamp(markUv, 0.0, 1.0));
+        float lum = dot(src.rgb, vec3(0.299, 0.587, 0.114)) * g.x * g.y;
+
+        // the scene renders a bright object on its own dark ground, so
+        // luminance alone separates the two — lift the object's range and
+        // drop the background out before thresholding
+        lum = smoothstep(0.22, 0.86, lum);
+
+        // ordered threshold, tiled one texel per cell
+        float th = texture2D(uBayer, cellId / 8.0).r;
+
+        // idle: a slow wobble in the threshold makes the grain shimmer, so
+        // the hero is never completely still even untouched. Stops once the
+        // dissolve takes over, where there is already plenty happening.
+        th += sin(uTime * 0.9 + cellId.y * 0.7 + cellId.x * 0.35) * 0.055 * uIdle * (1.0 - p);
+        // clamp above zero. The lowest bayer threshold is 0.5/64 ~= 0.008,
+        // so the shimmer above can push th negative — and step(negative, 0)
+        // is 1, which lights up cells where there is no object at all. That
+        // flooded the whole viewport with grain instead of drawing the mark.
+        th = clamp(th, 0.004, 1.0);
+
+        // the dissolve floods every cell toward "on"; combined with the
+        // coarsening above, the mark disintegrates and its grain fills the
+        // screen, landing on solid ink exactly as the work section arrives
+        float v = mix(lum, 1.0, p);
+
+        float on = step(th, v);
+        gl_FragColor = vec4(uInk, on * uIntro);
+      }`
+  });
+  scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2), mat));
+
+  /* ---- Spline ----
+     Loaded through the framework-free runtime. The scene keeps rendering
+     into its own canvas; we just read that canvas as a texture. */
+  let splineReady = false;
+  (async () => {
+    try {
+      // dynamic import() rather than reading a global set by a module
+      // script: module scripts are deferred and run after this one, so any
+      // such global is still undefined at this point
+      const { Application } = await import('https://unpkg.com/@splinetool/runtime@1.12.98/build/runtime.js');
+      const app = new Application(splineCanvas);
+      await app.load('https://prod.spline.design/hB3NTxKJAq4f9hFF/scene.splinecode');
+      splineReady = true;
+      wrap.classList.add('spline-on');
+    } catch (err){
+      // the mark is the one thing the hero cannot do without, so fall back
+      // to the plain svg rather than leaving an empty screen
+      console.warn('spline scene unavailable, falling back to the static mark:', err);
+      document.documentElement.classList.add('no-webgl');
+      canvas.style.display = 'none';
     }
-    const tex = new THREE.DataTexture(data, res, res, THREE.RGBAFormat);
-    tex.minFilter = tex.magFilter = THREE.LinearFilter;
-    tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
-    tex.needsUpdate = true;
-    // the drawn mark occupies `inner/res` of the texture — the shader needs
-    // this to place the silhouette at the right apparent size
-    return { tex, inset: inner / res };
+  })();
+
+  function sizeSpline(){
+    const px = Math.round(markPx() * Math.min(devicePixelRatio, 2));
+    if (splineCanvas.width !== px){
+      splineCanvas.width = splineCanvas.height = px;
+      splineCanvas.style.width = splineCanvas.style.height = markPx() + 'px';
+    }
+    const f = markPx();
+    uniforms.uMarkScale.value.set(f / innerWidth, f / innerHeight);
+  }
+  sizeSpline();
+
+  let tabVisible = true, onScreen = true;
+  document.addEventListener('visibilitychange', () => tabVisible = !document.hidden);
+  // stop drawing once the hero has scrolled away — otherwise the dither
+  // pass and the whole Spline scene keep running at 60fps behind every
+  // other section on the page
+  if ('IntersectionObserver' in window){
+    const heroEl = $('#ch0');
+    if (heroEl) new IntersectionObserver(
+      es => { onScreen = es.some(e => e.isIntersecting); }, { rootMargin:'10% 0px' }
+    ).observe(heroEl);
   }
 
-  Promise.all(covers.map(loadImage)).then(images => {
-    if (!images.some(Boolean)){ document.documentElement.classList.add('no-webgl'); return; }
-    startHeroShader(images);
+  const clock = new THREE.Clock();
+  (function tick(){
+    requestAnimationFrame(tick);
+    if (!tabVisible || !onScreen) return;
+    uniforms.uTime.value = clock.getElapsedTime();
+    // the spline canvas repaints itself every frame, so its texture has to
+    // be re-uploaded every frame too
+    if (splineReady) srcTex.needsUpdate = true;
+    renderer.render(scene, camera);
+  })();
+
+  let lastW = innerWidth;
+  addEventListener('resize', () => {
+    // height-only changes are the mobile address bar, not a real resize —
+    // rebuilding on those churns through every scroll
+    if (isTouch && innerWidth === lastW) return;
+    lastW = innerWidth;
+    w = innerWidth; h = innerHeight;
+    renderer.setSize(w, h, false);
+    uniforms.uResolution.value.set(w, h);
+    sizeSpline();
   });
 
-  function startHeroShader(images){
-    const n = images.length;
-    // a sliding window of 4 covers, shifted by one image per cycle, so
-    // every project rotates through every quadrant over time
-    const arrangementAt = k => Array.from({ length:4 }, (_, j) => images[(k + j) % n]);
-
-    const canvasA = document.createElement('canvas'); canvasA.width = canvasA.height = SIZE;
-    const canvasB = document.createElement('canvas'); canvasB.width = canvasB.height = SIZE;
-    const ctxA = canvasA.getContext('2d'), ctxB = canvasB.getContext('2d');
-    drawArrangement(ctxA, arrangementAt(0));
-
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true, powerPreference:'low-power' });
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    // the canvas is the full viewport now, not the small logo box it used
-    // to be — the mark has to be able to grow past the screen edges during
-    // the fly-through, which it can't do while clipped to a 340px element
-    let w = innerWidth, h = innerHeight;
-    renderer.setSize(w, h, false);
-
-    // how much of the viewport the mark spans at rest. mirrors the css the
-    // static/no-webgl fallback uses (min(30vw, 340px), or 52vw on narrow
-    // screens) so the shader mark and the svg fallback are the same size.
-    function markFraction(){
-      // 15% up from the original 30vw/340px (and 52vw/260px on narrow
-      // screens). Kept in lockstep with .hero-mark-wrap in the css, which
-      // sizes the no-webgl svg fallback — if these two drift the mark
-      // changes size when the shader isn't available.
-      const px = innerWidth <= 760
-        ? Math.min(innerWidth * 0.598, 299)
-        : Math.min(innerWidth * 0.345, 391);
-      return { x: px / innerWidth, y: px / innerHeight };
-    }
-
-    // reveal trail — a small offscreen canvas storing "how recently was the
-    // cursor here", painted as a fading white glow at the pointer each
-    // frame and decayed by an opaque low-alpha overlay every tick. Sampled
-    // in the shader to mix between solid black (default) and the photo
-    // montage, so the mark reads as a plain black mark that the cursor
-    // wipes open — the reveal-via-mouse-trail idea evidenced directly from
-    // podium.global's own compiled fragment shader (pulled from the live
-    // WebGL program via gl.getShaderSource — it warps UVs through a
-    // similarly-updated mouse-trail texture), adapted here to reveal photo
-    // content instead of warping a shape's edge.
-    const TRAIL_SIZE = 256;
-    const trailCanvas = document.createElement('canvas');
-    trailCanvas.width = trailCanvas.height = TRAIL_SIZE;
-    const trailCtx = trailCanvas.getContext('2d');
-    const trailTex = new THREE.CanvasTexture(trailCanvas);
-    let hovering = false;
-
-    /* ---- the fly-through rig -----------------------------------------
-       Ported from podium.global's own hero transition, whose mechanism was
-       read directly off its live WebGL program (runtime uniform sampling +
-       gl.getShaderSource) rather than guessed from video — see
-       .web-shader-extractor/extraction-report.md. Their canvas and its
-       wrapper carry NO css transform at any scroll position; what actually
-       moves is the mesh, on Z, through a real perspective camera:
-
-           meshZ = -5 * (1 - scrollProgress)
-
-       verified numerically against their modelViewMatrix at four scroll
-       positions. That distinction is the whole effect. Scaling a flat quad
-       (what this used to do) grows every pixel uniformly and reads as a
-       zoom; translating a plane through a perspective frustum grows the
-       edges faster than the centre and sweeps them out past the viewport,
-       which is what makes it read as travelling *through* an opening.
-
-       One deliberate deviation: we stop at z = -0.5 rather than their 0.
-       At exactly 0 the plane is coincident with the camera and the
-       projection degenerates (and anything nearer than `near` is clipped
-       outright). Since scrub can land exactly on p=1, we clamp. -5 -> -0.5
-       is still a 10x perspective growth, which covers the viewport
-       diagonal with room to spare. */
-    const CAM_FOV = 50, Z_REST = -5, Z_END = -0.5;
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(CAM_FOV, w / h, 0.1, 100);
-    camera.position.z = 0;
-
-    // plane sized to exactly fill the frustum at the resting distance, so
-    // its uv space maps 1:1 onto the viewport at p=0
-    const restH = 2 * Math.abs(Z_REST) * Math.tan(CAM_FOV * Math.PI / 360);
-    const plane = new THREE.PlaneGeometry(restH * (w / h), restH);
-
-    const sdf = buildMarkSdf(512);
-    const texA = new THREE.CanvasTexture(canvasA);
-    const texB = new THREE.CanvasTexture(canvasB);
-    const uniforms = {
-      uTexA:{ value:texA }, uTexB:{ value:texB }, uMix:{ value:0 },
-      uSdf:{ value:sdf.tex }, uSdfInset:{ value:sdf.inset },
-      uTrail:{ value:trailTex },
-      uMouse:{ value:new THREE.Vector2(.5,.5) },
-      uEnergy:{ value:0 }, uTime:{ value:0 },
-      // seeded from heroState, not 0 — if the covers were slow to decode
-      // the intro tween and/or the scroll trigger have already run and
-      // their values would otherwise be silently discarded
-      uScroll:{ value:heroState.scroll },
-      // fraction of the viewport the mark spans at rest, per axis
-      uMarkScale:{ value:new THREE.Vector2(0.35, 0.35) },
-      uIntro:{ value:heroState.intro },
-      // gates the resting breath + sheen. Off under reduced-motion: it is
-      // ambient, unprompted, looping motion, which is exactly the category
-      // that setting exists to suppress.
-      uIdle:{ value: prefersReduced ? 0 : 1 }
-    };
-    const mat = new THREE.ShaderMaterial({
-      uniforms, transparent:true, depthWrite:false,
-      // three r128 still creates a WebGL1 context, where fwidth() lives
-      // behind GL_OES_standard_derivatives. Without this the fragment
-      // shader fails to compile outright and the mark never renders.
-      extensions:{ derivatives:true },
-      vertexShader:`
-        varying vec2 vUv;
-        void main(){
-          vUv = uv;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }`,
-      fragmentShader:`
-        precision highp float;
-        uniform sampler2D uTexA; uniform sampler2D uTexB; uniform float uMix;
-        uniform sampler2D uSdf; uniform float uSdfInset;
-        uniform sampler2D uTrail;
-        uniform vec2 uMouse; uniform vec2 uMarkScale;
-        uniform float uEnergy, uTime, uScroll, uIntro, uIdle;
-        varying vec2 vUv;
-
-        float hash(vec2 p){
-          return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
-        }
-        float noise(vec2 p){
-          vec2 i = floor(p), f = fract(p);
-          vec2 u = f * f * (3.0 - 2.0 * f);
-          return mix(mix(hash(i), hash(i + vec2(1,0)), u.x),
-                     mix(hash(i + vec2(0,1)), hash(i + vec2(1,1)), u.x), u.y);
-        }
-        // barrel/pincushion — bends uv space so the plane reads as a curved
-        // lens rather than a flat card, the "portal" cue in the reference
-        vec2 barrel(vec2 uv, float amt){
-          vec2 c = uv - 0.5;
-          return 0.5 + c * (1.0 + amt * dot(c, c));
-        }
-
-        void main(){
-          float p = uScroll;
-
-          // ---- place the mark inside the plane -------------------------
-          // the plane covers the viewport at rest; the mark occupies a
-          // centred fraction of it. perspective does the growing, so this
-          // mapping never changes with scroll.
-          // idle breathing — the mark is solid black at rest, so without
-          // this nothing on the hero moves at all until you scroll or move
-          // the cursor. ~1.4%, slow: it should read as the shape being
-          // alive, not as a pulsing button.
-          float breath = 1.0 + sin(uTime * 0.5) * 0.014 * uIdle;
-          vec2 markUv = (vUv - 0.5) / (uMarkScale * breath) + 0.5;
-          markUv = barrel(markUv, 0.06);
-          // intra-shape parallax: the montage drifts vertically inside the
-          // silhouette as the transition runs (reference does the same on
-          // its shape texture)
-          vec2 sdfUv = markUv;
-          sdfUv.y += (1.0 - p) * 0.012;
-          // remap into the sdf's inset drawing area
-          sdfUv = (sdfUv - 0.5) * uSdfInset + 0.5;
-
-          // outside the texture there is no shape at all — guard before
-          // sampling so clamped edge texels can't smear a false silhouette
-          vec2 g = step(vec2(0.0), sdfUv) * step(sdfUv, vec2(1.0));
-          float inBounds = g.x * g.y;
-
-          // ---- silhouette from the distance field ----------------------
-          // decode: 128/255 = the edge, brighter = inside. reconstructing
-          // the edge per-pixel from distance is why this stays sharp at any
-          // magnification, where a rasterised silhouette would go to mush.
-          float sd = texture2D(uSdf, sdfUv).r - (128.0 / 255.0);
-          // fwidth keeps the edge exactly one pixel wide no matter how far
-          // the plane has been magnified by perspective
-          float aa = max(fwidth(sd), 0.0008);
-          float mask = smoothstep(-aa, aa, sd) * inBounds;
-
-          // ---- fill: photo montage, revealed by the cursor trail --------
-          // uMouse arrives in viewport space (0..1 across the canvas), but
-          // the montage is sampled in the mark's own local space — so the
-          // pointer has to be carried through the same remap the uv was,
-          // or the ripple centres somewhere other than the actual cursor.
-          vec2 mouseMark = (uMouse - 0.5) / uMarkScale + 0.5;
-          vec2 toMouse = markUv - mouseMark;
-          float dist = length(toMouse);
-          float falloff = smoothstep(0.55, 0.0, dist);
-          float ripple = sin(dist * 22.0 - uTime * 3.2) * 0.022 * (0.3 + uEnergy) * falloff;
-          vec2 dir = dist > 0.0001 ? toMouse / dist : vec2(0.0);
-          vec2 duv = markUv + dir * ripple;
-          duv += vec2(sin(markUv.y * 6.0 + uTime * 0.4),
-                      cos(markUv.x * 6.0 + uTime * 0.35)) * 0.0025;
-          duv = clamp(duv, 0.0, 1.0);
-          vec3 photo = mix(texture2D(uTexA, duv), texture2D(uTexB, duv), uMix).rgb;
-
-          // grain fades on a quartic curve as the transition runs, so the
-          // surface visibly cleans up as it rushes past — straight from the
-          // reference's pow(1.0 - scroll, 4.0) falloff
-          float grain = pow(1.0 - p, 4.0) * (noise(markUv * 900.0) - 0.5) * 0.05;
-
-          // the trail canvas is painted at the pointer's *viewport* position
-          // each frame, so it has to be read back in that same space (vUv),
-          // not the mark's local space — otherwise the reveal lands offset
-          // from the cursor by the mark's own scale factor
-          float trail = texture2D(uTrail, vUv).r;
-          vec3 blackMark = vec3(0.043, 0.035, 0.031);
-          vec3 col = mix(blackMark, photo, trail * (1.0 - p)) + grain;
-
-          // a soft sheen drifting across the silhouette, so the mark is
-          // never entirely inert. Deliberately low contrast and slow — it
-          // should register as the surface catching light rather than as
-          // something moving on top of it. Fades out as the flight starts,
-          // where there is already plenty happening.
-          float sweep = sin((markUv.x + markUv.y) * 1.5 - uTime * 0.4);
-          col += pow(max(sweep, 0.0), 7.0) * 0.05 * uIdle * (1.0 - p);
-
-          gl_FragColor = vec4(col, mask * uIntro);
-        }`
-    });
-    const markMesh = new THREE.Mesh(plane, mat);
-    markMesh.position.z = Z_REST;
-    scene.add(markMesh);
-
-    let mx=.5, my=.5, tmx=.5, tmy=.5, energy=0, lastX=null, lastY=null;
-    let prevTrailX=.5, prevTrailY=.5;
-    addEventListener('pointermove', e => {
-      const r = canvas.getBoundingClientRect();
-      tmx = (e.clientX - r.left)/r.width; tmy = 1 - (e.clientY - r.top)/r.height;
-      hovering = tmx >= 0 && tmx <= 1 && tmy >= 0 && tmy <= 1;
-      if (lastX !== null) energy = Math.min(1, energy + Math.hypot(e.clientX-lastX, e.clientY-lastY)*0.02);
-      lastX = e.clientX; lastY = e.clientY;
-    }, { passive:true });
-    canvas.addEventListener('pointerleave', () => { hovering = false; }, { passive:true });
-
-    // cycle — crossfade the montage into the next rotation of project
-    // covers every ~2.8s, alternating which offscreen canvas is redrawn
-    // while it's hidden so the swap never pops mid-frame. Skipped entirely
-    // while the hero is off screen: each cycle re-clips four full-size
-    // images through the mark path and re-uploads a 640px texture, which
-    // is a real hitch to pay for something nobody can see.
-    if (hasLibs && !prefersReduced && n > 1){
-      let activeIsA = true, nextIndex = 1;
-      setInterval(() => {
-        if (!tabVisible || !onScreen) return;
-        const targetCtx = activeIsA ? ctxB : ctxA;
-        const targetTex = activeIsA ? texB : texA;
-        drawArrangement(targetCtx, arrangementAt(nextIndex));
-        targetTex.needsUpdate = true;
-        gsap.to(uniforms.uMix, {
-          value: activeIsA ? 1 : 0, duration:1, ease:'power2.inOut',
-          onComplete: () => { activeIsA = !activeIsA; nextIndex++; }
-        });
-      }, 2800);
-    }
-
-    const clock = new THREE.Clock();
-    let tabVisible = true, onScreen = true;
-    document.addEventListener('visibilitychange', () => tabVisible = !document.hidden);
-    // ...and stop rendering once the hero has scrolled away. Without this
-    // the shader, the trail canvas repaint and the montage crossfade all
-    // keep running at 60fps for the entire rest of the page — invisible
-    // work that costs battery on laptops and real frame budget on phones,
-    // where it competes with the scroll-driven animations that ARE on
-    // screen. Gated on #ch0 rather than the canvas, because the canvas is
-    // inside the pin and its box stops being a reliable proxy while pinned.
-    if ('IntersectionObserver' in window){
-      const heroEl = $('#ch0');
-      if (heroEl) new IntersectionObserver(
-        entries => { onScreen = entries.some(e => e.isIntersecting); },
-        { rootMargin:'10% 0px' }
-      ).observe(heroEl);
-    }
-    function tick(){
-      requestAnimationFrame(tick);
-      if (!tabVisible || !onScreen) return;
-      uniforms.uTime.value = clock.getElapsedTime();
-      mx += (tmx-mx)*0.08; my += (tmy-my)*0.08; energy *= 0.94;
-      uniforms.uMouse.value.set(mx, my);
-      uniforms.uEnergy.value = energy;
-
-      // Decay the trail toward black, then re-light it under the cursor.
-      //
-      // The paint is proportional to how far the pointer actually travelled
-      // this frame, and that is not a refinement — it is the fix for the
-      // mark "bugging out". Painting a flat 0.85 alpha every frame through
-      // `lighter` compositing, against a 5% decay, saturates to pure white
-      // in about two frames and then never clears: park the cursor anywhere
-      // over the hero and the photo reveal burns in as a permanent white
-      // blob. Tying the paint to movement makes it behave like an actual
-      // trail — a still cursor stops adding and the glow decays away.
-      trailCtx.fillStyle = 'rgba(0,0,0,0.075)';
-      trailCtx.fillRect(0, 0, TRAIL_SIZE, TRAIL_SIZE);
-      const moved = Math.hypot(mx - prevTrailX, my - prevTrailY);
-      prevTrailX = mx; prevTrailY = my;
-      const paint = Math.min(0.55, moved * 7.5);
-      if (hovering && paint > 0.004){
-        const tx = mx * TRAIL_SIZE, ty = (1 - my) * TRAIL_SIZE, r = TRAIL_SIZE * 0.24;
-        const grad = trailCtx.createRadialGradient(tx, ty, 0, tx, ty, r);
-        grad.addColorStop(0, `rgba(255,255,255,${paint.toFixed(3)})`);
-        grad.addColorStop(1, 'rgba(255,255,255,0)');
-        trailCtx.globalCompositeOperation = 'lighter';
-        trailCtx.fillStyle = grad;
-        trailCtx.beginPath(); trailCtx.arc(tx, ty, r, 0, Math.PI * 2); trailCtx.fill();
-        trailCtx.globalCompositeOperation = 'source-over';
-      }
-      trailTex.needsUpdate = true;
-
-      renderer.render(scene, camera);
-    }
-    tick();
-
-    function resize(){
-      w = innerWidth; h = innerHeight;
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      // rebuild the plane so it still exactly fills the frustum at rest
-      const rh = 2 * Math.abs(Z_REST) * Math.tan(CAM_FOV * Math.PI / 360);
-      markMesh.geometry.dispose();
-      markMesh.geometry = new THREE.PlaneGeometry(rh * (w / h), rh);
-      const f = markFraction();
-      uniforms.uMarkScale.value.set(f.x, f.y);
-    }
-    resize();
-    addEventListener('resize', resize);
-
-    heroMarkApi = {
-      // scroll progress 0..1 drives the whole transition. the mesh travels
-      // toward the camera on Z (that translation IS the effect — see the
-      // rig comment above); the shader only uses p for the grain falloff
-      // and the intra-shape drift.
-      setScroll: v => {
-        const p = v < 0 ? 0 : v > 1 ? 1 : v;
-        heroState.scroll = p;
-        uniforms.uScroll.value = p;
-        markMesh.position.z = Z_REST + (Z_END - Z_REST) * p;
-      },
-      setIntro: v => { heroState.intro = v; uniforms.uIntro.value = v; }
-    };
-    // apply whatever scroll position was already reached while loading
-    heroMarkApi.setScroll(heroState.scroll);
-  }
+  heroMarkApi = {
+    setScroll: v => {
+      const p = v < 0 ? 0 : v > 1 ? 1 : v;
+      heroState.scroll = p;
+      uniforms.uScroll.value = p;
+    },
+    setIntro: v => { heroState.intro = v; uniforms.uIntro.value = v; }
+  };
+  heroMarkApi.setScroll(heroState.scroll);
 }
 
 /* ————————————————— work — data ————————————————— */
@@ -2191,26 +1927,6 @@ function buildFilm(){
 
   
 
-/* 00 · the mark, as a window — the mark itself is solid black (its resting
-   state — see the shader's blackMark mix), so scaling it up 16x IS the
-   black transition: black quite literally grows outward from the logo's
-   own silhouette and swallows the screen, rather than a separate
-   full-viewport background fade happening in parallel. The wrap's
-   opacity deliberately stays at 1 the whole way through — fading it out
-   early would fade away the very thing producing the black.
-
-   #ch0 itself carries its own opaque background (--paper, cream) in the
-   base CSS — and because it's the pinned, fixed-position element on top
-   during the whole pin, that cream sits ABOVE #bg-field the entire time,
-   which made every bit of the bg-field syncing below invisible during
-   the pin itself. The mark's own silhouette has a concave notch, so it
-   never covers 100% of the screen on its own — whatever gap it leaves
-   was showing #ch0's still-cream background straight through, reading
-   as "white pages before the black work section." Painting #ch0's own
-   background directly, on the identical growP curve as the mark's
-   scale, is what actually closes that gap — this is the fix, not
-   #bg-field (which only matters for the handoff once the pin releases
-   and #ch0 scrolls away). */
   const ch0El = $('#ch0');
   const HERO_CREAM = [245,241,232], HERO_BLACK = [10,9,8];
   const paintCh0 = growP => {
@@ -2219,76 +1935,50 @@ function buildFilm(){
     ch0El.style.backgroundColor = `rgb(${c[0]},${c[1]},${c[2]})`;
   };
 
-  /* the mark is no longer scaled by css at all — heroMarkApi.setScroll
-     translates the mesh toward the camera through a perspective frustum,
-     which is what the reference implementation actually does and what
-     makes it read as travelling through the mark rather than zooming it.
-     paintCh0 stays as the backing colour so the cream ground is already
-     the right shade in any pixel the silhouette hasn't covered yet
-     (its concave notch means it never covers 100% on its own). */
-  const driveHero = p => {
-    const growP = easeInOutCubic(clamp01(p));
-    paintCh0(growP);
-    heroState.scroll = growP;              // survives a not-yet-ready shader
-    if (heroMarkApi) heroMarkApi.setScroll(growP);
-  };
+  /* One path now, on every device — no pin anywhere.
 
-  if (!isTouch){
-    // pointer devices — pinned, so the transition owns a fixed stretch of
-    // scroll and plays at a controlled rate. progress rides the pin's
-    // entire range (0->1) and peaks exactly as the pin releases; letting it
-    // saturate early leaves a dead tail where scrolling continues but
-    // nothing moves, and the pin's release then reads as a jump.
-    ScrollTrigger.create({
-      // +=20% of the viewport: the pin holds the page still for exactly
-      // this much scrolling, so it also sets how long the work section is
-      // held back. 60% made the flight luxurious but left you scrolling at
-      // a frozen page for too long; 30% was still a beat more than it needed.
-      trigger:'#ch0', start:'top top', end:'+=20%', pin:true, scrub:true,
-      onUpdate: st => {
-        const p = st.progress;
-        // the heading and caption step aside early — they're read before
-        // the travel begins
-        gsap.set('.hero-heading', { opacity: Math.max(0, 1 - p * 6) });
-        gsap.set('.hero-caption', { opacity: Math.max(0, 1 - p * 6) });
-        driveHero(p);
-      }
-    });
-  } else {
-    // touch devices — pinning a fixed-position element through a scroll-
-    // driven transform is exactly the kind of scroll-jacking that iOS
-    // Safari (and mobile browsers generally) handle unreliably: stuck
-    // pins, content trapped mid-transform, scroll that stops responding.
-    // Skip the pin outright. The fly-through still runs — it just plays
-    // across #ch0's own natural scroll distance while the section scrolls
-    // past normally, which needs no scroll interception at all.
-    const heroCanvas = $('#hero-mark-canvas');
-    ScrollTrigger.create({
-      trigger:'#ch0', start:'top top', end:'bottom top', scrub:true,
-      onUpdate: st => {
-        const p = st.progress;
-        // the heading and caption step aside early, exactly as they do on
-        // the pinned path. They sit *behind* the fixed canvas, and the
-        // canvas is only opaque where the mark actually covers — so left
-        // alone they stay legible straight through the transparent parts
-        // of the silhouette and ghost over the whole flight.
-        gsap.set('.hero-heading', { opacity: Math.max(0, 1 - p * 5) });
-        gsap.set('.hero-caption', { opacity: Math.max(0, 1 - p * 5) });
-        // the flight finishes a little before the section does, leaving the
-        // tail of the scroll to hand over rather than cutting straight from
-        // "mark fills the screen" to "work section"
-        driveHero(p / 0.72);
-        // the canvas is fixed on touch, so it has to retire deliberately —
-        // otherwise it stays parked over the work section for good. By the
-        // time this starts, #bg-field beneath is already solid black, so
-        // fading out reads as the black simply continuing.
-        if (heroCanvas) heroCanvas.style.opacity = String(1 - clamp01((p - 0.78) / 0.22));
-      }
-    });
-  }
+     The pin existed to hold the hero still while the mark was flown through
+     the camera. The dissolve doesn't need that: the canvas is fixed to the
+     viewport instead, so it cannot scroll away mid-transition, and the page
+     scrolls normally underneath. That fixes three things at once —
 
+       · the split-second "page going up" on desktop, which was the fully
+         grown mark sliding upward with .pinwrap the moment the pin released;
+       · the arrival time, because a pin adds its own duration to the
+         document (spacer height = element height + pin duration), so
+         dropping a 20vh pin removes 20vh of scrolling outright;
+       · and the last of the scroll interception, which is what made phones
+         unreliable in the first place.
 
+     Distance to the work section is now just the hero's own height. */
+  const heroCanvas = $('#hero-mark-canvas');
+  ScrollTrigger.create({
+    trigger:'#ch0', start:'top top', end:'bottom top', scrub:true,
+    onUpdate: st => {
+      const p = st.progress;
 
+      // heading and caption step aside early — they're read before the
+      // dissolve starts, and they sit behind a canvas that is only opaque
+      // where grain has landed, so they'd otherwise show through it
+      gsap.set('.hero-heading', { opacity: Math.max(0, 1 - p * 5) });
+      gsap.set('.hero-caption', { opacity: Math.max(0, 1 - p * 5) });
+
+      // the dissolve completes before the section does, leaving the tail of
+      // the scroll to hand over on solid black rather than cutting straight
+      // from "grain everywhere" to "work section"
+      const d = clamp01(p / 0.68);
+      paintCh0(easeInOutCubic(d));
+      heroState.scroll = d;                 // survives a not-yet-ready shader
+      if (heroMarkApi) heroMarkApi.setScroll(d);
+
+      // the canvas is fixed, so it has to retire deliberately or it stays
+      // parked over the work section. By now #bg-field beneath is already
+      // solid black, so this reads as the black simply continuing.
+      if (heroCanvas) heroCanvas.style.opacity = String(1 - clamp01((p - 0.8) / 0.2));
+    }
+  });
+
+  
   /* background field — cream hero fades to near-black entering work, then
      simply STAYS black for the rest of the film (work/about/cta all read
      it through their own transparent section backgrounds). It intentionally
