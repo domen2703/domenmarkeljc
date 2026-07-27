@@ -8,7 +8,27 @@
 <meta property="og:title" content="domen markeljc — the archive">
 <meta property="og:description" content="visual identities . websites . memory systems. some brands are seen. others are remembered.">
 <meta property="og:type" content="website">
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
+<!-- Without an og:image, pasting this link into Slack, LinkedIn, WhatsApp or
+     iMessage shows a bare grey box — a poor first impression for a designer,
+     and the single cheapest credibility fix on the site. Regenerate from
+     assets/og-cover-source.html if the wording ever changes. -->
+<meta property="og:image" content="https://domenmarkeljc.com/assets/img/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="domen markeljc — identity, packaging and digital product design">
+<meta property="og:url" content="https://domenmarkeljc.com/">
+<meta property="og:site_name" content="domen markeljc">
+<meta name="twitter:image" content="https://domenmarkeljc.com/assets/img/og-cover.png">
+<link rel="canonical" href="https://domenmarkeljc.com/">
+<!-- tells search and AI crawlers who this actually is -->
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Person","name":"domen markeljc",
+ "url":"https://domenmarkeljc.com/","email":"info@domenmarkeljc.com",
+ "jobTitle":"designer","address":{"@type":"PostalAddress","addressLocality":"Ljubljana","addressCountry":"SI"},
+ "knowsAbout":["brand identity","packaging design","editorial design","web design"],
+ "sameAs":["https://www.instagram.com/domen_markeljc/","https://x.com/DMarkeljc","https://www.facebook.com/domen.markeljc.98"]}
+</script>
 <meta name="theme-color" content="#0a0908">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230a0908'/%3E%3Cpath fill='%23ece5d8' d='M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z'/%3E%3C/svg%3E"><style>
 
@@ -219,6 +239,25 @@ body.touch .pv-close{cursor:pointer}
 .pv-gallery img,.pv-gallery video{display:block;width:100%;height:auto;border-radius:6px;transition:transform 500ms var(--ease-out)}
 .pv-gallery figure:hover img,.pv-gallery figure:hover video{transform:scale(1.035)}
 .pv-gallery .wide{grid-column:1/-1}
+/* A case that can only be closed sends people back to the start; one that
+   offers the next keeps them reading. Full-width and unmistakable, sitting
+   after the images where attention is already looking for what's next. */
+.pv-next{display:flex;align-items:baseline;gap:clamp(12px,1.6vw,22px);width:100%;
+  margin-top:clamp(48px,8vh,96px);padding:clamp(22px,3.4vh,34px) 0 0;
+  border-top:1px solid var(--cream-24);background:none;border-left:0;border-right:0;border-bottom:0;
+  color:var(--cream);text-align:left;cursor:none;font:inherit;
+  transition:border-color .4s var(--ease-out)}
+body.touch .pv-next{cursor:pointer}
+.pv-next:hover{border-color:var(--cream)}
+.pv-next__l{font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--cream-40);flex:none}
+.pv-next__n{font-family:var(--sans);font-weight:300;text-transform:lowercase;
+  font-size:clamp(24px,4vw,46px);line-height:1;letter-spacing:-.024em}
+.pv-next__a{margin-left:auto;font-size:clamp(20px,2.4vw,30px);
+  transition:transform .4s var(--ease-out)}
+.pv-next:hover .pv-next__a{transform:translateX(8px)}
+.pv-next:active{transform:scale(.995)}
+@media (prefers-reduced-motion:reduce){.pv-next__a,.pv-next{transition:none}}
 @media (max-width:640px){.pv-gallery{grid-template-columns:1fr}}
 @media (hover:none){.pv-gallery figure:hover img,.pv-gallery figure:hover video{transform:none}}
 @media (prefers-reduced-motion:reduce){
@@ -276,6 +315,38 @@ footer.sec{color:var(--paper-ink)}
    spends compositor layers — which Safari is markedly stingier with than
    Chrome, and which is the other half of why this ran worse there. */
 .gallery-card .cg-slice{position:absolute;top:0;height:100%}
+
+/* ---- hover: a small lift and a light running the border ----
+   The scale goes on the inner 3d wrapper, never on .gallery-card itself —
+   that one has its transform rewritten every frame by the orbit, and a css
+   transition on the same property would fight it. */
+.gallery-card__3d{transition:transform .55s var(--ease-out)}
+.gallery-card:hover .gallery-card__3d,
+.gallery-card:focus-visible .gallery-card__3d{transform:scale(1.045)}
+
+.cg-edge{position:absolute;inset:-1px;width:calc(100% + 2px);height:calc(100% + 2px);
+  overflow:visible;pointer-events:none;opacity:0;
+  transition:opacity .35s var(--ease-out)}
+.cg-edge rect{
+  fill:none;stroke:var(--cream);stroke-width:1.5;vector-effect:non-scaling-stroke;
+  /* a short lit arc chasing a faint one all the way round */
+  stroke-dasharray:16 84;stroke-dashoffset:0;
+  filter:drop-shadow(0 0 5px rgba(236,229,216,.85))}
+.gallery-card:hover .cg-edge,
+.gallery-card:focus-visible .cg-edge{opacity:1}
+.gallery-card:hover .cg-edge rect,
+.gallery-card:focus-visible .cg-edge rect{animation:edge-run 2.4s linear infinite}
+@keyframes edge-run{ to { stroke-dashoffset:-100 } }
+
+@media (hover:none){
+  .gallery-card:hover .gallery-card__3d{transform:none}
+  .cg-edge{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .gallery-card__3d{transition:none}
+  .gallery-card:hover .gallery-card__3d{transform:none}
+  .gallery-card:hover .cg-edge rect{animation:none}
+}
 .gallery-phrase{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--sans);font-weight:300;font-size:clamp(20px,2.8vw,36px);line-height:1.4;color:var(--cream);text-align:center;max-width:620px;z-index:900;pointer-events:none;opacity:0}
 .gallery-phrase .word{display:inline-block;opacity:0;filter:blur(8px)}
 .gallery-phrase em{font-style:italic;font-family:Georgia,'Times New Roman',serif;color:var(--cream-70)}
@@ -413,6 +484,110 @@ html.static .work-flat{display:block}
   .fact{grid-template-columns:1fr;gap:5px}
 }
 
+/* ————— 03 what it costs — the fanned plans —————
+   Three cards on a shallow arc: the outer two lean away from the middle and
+   sit slightly lower, so the group reads as one fanned object rather than a
+   row of boxes. They overlap by design — the overlap is the affordance that
+   makes dragging them feel permitted. */
+#pricing{max-width:1400px;margin:0 auto}
+.pricing-lede{max-width:46ch;margin:0 0 clamp(52px,9vh,110px);
+  font-size:clamp(15px,1.35vw,19px);line-height:1.6;letter-spacing:-.006em;
+  font-weight:300;color:var(--cream-70)}
+
+.plans{display:flex;justify-content:center;align-items:flex-start;
+  perspective:1400px;padding:clamp(20px,4vh,54px) 0 clamp(30px,5vh,64px)}
+
+.plan{
+  position:relative;flex:0 0 clamp(268px,25vw,340px);
+  /* the frosted panel: translucent over the black ground, blurred so the
+     section behind it stays faintly present rather than being boxed out */
+  background:linear-gradient(158deg,rgba(236,229,216,.085),rgba(236,229,216,.028));
+  backdrop-filter:blur(16px) saturate(130%);
+  -webkit-backdrop-filter:blur(16px) saturate(130%);
+  border:1px solid var(--cream-24);border-radius:20px;
+  padding:clamp(24px,2.4vw,32px) clamp(22px,2.2vw,30px) clamp(26px,2.6vw,34px);
+  color:var(--cream);cursor:none;touch-action:pan-y;
+  will-change:transform;
+  /* transform is driven from js (drag + spring back), so it is deliberately
+     NOT in this transition list — the two would fight every frame */
+  transition:border-color .45s var(--ease-out),box-shadow .45s var(--ease-out),
+             background-color .45s var(--ease-out)}
+body.touch .plan{cursor:pointer}
+.plan:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+
+/* the arc. left leans out and drops, middle sits up, right mirrors left. */
+.plan{--dx:0px;--dy:0px;--dr:0deg}
+.plan--mark{transform:translate(var(--dx),var(--dy)) rotate(calc(-6deg + var(--dr))) translateY(26px);margin-right:clamp(-58px,-3.4vw,-26px);z-index:1}
+.plan--system{transform:translate(var(--dx),var(--dy)) rotate(var(--dr)) translateY(-8px);z-index:3}
+.plan--world {transform:translate(var(--dx),var(--dy)) rotate(calc(6deg + var(--dr))) translateY(26px);margin-left:clamp(-58px,-3.4vw,-26px);z-index:1}
+
+/* each plan owns a colour, used only on hover — the set stays monochrome at
+   rest so the section doesn't turn into a fruit bowl */
+.plan--mark{--plan-c:#3971ff}
+.plan--system{--plan-c:#e5352b}
+.plan--world {--plan-c:#e0a32e}
+
+.plan:hover,.plan.is-lifted{
+  border-color:color-mix(in srgb, var(--plan-c) 70%, transparent);
+  background-color:color-mix(in srgb, var(--plan-c) 7%, transparent);
+  box-shadow:0 24px 70px -28px color-mix(in srgb, var(--plan-c) 55%, transparent);
+  z-index:6}
+@supports not (color: color-mix(in srgb, red, blue)){
+  /* older safari: fall back to the flat accent rather than losing the cue */
+  .plan:hover,.plan.is-lifted{border-color:var(--cream);box-shadow:0 24px 70px -30px rgba(0,0,0,.7)}
+}
+.plan.is-dragging{z-index:9;cursor:grabbing}
+
+.plan__mark{position:absolute;top:clamp(22px,2.2vw,28px);left:clamp(22px,2.2vw,30px);
+  width:19px;height:19px;display:block}
+.plan__mark path{fill:var(--cream-40);transition:fill .45s var(--ease-out)}
+.plan:hover .plan__mark path,.plan.is-lifted .plan__mark path{fill:var(--plan-c)}
+
+.plan__flag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);
+  white-space:nowrap;font-size:9px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink);background:var(--cream);padding:5px 12px;border-radius:99px}
+
+.plan__tempo{display:block;margin-top:34px;font-family:var(--sans);font-weight:300;
+  text-transform:lowercase;font-size:clamp(28px,2.9vw,38px);line-height:1;letter-spacing:-.026em}
+.plan__gloss{display:block;margin-top:7px;font-size:11px;font-style:italic;
+  font-family:Georgia,'Times New Roman',serif;color:var(--cream-40)}
+
+.plan__price{margin:clamp(20px,2.4vh,28px) 0 0;font-family:var(--sans);font-weight:600;
+  font-size:clamp(32px,3.4vw,44px);line-height:1;letter-spacing:-.03em;
+  font-variant-numeric:tabular-nums}
+.plan__cur{font-size:.52em;font-weight:400;vertical-align:super;margin-right:3px;color:var(--cream-55)}
+.plan__for{margin:12px 0 0;font-size:13px;line-height:1.5;color:var(--cream-70)}
+
+.plan__list{list-style:none;margin:clamp(20px,2.6vh,28px) 0 0;padding:0;
+  border-top:1px solid var(--cream-10)}
+.plan__list li{position:relative;padding:11px 0 11px 20px;font-size:13px;line-height:1.45;
+  color:var(--cream-70);border-bottom:1px solid var(--cream-10)}
+.plan__list li::before{content:"";position:absolute;left:2px;top:17px;
+  width:5px;height:5px;border-radius:50%;background:var(--cream-40);
+  transition:background-color .45s var(--ease-out)}
+.plan:hover .plan__list li::before,.plan.is-lifted .plan__list li::before{background:var(--plan-c)}
+
+.plan__time{display:block;margin-top:clamp(18px,2.2vh,24px);
+  font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--cream-40)}
+
+.plans-note{max-width:52ch;margin:clamp(26px,4vh,44px) auto 0;text-align:center;
+  font-size:13px;line-height:1.6;color:var(--cream-55)}
+.plans-note a{color:var(--cream);border-bottom:1px solid var(--cream-24);padding-bottom:2px;
+  transition:border-color .3s}
+.plans-note a:hover{border-color:var(--cream)}
+
+/* Stacked below the fan's breaking point. The arc only works while the three
+   sit side by side; once they wrap, the rotations read as misalignment. */
+@media (max-width:900px){
+  .plans{flex-direction:column;align-items:center;gap:20px;perspective:none}
+  .plan{flex:0 0 auto;width:min(100%,380px);margin:0!important;
+    transform:translate(var(--dx),var(--dy)) rotate(var(--dr))!important}
+  .plan--system{order:-1}
+}
+@media (prefers-reduced-motion:reduce){
+  .plan{transition:none}
+}
+
 /* ————— 03 start a project — the one bold beat ————— */
 #cta{min-height:82vh;display:flex;align-items:center;justify-content:center;text-align:center;padding-top:14vh;padding-bottom:14vh}
 .cta-inner{max-width:900px}
@@ -470,47 +645,24 @@ footer{position:relative;width:100%;height:100vh;isolation:isolate;display:flex;
 .copy-email[data-state="b"] .ce-a{opacity:0;filter:blur(4px);transform:translateY(-8px)}
 .copy-email[data-state="b"] .ce-b{opacity:1;filter:blur(0);transform:translateY(0)}
 
-/* position:relative anchors the absolutely-placed confirmation below */
 /* Spans three columns rather than two, and takes a real width instead of
    fit-content — at 5/7 with a fixed-width input the placeholder was being
    clipped mid-word, so the field read as "occasional notes — your em" with
    "join" hard against it. */
-.fnews{position:relative;grid-column:4/7;justify-self:end;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(20,18,16,.3);padding-bottom:5px;width:min(100%,330px);transition:border-color .35s}
-.fnews:focus-within{border-color:var(--accent)}
 /* flex:1 with min-width:0 lets the field take whatever the row has left
    after the button. min-width is not optional — a flex item's default
    min-width:auto refuses to shrink below its content, which is what let it
    overflow its own container in the first place. */
-.fnews input{appearance:none;background:none;border:none;outline:none;font:inherit;font-size:12px;letter-spacing:-.005em;color:var(--paper-ink);flex:1 1 auto;min-width:0;width:auto;padding:2px 0;text-overflow:ellipsis}
-.fnews button.fn-submit{flex:none}
-.fnews input::placeholder{color:rgba(20,18,16,.5)}
-.fnews button{appearance:none;background:none;border:none;font:inherit;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:lowercase;color:rgba(20,18,16,.78);cursor:pointer;white-space:nowrap;transition:color .3s}
-.fnews button:hover{color:var(--accent)}
-/* The confirmation used to be a display:none swap — the field and button
-   vanished and "thanks" appeared in the same frame, with nothing bridging
-   them. This is a once-ever moment, which is exactly where a little care
-   is affordable. The field fades up and out while the confirmation rises
-   into its place, slightly staggered so it reads as a handover rather than
-   a cut. Kept at opacity/transform (not display) so the row holds its
-   width and nothing reflows around it. */
-.fnews input,.fnews button.fn-submit{
-  transition:opacity .2s var(--ease-out),transform .2s var(--ease-out)}
-.fnews.is-sent input,.fnews.is-sent button.fn-submit{
-  opacity:0;transform:translateY(-7px);pointer-events:none}
-.fnews .fn-done{position:absolute;left:0;bottom:5px;white-space:nowrap;
-  font-size:12px;color:rgba(20,18,16,.7);opacity:0;transform:translateY(7px);
-  transition:opacity .28s var(--ease-out) .1s,transform .28s var(--ease-out) .1s}
-.fnews.is-sent .fn-done{opacity:1;transform:translateY(0)}
-/* press feedback, matching the sibling controls. The big ctas get theirs
-   from gsap instead — they carry a magnetic transform that a css :active
-   would fight — but this one is static, so css is the right tool. */
-.fnews button.fn-submit{transition:opacity .2s var(--ease-out),transform .2s var(--ease-out),color .3s}
-.fnews button.fn-submit:active{transform:scale(.96)}
-@media (prefers-reduced-motion:reduce){
-  .fnews input,.fnews button.fn-submit,.fnews .fn-done{transition-duration:.12s;transform:none}
-  .fnews.is-sent input,.fnews.is-sent button.fn-submit{transform:none}
-}
 
+/* the response promise: the highest-trust line on the page, so it gets a
+   live dot and sits where the signup form used to interrupt the contact
+   block */
+.fresponse{grid-column:4/7;justify-self:end;display:flex;align-items:center;gap:10px;margin:0;
+  font-size:11px;font-weight:500;letter-spacing:.08em;color:rgba(20,18,16,.72)}
+.fresponse i{width:6px;height:6px;border-radius:50%;background:var(--red);flex:none;
+  animation:pulse-dot 2.6s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.fresponse i{animation:none}}
+@media (max-width:860px){.fresponse{grid-column:1/-1;justify-self:start}}
 .fbottom{align-items:center;row-gap:14px;padding:clamp(10px,2.4vh,22px) 0;font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:lowercase;color:rgba(20,18,16,.68)}
 .fbottom__social{grid-column:1/3;display:flex;gap:20px;flex-wrap:wrap}
 .fbottom__nav{grid-column:3/6;display:flex;gap:20px;flex-wrap:wrap}
@@ -531,7 +683,7 @@ footer{position:relative;width:100%;height:100vh;isolation:isolate;display:flex;
 @media (max-width:760px){
   footer{height:auto;min-height:100vh}
   .ftop,.fcontact,.fbottom{grid-template-columns:1fr;row-gap:18px}
-  .fkicker,.fcta,.fcontact__block,.fnews,.fbottom__social,.fbottom__nav,.fbottom__meta{grid-column:1/-1;justify-self:start}
+  .fkicker,.fcta,.fcontact__block,.fbottom__social,.fbottom__nav,.fbottom__meta{grid-column:1/-1;justify-self:start}
 }
 
 /* ————— floating 3d logo canvas (module script owns the drawing) ————— */
@@ -681,9 +833,79 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
   </section>
 
   <!-- 03 · start a project -->
-  <section id="cta" data-chapter="3" class="sec">
+  <!-- 03 · what it costs -->
+  <section id="pricing" data-chapter="3" class="sec">
+    <div class="sec-head" data-io>
+      <span class="sec-idx">03</span>
+      <h2>what it costs</h2>
+      <span class="rule"></span>
+    </div>
+
+    <p class="pricing-lede" data-io>three ways in, named for how far they go. every one is a fixed price agreed before anything starts — no hourly billing, no surprises at the end.</p>
+
+    <!-- Fanned on a shallow arc: the outer two lean away from the middle and
+         sit slightly lower, so the set reads as one object rather than three
+         separate boxes. They overlap a little, which is what makes dragging
+         them feel like something you're allowed to do. -->
+    <div class="plans" id="plans">
+
+      <article class="plan plan--mark" data-plan="mark" data-hover tabindex="0">
+        <svg class="plan__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/></svg>
+        <span class="plan__tempo">mark</span>
+        <span class="plan__gloss">the mark itself</span>
+        <p class="plan__price"><span class="plan__cur">€</span>690</p>
+        <p class="plan__for">one mark, done properly.</p>
+        <ul class="plan__list">
+          <li>logotype or wordmark</li>
+          <li>two directions to choose from</li>
+          <li>two rounds of refinement</li>
+          <li>every file you need — svg, png, pdf</li>
+          <li>a one-page sheet on how to use it</li>
+        </ul>
+        <span class="plan__time">1–2 weeks</span>
+      </article>
+
+      <article class="plan plan--system is-featured" data-plan="system" data-hover tabindex="0">
+        <svg class="plan__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/></svg>
+        <span class="plan__flag">most projects land here</span>
+        <span class="plan__tempo">system</span>
+        <span class="plan__gloss">everything around it</span>
+        <p class="plan__price"><span class="plan__cur">€</span>1,890</p>
+        <p class="plan__for">a whole identity, not just a logo.</p>
+        <ul class="plan__list">
+          <li>everything in mark</li>
+          <li>three directions, explored properly</li>
+          <li>colour and type system</li>
+          <li>two applications — label, card, cover</li>
+          <li>a proper guide, 8–12 pages</li>
+        </ul>
+        <span class="plan__time">3–4 weeks</span>
+      </article>
+
+      <article class="plan plan--world" data-plan="world" data-hover tabindex="0">
+        <svg class="plan__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/></svg>
+        <span class="plan__tempo">world</span>
+        <span class="plan__gloss">built, and live</span>
+        <p class="plan__price"><span class="plan__cur">€</span>3,900</p>
+        <p class="plan__for">the identity, built and live.</p>
+        <ul class="plan__list">
+          <li>everything in system</li>
+          <li>full packaging or a full site</li>
+          <li>built and deployed, not just designed</li>
+          <li>motion and social kit</li>
+          <li>three months of support after launch</li>
+        </ul>
+        <span class="plan__time">6–8 weeks</span>
+      </article>
+
+    </div>
+
+    <p class="plans-note" data-io>prices are a starting point, not a menu — odd-shaped projects get an odd-shaped quote. <a href="mailto:info@domenmarkeljc.com" data-hover>ask about yours</a>.</p>
+  </section>
+
+  <section id="cta" data-chapter="4" class="sec">
     <div class="cta-inner">
-      <span class="sec-idx" data-io>03 — start a project</span>
+      <span class="sec-idx" data-io>04 — start a project</span>
       <h2 class="cta-h" data-io>start a<br>project</h2>
       <p class="cta-sub" data-io>have something that needs a mark, a label, or a screen — done properly? let's talk it through.</p>
       <a class="cta-btn" href="mailto:info@domenmarkeljc.com" data-hover data-io>
@@ -695,7 +917,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
 
 </main>
 
-<footer id="site-footer" data-chapter="4" class="sec">
+<footer id="site-footer" data-chapter="5" class="sec">
   <canvas id="footer-canvas" aria-hidden="true"></canvas>
   <div class="footer-inner">
   <div class="ftop fgrid" data-io>
@@ -713,11 +935,12 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
         <span class="ce-b ce-label">copied</span>
       </button>
     </div>
-    <form class="fnews" id="fnews" novalidate>
-      <input type="email" name="email" placeholder="occasional notes — your email" aria-label="email address for occasional updates" required>
-      <button type="submit" class="fn-submit" data-hover>join</button>
-      <span class="fn-done">thanks — you're in</span>
-    </form>
+    <!-- The newsletter that used to sit here was never wired to anything:
+         it showed a success message and stored nothing. On a site whose
+         argument is care, a form that lies is worse than no form. Replaced
+         with the one thing a prospective client actually wants to know
+         before they write to you. -->
+    <p class="fresponse"><i aria-hidden="true"></i>usually replies within two days</p>
   </div>
   <div class="fbottom fgrid" data-io>
     <div class="fbottom__social">
@@ -758,6 +981,11 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
            focusable and clickable in the meantime, opening a blank tab. -->
       <a class="pv-link" id="modal-link" target="_blank" rel="noopener" data-hover hidden>visit the live site</a>
       <div class="pv-gallery" id="modal-gallery"></div>
+      <button type="button" class="pv-next" id="pv-next" data-hover hidden>
+        <span class="pv-next__l">next project</span>
+        <span class="pv-next__n" id="pv-next-name"></span>
+        <span class="pv-next__a" aria-hidden="true">→</span>
+      </button>
     </div>
   </div>
 </div>
@@ -1253,7 +1481,7 @@ function buildHeroMark(){
 
 /* ————————————————— work — data ————————————————— */
 const PROJECTS = [
-  { num:'01', title:'gorjup', meta:'wine label',
+  { num:'01', title:'gorjup', kind:'self-initiated', meta:'wine label',
     copy:"a wine label built to survive being picked up. the shadow of a leaf, cast on stone, became the illustration. <b>the illustration became a mark you can find with your thumb</b> before you've read a word.",
     tags:['identity','packaging'], link:null, cover:'assets/img/gorjup-01.jpg',
     gallery:[
@@ -1262,7 +1490,7 @@ const PROJECTS = [
       { src:'assets/img/gorjup-03.jpg' },
       { src:'assets/img/gorjup-04.jpg', wide:true }
     ] },
-  { num:'02', title:'kosovel', meta:'editorial · booklet',
+  { num:'02', title:'kosovel', kind:'self-initiated', meta:'editorial · booklet',
     copy:"a hundred years is long enough for a poet to be forgotten. this booklet was built so srečko kosovel's constructivist work wouldn't be — <b>his kons poems set back into motion through typography built to be read twice:</b> once for the words, once for the shape they make.",
     tags:['editorial','typography'], link:null, cover:'assets/img/kosovel-01.jpg',
     gallery:[
@@ -1271,14 +1499,14 @@ const PROJECTS = [
       { src:'assets/img/kosovel-03.jpg' },
       { src:'assets/img/kosovel-04.jpg' }
     ] },
-  { num:'03', title:'santera', meta:'beverage label',
+  { num:'03', title:'santera', kind:'self-initiated', meta:'beverage label',
     copy:"not a drink you finish quickly. an arch on the label, a sun-warmed palette, <b>a bottle shaped for the second pour more than the first.</b> built for the part of the evening nobody's in a hurry to end.",
     tags:['identity','packaging'], link:null, cover:'assets/img/santera-01.jpg',
     gallery:[
       { src:'assets/img/santera-01.jpg', wide:true },
       { src:'assets/img/santera-02.jpg', wide:true }
     ] },
-  { num:'04', title:'ronki', meta:'olive oil identity',
+  { num:'04', title:'ronki', kind:'self-initiated', meta:'olive oil identity',
     copy:"two olives, drawn close enough together that they start to look like a face watching you back. that's the whole brief in one mark — <b>generations of careful selection, pressed into something you'd notice</b> on a shelf full of oil that all looks the same at a glance.",
     tags:['identity','packaging'], link:null, cover:'assets/img/ronki-01.jpg',
     gallery:[
@@ -1287,7 +1515,7 @@ const PROJECTS = [
       { src:'assets/img/ronki-03.jpg' },
       { src:'assets/img/ronki-04.jpg' }
     ] },
-  { num:'05', title:'2fit2fail', meta:'web design / brand',
+  { num:'05', title:'2fit2fail', kind:'live project', meta:'web design / brand',
     copy:"a training system doesn't need to look loud to feel serious. this one does anyway, on purpose — <b>sharp type, acid accents, a site built with the same discipline</b> the training plans are. built to move, not just to load.",
     tags:['identity','website'], link:'https://zhp.vercel.app/', cover:'assets/img/zhp-01.jpg',
     gallery:[
@@ -1396,6 +1624,21 @@ function buildGallery(){
         sl.style.transform = 'rotateY(' + angle.toFixed(2) + 'deg)';
         inner.appendChild(sl);
       }
+      /* The travelling stroke is an svg rect with a dashed outline, not a
+         conic-gradient border. A rotating conic needs either @property or a
+         mask-composite ring to show only the edge, and both were risky here
+         — this card already had one Safari flattening bug from stacking
+         effects on the 3d subtree. A dash offset animating around a
+         pathLength-normalised rect is plain SVG, needs no mask, and is
+         immune to all of that. non-scaling-stroke keeps it an even weight
+         despite the viewBox being stretched to the card's aspect. */
+      const edge = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      edge.setAttribute('class','cg-edge');
+      edge.setAttribute('viewBox','0 0 100 100');
+      edge.setAttribute('preserveAspectRatio','none');
+      edge.setAttribute('aria-hidden','true');
+      edge.innerHTML = '<rect x="0.6" y="0.6" width="98.8" height="98.8" rx="2" pathLength="100"/>';
+      inner.appendChild(edge);
       card.appendChild(inner);
       card.addEventListener('click', () => openProjectModal(i));
       pin.appendChild(card);
@@ -1509,22 +1752,33 @@ function galleryFigureHTML(g){
     : `<img src="${g.src}" alt="" loading="lazy">`;
   return `<figure${g.wide ? ' class="wide"' : ''}>${media}</figure>`;
 }
+let openProjectIndex = -1;
 function openProjectModal(i){
   const p = PROJECTS[i];
   if (!p) return;
-  $('#modal-num').textContent = p.num;
+  openProjectIndex = i;
+  $('#modal-num').textContent = p.num + '  ·  ' + p.kind;
   $('#modal-title').textContent = p.title;
   $('#modal-tags').innerHTML = p.tags.map(t => `<span>${t}</span>`).join('');
   $('#modal-copy').innerHTML = p.copy;
   const link = $('#modal-link');
   if (p.link){ link.href = p.link; link.hidden = false; } else link.hidden = true;
   $('#modal-gallery').innerHTML = (p.gallery || []).map(galleryFigureHTML).join('');
+  // a case study that can only be closed is a dead end — someone who liked
+  // one should be able to fall into the next without deciding to
+  const nxt = PROJECTS[(i + 1) % PROJECTS.length];
+  const nextBtn = $('#pv-next');
+  if (nextBtn && nxt){
+    $('#pv-next-name').textContent = nxt.title;
+    nextBtn.hidden = false;
+  }
   $('#modal').dataset.open = 'true';
   $('#pv-scroll').scrollTop = 0;
   document.body.style.overflow = 'hidden';
   if (lenis) lenis.stop();
 }
 function closeProjectModal(){
+  openProjectIndex = -1;
   $('#modal').dataset.open = 'false';
   document.body.style.overflow = '';
   if (lenis) lenis.start();
@@ -1532,6 +1786,20 @@ function closeProjectModal(){
 {
   const closeBtn = $('#modal-close');
   if (closeBtn) closeBtn.addEventListener('click', closeProjectModal);
+  const nextBtn = $('#pv-next');
+  if (nextBtn) nextBtn.addEventListener('click', () => {
+    if (openProjectIndex < 0) return;
+    openProjectModal((openProjectIndex + 1) % PROJECTS.length);
+  });
+  // left/right step between cases while one is open. The page's own arrow
+  // handler only runs when the modal is closed, so these cannot collide.
+  addEventListener('keydown', e => {
+    if ($('#modal').dataset.open !== 'true' || openProjectIndex < 0) return;
+    if (e.key === 'ArrowRight'){ e.preventDefault();
+      openProjectModal((openProjectIndex + 1) % PROJECTS.length); }
+    if (e.key === 'ArrowLeft'){ e.preventDefault();
+      openProjectModal((openProjectIndex - 1 + PROJECTS.length) % PROJECTS.length); }
+  });
   addEventListener('keydown', e => { if (e.key === 'Escape' && $('#modal').dataset.open === 'true') closeProjectModal(); });
   // Lenis calls preventDefault on every wheel event once stopped — even
   // with data-lenis-prevent set, since that only skips its own scroll
@@ -1556,7 +1824,7 @@ function buildWorkFlat(){
   el.innerHTML = PROJECTS.map((p,i) => `
     <div class="wf-item" data-i="${i}" data-hover>
       <div class="wf-item__media"><img src="${p.cover}" alt="${p.title}" loading="lazy"></div>
-      <span class="wf-item__num">${p.num}</span>
+      <span class="wf-item__num">${p.num} · ${p.kind}</span>
       <span class="wf-item__name">${p.title}</span>
       <p class="wf-item__copy">${p.copy}</p>
       <a class="wf-item__link" data-hover>view case</a>
@@ -1692,23 +1960,6 @@ function buildRollLinks(){
   });
 }
 
-/* ————————————————— newsletter — quiet footer signup ————————————————— */
-{
-  const form = $('#fnews');
-  if (form){
-    form.addEventListener('submit', async e => {
-      e.preventDefault();
-      const email = form.email.value.trim();
-      if (!email) return;
-      // TODO: wire to a real subscribe endpoint (Resend/Mailchimp/etc.) —
-      // nothing is persisted yet, this only swaps the confirmation state
-      form.classList.add('is-sent');
-    });
-  }
-  const yr = new Date().getFullYear();
-  const y = $('#fyear'); if (y) y.textContent = yr;
-  const ay = $('#about-year'); if (ay) ay.textContent = yr;
-}
 
 /* footer closing line — "domen markeljc" + the mark, sized so the pair
    actually spans the full content width (matching the page's own side
@@ -1810,6 +2061,85 @@ if (hasLibs && !prefersReduced){
   });
 }
 
+/* ————————————————— pricing — the fanned cards —————————————————
+   Each card can be picked up and thrown around, then springs back into the
+   fan. Spring-back rather than free placement is deliberate: the arc is the
+   composition, and a visitor who drags all three into a pile should not be
+   able to leave the section looking broken.
+
+   The resting rotation lives in css; js only ever writes an ADDITIONAL
+   translate+rotate on top via a css variable, so the two never fight over
+   the transform property. */
+{
+  const plans = $$('#plans .plan');
+  if (plans.length && !prefersReduced){
+    plans.forEach(card => {
+      let dragging = false, id = null;
+      let px = 0, py = 0;               // pointer origin
+      let x = 0, y = 0, r = 0;          // current offset
+      let vx = 0, vy = 0;               // release velocity
+      let raf = 0;
+
+      const apply = () => {
+        card.style.setProperty('--dx', x.toFixed(1) + 'px');
+        card.style.setProperty('--dy', y.toFixed(1) + 'px');
+        card.style.setProperty('--dr', r.toFixed(2) + 'deg');
+      };
+
+      // critically-damped-ish settle: no overshoot on the way home, which
+      // would read as the card bouncing off an invisible wall
+      const settle = () => {
+        if (dragging) return;
+        vx += (0 - x) * 0.18; vy += (0 - y) * 0.18;
+        vx *= 0.78; vy *= 0.78;
+        x += vx; y += vy;
+        r = x * 0.035;                 // lean into the direction of travel
+        apply();
+        if (Math.abs(x) + Math.abs(y) + Math.abs(vx) + Math.abs(vy) > 0.4){
+          raf = requestAnimationFrame(settle);
+        } else {
+          x = y = r = vx = vy = 0; apply();
+          card.classList.remove('is-lifted');
+        }
+      };
+
+      card.addEventListener('pointerdown', e => {
+        if (e.button !== undefined && e.button !== 0) return;
+        dragging = true; id = e.pointerId;
+        px = e.clientX; py = e.clientY;
+        vx = vy = 0;
+        cancelAnimationFrame(raf);
+        card.classList.add('is-dragging', 'is-lifted');
+        card.setPointerCapture && card.setPointerCapture(id);
+      });
+
+      card.addEventListener('pointermove', e => {
+        if (!dragging || e.pointerId !== id) return;
+        const nx = e.clientX - px, ny = e.clientY - py;
+        vx = nx - x; vy = ny - y;
+        x = nx; y = ny;
+        r = x * 0.035;
+        apply();
+      });
+
+      const release = e => {
+        if (!dragging || (e && e.pointerId !== id)) return;
+        dragging = false;
+        card.classList.remove('is-dragging');
+        card.releasePointerCapture && id !== null && card.releasePointerCapture(id);
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(settle);
+      };
+      card.addEventListener('pointerup', release);
+      card.addEventListener('pointercancel', release);
+
+      // keyboard users get the lit state without needing to drag anything
+      card.addEventListener('focus', () => card.classList.add('is-lifted'));
+      card.addEventListener('blur',  () => card.classList.remove('is-lifted'));
+    });
+  }
+}
+
 /* the tab remembers you were here */
 {
   const homeTitle = document.title;
@@ -1869,6 +2199,35 @@ if (clockEl){
    white base rather than adding brightness on top of it; additive glow
    would just blow out to white. Lazily initialised once the footer nears
    view. */
+/* ————— asciify — glyph atlas —————
+   The ascii ramp from @canvas-ui/asciify-react (installed into this project
+   from its shadcn registry). Each entry packs one 5x5 glyph into an int:
+   bit (4 - x) + 5 * y is lit. The component reads these as a uint[] and
+   unpacks with bitshifts, which needs GLSL ES 3.0 — three r128 gives us a
+   WebGL1 context, where there are no bitwise operators at all. So the same
+   ten glyphs get decoded here and uploaded as a 50x5 texture instead; the
+   shader samples it rather than shifting bits, and the output is identical.
+   Ordered sparse -> dense, so a cell's tone indexes straight into it. */
+const ASCII_GLYPHS = [0, 128, 131200, 14336, 459200, 469440, 4357252, 18157905, 11512810, 15724526];
+function buildGlyphAtlas(){
+  const N = ASCII_GLYPHS.length, W = N * 5, H = 5;
+  const data = new Uint8Array(W * H * 4);
+  for (let g = 0; g < N; g++){
+    const bits = ASCII_GLYPHS[g];
+    for (let y = 0; y < 5; y++) for (let x = 0; x < 5; x++){
+      const lit = (bits >> ((4 - x) + 5 * y)) & 1;
+      const i = (y * W + g * 5 + x) * 4;
+      data[i] = data[i+1] = data[i+2] = lit ? 255 : 0;
+      data[i+3] = 255;
+    }
+  }
+  const tex = new THREE.DataTexture(data, W, H, THREE.RGBAFormat);
+  tex.minFilter = tex.magFilter = THREE.NearestFilter;   // glyphs must not blur
+  tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+  tex.needsUpdate = true;
+  return { tex, count: N };
+}
+
 function initFooterGradient(){
   const canvas = $('#footer-canvas');
   const footerEl = $('#site-footer');
@@ -1882,12 +2241,28 @@ function initFooterGradient(){
   const scene = new THREE.Scene();
   const camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
   const geo = new THREE.PlaneGeometry(2,2);
+  const glyphAtlas = buildGlyphAtlas();
   const uniforms = {
     uTime: { value: 0 },
     uResolution: { value: new THREE.Vector2(size0.width||innerWidth, size0.height||innerHeight) },
     uMouse: { value: new THREE.Vector2(0.5, 0.4) },
     uMouseActive: { value: 0 },
-    uMouseEnergy: { value: 0 }
+    uMouseEnergy: { value: 0 },
+    // asciify, with the exact prop values from the playground config
+    uGlyphs:     { value: glyphAtlas.tex },
+    uGlyphCount: { value: glyphAtlas.count },
+    uGlyphPx:    { value: 1.5 * Math.min(devicePixelRatio, 2) },  // scale
+    uSpacing:    { value: 1.0 },
+    uRadius:     { value: 0.43 },
+    uSoftness:   { value: 0.90 },
+    uContrast:   { value: 0.80 },
+    uBrightness: { value: -0.15 },
+    uInvert:     { value: 0.10 },
+    uStrength:   { value: 0.65 },
+    uBase:       { value: 0.0 },     // baseStrength
+    uBgOpacity:  { value: 0.0 },     // backgroundOpacity
+    uBg:         { value: new THREE.Vector3(0, 0, 0) },
+    uBackingLum: { value: 0.0 }
   };
   const mat = new THREE.ShaderMaterial({
     uniforms,
@@ -1899,52 +2274,95 @@ function initFooterGradient(){
       uniform vec2 uMouse;
       uniform float uMouseActive;
       uniform float uMouseEnergy;
+      uniform sampler2D uGlyphs;
+      uniform float uGlyphCount, uGlyphPx, uSpacing;
+      uniform float uRadius, uSoftness, uContrast, uBrightness;
+      uniform float uInvert, uStrength, uBase, uBgOpacity, uBackingLum;
+      uniform vec3 uBg;
       varying vec2 vUv;
       float blob(vec2 uv, vec2 center, float radius){
         return smoothstep(radius, 0.0, length(uv - center));
       }
-      void main(){
-        float aspect = uResolution.x / max(uResolution.y, 1.0);
-        vec2 uv = vUv * vec2(aspect, 1.0);
-        float t = uTime * 0.035;
 
-        vec2 m = uMouse * vec2(aspect, 1.0);
-        vec2 pull = (m - vec2(0.5*aspect, 0.45)) * 0.05 * uMouseActive;
-
-        vec2 c1 = vec2(0.28 + sin(t*1.3)*0.18, 0.58 + cos(t*1.05)*0.2) * vec2(aspect,1.0) + pull;
-        vec2 c2 = vec2(0.74 + cos(t*0.85)*0.2, 0.34 + sin(t*1.35)*0.18) * vec2(aspect,1.0) + pull*0.7;
-
-        // true-white base — the footer's own ground, so the shader reads
-        // as texture in the page rather than a panel on it. Boosted well
-        // past the original subtle pass — clearly readable blue/yellow
-        // stains rather than a felt-more-than-seen tint.
-        vec3 base = vec3(1.0, 1.0, 1.0);
-        vec3 col = base;
-        // Pushed well up from the previous pass. Subtractive against a
-        // white ground, so the ceiling here is set by legibility, not
-        // taste: the deepest stain lands around 0.52 luminance, which still
-        // clears WCAG AA comfortably for the lightest text sitting on it
-        // (the footer's quietest tone is rgba(20,18,16,.68) on this).
+      /* the gradient field — the "content" the lens reads. Drift is slow on
+         purpose: it should breathe rather than animate. */
+      vec3 field(vec2 vuv, float aspect){
+        vec2 uv = vuv * vec2(aspect, 1.0);
+        float t = uTime * 0.018;
+        vec2 c1 = vec2(0.28 + sin(t*1.3)*0.18, 0.58 + cos(t*1.05)*0.2) * vec2(aspect,1.0);
+        vec2 c2 = vec2(0.74 + cos(t*0.85)*0.2, 0.34 + sin(t*1.35)*0.18) * vec2(aspect,1.0);
+        vec2 c3 = vec2(0.5  + sin(t*0.62)*0.26, 0.72 + cos(t*0.74)*0.22) * vec2(aspect,1.0);
+        vec3 col = vec3(1.0);
         col -= blob(uv, c1, 0.82) * vec3(0.40, 0.26, 0.02);
         col -= blob(uv, c2, 0.78) * vec3(0.02, 0.17, 0.48);
-        // a third, slower stain keeps the field from reading as just two
-        // lamps — it drifts on a different period so the pair never settle
-        // into an obvious repeating rhythm
-        vec2 c3 = vec2(0.5 + sin(t*0.62)*0.26, 0.72 + cos(t*0.74)*0.22) * vec2(aspect,1.0) + pull*0.4;
         col -= blob(uv, c3, 0.62) * vec3(0.16, 0.05, 0.20);
-
-        float mr = 0.30 + uMouseEnergy * 0.16;
-        float mGlow = blob(uv, m, mr) * uMouseActive;
-        col -= mGlow * vec3(0.22, 0.15, 0.0) * (0.5 + uMouseEnergy * 0.45);
-
-        // the footer's own top edge fades from cta's black down into the
-        // white/blob ground over the first ~1/4 of the footer's height —
-        // a real spatial gradient baked into the shader itself, so the
-        // cta-to-footer seam is smooth regardless of scroll-driven timing
         vec3 black = vec3(0.039, 0.035, 0.031);
-        float topFade = smoothstep(0.78, 1.0, vUv.y);
-        col = mix(col, black, topFade);
+        return mix(col, black, smoothstep(0.78, 1.0, vuv.y));
+      }
 
+      float hash21(vec2 p){
+        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+      }
+
+      // one 5x5 glyph out of the atlas. Returns 0 outside the glyph box, so
+      // the spacing gutter between cells stays empty.
+      float glyphBit(float index, vec2 p){
+        if (p.x < 0.0 || p.x > 4.0 || p.y < 0.0 || p.y > 4.0) return 0.0;
+        vec2 uv = vec2((index * 5.0 + p.x + 0.5) / (uGlyphCount * 5.0),
+                       (p.y + 0.5) / 5.0);
+        return texture2D(uGlyphs, uv).r;
+      }
+
+      void main(){
+        float aspect = uResolution.x / max(uResolution.y, 1.0);
+        vec3 base = field(vUv, aspect);
+
+        /* ---- the lens ------------------------------------------------
+           Cells are (5 + 2*spacing) glyph-units wide. Everything is
+           evaluated per CELL, not per pixel, which is what makes each cell
+           resolve to one character. */
+        float cellPx = (5.0 + 2.0 * uSpacing) * uGlyphPx;
+        vec2 frag = vUv * uResolution;
+        vec2 cell = floor(frag / cellPx);
+        vec2 cellUv = (cell + 0.5) * cellPx / uResolution;
+
+        float dist = length((cellUv - uMouse) * vec2(aspect, 1.0));
+        float radius = max(uRadius * uMouseActive, 1e-4);
+        float inner = radius * (1.0 - clamp(uSoftness, 0.0, 1.0));
+        float lens = (1.0 - smoothstep(inner, radius, dist)) * uMouseActive;
+        float mask = clamp(max(lens, clamp(uBase, 0.0, 1.0)), 0.0, 1.0)
+                   * clamp(uStrength, 0.0, 1.0);
+
+        /* A per-cell hash against the mask, rather than a smooth fade. This
+           is what gives the lens its scattered edge — cells switch on one
+           at a time as the pointer nears, instead of the whole disc
+           dissolving evenly. */
+        float apply = mask < 0.003 ? 0.0 : step(hash21(cell), mask);
+        if (apply < 0.5){
+          // outside the lens the effect contributes NOTHING. Previously this
+          // path mixed toward white, which is where the glow round the
+          // cursor was coming from.
+          gl_FragColor = vec4(base, 1.0);
+          return;
+        }
+
+        vec3 pixel = field(cellUv, aspect);
+        float lum = dot(pixel, vec3(0.299, 0.587, 0.114));
+        float amount = abs(lum - uBackingLum);
+        amount = clamp((amount - 0.5) * uContrast + 0.5 + uBrightness, 0.0, 1.0);
+        amount = mix(amount, 1.0 - amount, clamp(uInvert, 0.0, 1.0));
+
+        float index = min(floor(amount * uGlyphCount), uGlyphCount - 1.0);
+        vec2 local = floor((frag - cell * cellPx) / uGlyphPx) - vec2(uSpacing);
+        float on = glyphBit(index, local);
+
+        // the glyph takes the field's own colour, normalised back up to full
+        // strength so it reads as type rather than a dim smudge
+        vec3 glyphColor = clamp(uBg + (pixel - uBg) / max(abs(lum - uBackingLum), 0.2), 0.0, 1.0);
+
+        // backgroundOpacity is 0, so the unlit part of an applied cell is
+        // fully transparent — the field simply shows through
+        vec3 col = mix(base, glyphColor, on * mix(uBgOpacity, 1.0, on));
         gl_FragColor = vec4(col, 1.0);
       }`
   });
@@ -1985,9 +2403,9 @@ function initFooterGradient(){
     requestAnimationFrame(tick);
     if (!tabVisible || !onScreen) return;
     uniforms.uTime.value = clock.getElapsedTime();
-    curMouse.x = lerp(curMouse.x, targetMouse.x, .07);
-    curMouse.y = lerp(curMouse.y, targetMouse.y, .07);
-    curActive = lerp(curActive, targetActive, .05);
+    curMouse.x = lerp(curMouse.x, targetMouse.x, .14);   // followSpeed 3
+    curMouse.y = lerp(curMouse.y, targetMouse.y, .14);
+    curActive = lerp(curActive, targetActive, .09);
     energy = lerp(energy, 0, .04);
     uniforms.uMouse.value.set(curMouse.x, curMouse.y);
     uniforms.uMouseActive.value = curActive;
