@@ -486,7 +486,11 @@ html.static .work-flat{display:block}
 
 /* the shared asciify overlay: sits over its host, never intercepts input */
 .ascii-layer{position:absolute;inset:0;width:100%;height:100%;display:block;
-  pointer-events:none;z-index:4}
+  pointer-events:none;z-index:4;border-radius:inherit}
+/* inside a card the layer belongs BEHIND the text. .plan makes its own
+   stacking context (will-change), so a negative z-index here lands above
+   the card's background but below its content rather than escaping it. */
+.plan > .ascii-layer{z-index:-1}
 @media (hover:none){.ascii-layer{display:none}}
 
 /* ————— 03 what it costs — the fanned plans —————
@@ -494,8 +498,7 @@ html.static .work-flat{display:block}
    sit slightly lower, so the group reads as one fanned object rather than a
    row of boxes. They overlap by design — the overlap is the affordance that
    makes dragging them feel permitted. */
-#pricing{position:relative;max-width:1400px;margin:0 auto}
-.plans{position:relative;z-index:5}
+#pricing{max-width:1400px;margin:0 auto}
 .pricing-lede{max-width:46ch;margin:0 0 clamp(52px,9vh,110px);
   font-size:clamp(15px,1.35vw,19px);line-height:1.6;letter-spacing:-.006em;
   font-weight:300;color:var(--cream-70)}
@@ -505,15 +508,12 @@ html.static .work-flat{display:block}
 
 .plan{
   position:relative;flex:0 0 clamp(268px,25vw,340px);
-  /* No backdrop-filter — it was the source of the stray lines around the
-     cards on hover. A backdrop-filter samples the area behind the element,
-     and browsers clip that sample to the element's AXIS-ALIGNED bounding
-     box; because these cards are rotated 6 degrees, the un-rotated
-     rectangle's edges showed through as straight lines outside the rounded
-     corners. It was also doing no visual work at all: this section sits on
-     solid black, and blurring or saturating a solid colour returns the same
-     solid colour. The frosted look here comes entirely from the gradient. */
-  background:linear-gradient(158deg,rgba(236,229,216,.085),rgba(236,229,216,.028));
+  /* Substantially more opaque than before — they were reading as barely
+     there. The blur is what makes the overlap worth having: where the cards
+     fan over one another, each softens the one behind it. */
+  background:linear-gradient(158deg,rgba(236,229,216,.16),rgba(236,229,216,.065));
+  backdrop-filter:blur(18px) saturate(125%);
+  -webkit-backdrop-filter:blur(18px) saturate(125%);
   border:1px solid var(--cream-24);border-radius:20px;
   padding:clamp(24px,2.4vw,32px) clamp(22px,2.2vw,30px) clamp(26px,2.6vw,34px);
   color:var(--cream);cursor:none;touch-action:pan-y;
@@ -526,16 +526,30 @@ body.touch .plan{cursor:pointer}
 .plan:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
 
 /* the arc. left leans out and drops, middle sits up, right mirrors left. */
-.plan{--dx:0px;--dy:0px;--dr:0deg}
-.plan--mark{transform:translate(var(--dx),var(--dy)) rotate(calc(-6deg + var(--dr))) translateY(26px);margin-right:clamp(-58px,-3.4vw,-26px);z-index:1}
-.plan--system{transform:translate(var(--dx),var(--dy)) rotate(var(--dr)) translateY(-8px);z-index:3}
-.plan--world {transform:translate(var(--dx),var(--dy)) rotate(calc(6deg + var(--dr))) translateY(26px);margin-left:clamp(-58px,-3.4vw,-26px);z-index:1}
+/* The rotation lives on the SLOT, never on the card. A backdrop-filter is
+   sampled in the element's own space and browsers clip that sample to the
+   element's axis-aligned bounding box — so a rotated element with a
+   backdrop-filter shows its un-rotated rectangle as hard edges, which was
+   the stray-lines bug. With the tilt one level up, the card itself is
+   untransformed and the filter behaves. */
+.plan-slot{--dx:0px;--dy:0px;--dr:0deg;display:flex;will-change:transform}
+.plan-slot--mark  {transform:translate(var(--dx),var(--dy)) rotate(calc(-6deg + var(--dr))) translateY(26px);margin-right:clamp(-58px,-3.4vw,-26px);z-index:1}
+.plan-slot--system{transform:translate(var(--dx),var(--dy)) rotate(var(--dr)) translateY(-8px);z-index:3}
+.plan-slot--world {transform:translate(var(--dx),var(--dy)) rotate(calc(6deg + var(--dr))) translateY(26px);margin-left:clamp(-58px,-3.4vw,-26px);z-index:1}
+.plan-slot.is-dragging{z-index:9}
+.plan-slot:hover{z-index:6}
 
 /* each plan owns a colour, used only on hover — the set stays monochrome at
    rest so the section doesn't turn into a fruit bowl */
 .plan--mark{--plan-c:#3971ff}
 .plan--system{--plan-c:#e5352b}
 .plan--world {--plan-c:#e0a32e}
+/* a few percent of the plan's own colour at rest, so the three are subtly
+   distinct before you ever hover — hover then deepens the same hue rather
+   than introducing one */
+@supports (color: color-mix(in srgb, red, blue)){
+  .plan{background-color:color-mix(in srgb, var(--plan-c) 6%, transparent)}
+}
 
 .plan:hover,.plan.is-lifted{
   border-color:color-mix(in srgb, var(--plan-c) 70%, transparent);
@@ -590,9 +604,10 @@ body.touch .plan{cursor:pointer}
    sit side by side; once they wrap, the rotations read as misalignment. */
 @media (max-width:900px){
   .plans{flex-direction:column;align-items:center;gap:20px;perspective:none}
-  .plan{flex:0 0 auto;width:min(100%,380px);margin:0!important;
+  .plan-slot{width:min(100%,380px);margin:0!important;
     transform:translate(var(--dx),var(--dy)) rotate(var(--dr))!important}
-  .plan--system{order:-1}
+  .plan{flex:0 0 auto;width:100%}
+  .plan-slot--system{order:-1}
 }
 @media (prefers-reduced-motion:reduce){
   .plan{transition:none}
@@ -859,6 +874,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
          them feel like something you're allowed to do. -->
     <div class="plans" id="plans">
 
+      <div class="plan-slot plan-slot--mark">
       <article class="plan plan--mark" data-plan="mark" data-hover tabindex="0">
         <svg class="plan__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/></svg>
         <span class="plan__tempo">mark</span>
@@ -874,7 +890,9 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
         </ul>
         <span class="plan__time">1–2 weeks</span>
       </article>
+      </div>
 
+      <div class="plan-slot plan-slot--system">
       <article class="plan plan--system is-featured" data-plan="system" data-hover tabindex="0">
         <svg class="plan__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/></svg>
         <span class="plan__flag">most projects land here</span>
@@ -891,7 +909,9 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
         </ul>
         <span class="plan__time">3–4 weeks</span>
       </article>
+      </div>
 
+      <div class="plan-slot plan-slot--world">
       <article class="plan plan--world" data-plan="world" data-hover tabindex="0">
         <svg class="plan__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M15.036 20.5002L3.52176 0.556814C3.3229 0.212306 2.95543 0 2.55771 0L1.11305 0C0.498547 0 0 0.498556 0 1.11307L0 30.8869C0 31.5014 0.498547 32 1.11305 32H13.37C13.7677 32 14.1352 31.7877 14.3341 31.4432L20.4421 20.8637C20.8706 20.1215 21.9417 20.1215 22.3702 20.8637L28.4782 31.4432C28.6771 31.7877 29.0446 32 29.4423 32H30.887C31.5015 32 32 31.5014 32 30.8869V1.11307C32 0.498556 31.5015 0 30.887 0L29.4423 0C29.0446 0 28.6771 0.212306 28.4782 0.556814L16.964 20.5007C16.5355 21.243 15.4645 21.243 15.036 20.5007V20.5002Z"/></svg>
         <span class="plan__tempo">world</span>
@@ -907,6 +927,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:1px solid 
         </ul>
         <span class="plan__time">6–8 weeks</span>
       </article>
+      </div>
 
     </div>
 
@@ -1724,7 +1745,11 @@ function buildGallery(){
         const progress = self.progress;
         cards.forEach((card, i) => {
           const imgT = progress * totalRange - i * stagger;
-          if (imgT <= 0 || imgT >= 1){ card.style.opacity = '0'; return; }
+          // seed the wake slot first: bailing out below without touching it
+          // left the array sparse, and the wake then read pts[0] as
+          // undefined and threw every frame
+          const tp = trailPts[i] || (trailPts[i] = { x:.5, y:.5, a:0, depth:.5 });
+          if (imgT <= 0 || imgT >= 1){ card.style.opacity = '0'; tp.a = 0; return; }
           let alpha = 1;
           if (imgT < 0.06) alpha = imgT / 0.06;
           else if (imgT > 0.94) alpha = (1 - imgT) / 0.06;
@@ -1738,11 +1763,10 @@ function buildGallery(){
              space. pos.x/y are offsets from the centre in px, so they get
              halved against the pin box and re-centred; depth rides pos.z so
              cards nearer the viewer leave a broader mark. */
-          const t = trailPts[i] || (trailPts[i] = { x:.5, y:.5, a:0, depth:.5 });
-          t.x = 0.5 + pos.x / Math.max(pinW, 1);
-          t.y = 0.5 - pos.y / Math.max(pinH, 1);
-          t.depth = Math.max(0, Math.min(1, (pos.z + rz) / (rz * 2)));
-          t.a = alpha;
+          tp.x = 0.5 + pos.x / Math.max(pinW, 1);
+          tp.y = 0.5 - pos.y / Math.max(pinH, 1);
+          tp.depth = Math.max(0, Math.min(1, (pos.z + rz) / (rz * 2)));
+          tp.a = alpha;
         });
         // anything not drawn this frame stops contributing to the wake
         for (let i = cards.length; i < trailPts.length; i++) trailPts[i].a = 0;
@@ -2104,6 +2128,10 @@ if (hasLibs && !prefersReduced){
   const plans = $$('#plans .plan');
   if (plans.length && !prefersReduced){
     plans.forEach(card => {
+      // the transform now lives on the wrapping slot (see the css note on
+      // .plan-slot); custom properties inherit downward, so writing them on
+      // the card would never reach it
+      const slot = card.closest('.plan-slot') || card;
       let dragging = false, id = null;
       let px = 0, py = 0;               // pointer origin
       let x = 0, y = 0, r = 0;          // current offset
@@ -2111,9 +2139,9 @@ if (hasLibs && !prefersReduced){
       let raf = 0;
 
       const apply = () => {
-        card.style.setProperty('--dx', x.toFixed(1) + 'px');
-        card.style.setProperty('--dy', y.toFixed(1) + 'px');
-        card.style.setProperty('--dr', r.toFixed(2) + 'deg');
+        slot.style.setProperty('--dx', x.toFixed(1) + 'px');
+        slot.style.setProperty('--dy', y.toFixed(1) + 'px');
+        slot.style.setProperty('--dr', r.toFixed(2) + 'deg');
       };
 
       // critically-damped-ish settle: no overshoot on the way home, which
@@ -2140,6 +2168,7 @@ if (hasLibs && !prefersReduced){
         vx = vy = 0;
         cancelAnimationFrame(raf);
         card.classList.add('is-dragging', 'is-lifted');
+        slot.classList.add('is-dragging');
         card.setPointerCapture && card.setPointerCapture(id);
       });
 
@@ -2156,6 +2185,7 @@ if (hasLibs && !prefersReduced){
         if (!dragging || (e && e.pointerId !== id)) return;
         dragging = false;
         card.classList.remove('is-dragging');
+        slot.classList.remove('is-dragging');
         card.releasePointerCapture && id !== null && card.releasePointerCapture(id);
         cancelAnimationFrame(raf);
         raf = requestAnimationFrame(settle);
@@ -2171,26 +2201,34 @@ if (hasLibs && !prefersReduced){
 }
 
 /* ————————————————— asciify — pricing —————————————————
-   Far weaker than the footer (strength .16 against .65) and reading a very
-   soft procedural field, so it registers as texture stirring behind the
-   cards rather than an effect being performed at you. */
+   One overlay PER CARD, not one across the section. A section-wide layer
+   let the glyphs drift over the gaps between cards and out into the
+   margins; the effect belongs to the card, so it lives inside it and is
+   clipped by the card's own rounded corners (border-radius:inherit on a
+   canvas clips its own drawing, which avoids putting overflow:hidden on
+   .plan and decapitating the badge that overhangs the top edge).
+
+   Deliberately tiny: glyph cells around a third of the footer's and
+   strength 0.07 against its 0.65. It should be something you notice only
+   once the pointer is already resting on a card. */
 function buildPricingAscii(){
-  const host = $('#pricing');
-  if (!host || prefersReduced) return;
-  createAsciiOverlay(host, {
-    glyphPx: 0.9, radius: 0.30, softness: 0.95, strength: 0.16,
-    brightness: -0.05, invert: 0.0,
-    contentGlsl: `
-      vec3 content(vec2 uv, float aspect){
-        // a slow soft field — enough tonal variation for the ramp to have
-        // something to describe, nothing that reads as a picture
-        vec2 p = uv * vec2(aspect, 1.0);
-        float t = uTime * 0.05;
-        float a = 0.5 + 0.5 * sin(p.x * 3.1 + t) * cos(p.y * 2.7 - t * 0.8);
-        float b = 0.5 + 0.5 * sin((p.x + p.y) * 2.2 - t * 1.3);
-        float v = mix(a, b, 0.5) * 0.75 + 0.15;
-        return vec3(v) * vec3(0.92, 0.90, 0.86);
-      }`
+  if (prefersReduced) return;
+  $$('#plans .plan').forEach(card => {
+    createAsciiOverlay(card, {
+      glyphPx: 0.62, radius: 0.34, softness: 0.95, strength: 0.07,
+      brightness: -0.02, invert: 0.0,
+      contentGlsl: `
+        vec3 content(vec2 uv, float aspect){
+          // a slow soft field — just enough tonal variation for the ramp to
+          // have something to describe, nothing that reads as a picture
+          vec2 p = uv * vec2(aspect, 1.0);
+          float t = uTime * 0.05;
+          float a = 0.5 + 0.5 * sin(p.x * 3.1 + t) * cos(p.y * 2.7 - t * 0.8);
+          float b = 0.5 + 0.5 * sin((p.x + p.y) * 2.2 - t * 1.3);
+          float v = mix(a, b, 0.5) * 0.75 + 0.15;
+          return vec3(v) * vec3(0.92, 0.90, 0.86);
+        }`
+    });
   });
 }
 
@@ -2214,7 +2252,9 @@ function buildOrbitTrail(getPositions){
   tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
 
   const layer = createAsciiOverlay(host, {
-    glyphPx: 1.0, radius: 1.0, softness: 1.0, strength: 0.13,
+    // pulled right down — a wake you catch out of the corner of
+    // your eye, not something that competes with the covers
+    glyphPx: 0.7, radius: 1.0, softness: 1.0, strength: 0.055,
     contrast: 1.1, brightness: -0.08, invert: 0.0,
     extraUniforms: { uTrail: { value: tex } },
     uniformDecls: 'uniform sampler2D uTrail;',
@@ -2230,16 +2270,16 @@ function buildOrbitTrail(getPositions){
       u.uPointer.value.set(0.5, 0.5);
 
       // fade what is already there, then stamp the current positions
-      bx.fillStyle = 'rgba(0,0,0,0.055)';
+      bx.fillStyle = 'rgba(0,0,0,0.10)';
       bx.fillRect(0, 0, SIZE, SIZE);
       const pts = getPositions();
       for (let i = 0; i < pts.length; i++){
         const p = pts[i];
-        if (p.a <= 0.02) continue;
+        if (!p || p.a <= 0.02) continue;
         const r = SIZE * (0.05 + p.depth * 0.05);
         const g = bx.createRadialGradient(p.x * SIZE, (1 - p.y) * SIZE, 0,
                                           p.x * SIZE, (1 - p.y) * SIZE, r);
-        g.addColorStop(0, 'rgba(255,255,255,' + (0.5 * p.a).toFixed(3) + ')');
+        g.addColorStop(0, 'rgba(255,255,255,' + (0.30 * p.a).toFixed(3) + ')');
         g.addColorStop(1, 'rgba(255,255,255,0)');
         bx.globalCompositeOperation = 'lighter';
         bx.fillStyle = g;
@@ -2580,20 +2620,45 @@ function initFooterGradient(){
          either black or not, and the proportion that are black rises across
          the band. Read from a distance it reads as a fade; up close it is
          made of the same grain as the rest of the site. */
+      /* The dithered seam, confined to a narrow band at the very top.
+
+         Two things were wrong before. The band ran from 0.72, a full
+         quarter of the footer's height, and the ordered bias swung +/-0.09
+         — so BELOW the band, where the fade amount is exactly zero,
+         step(d + bias, 0.0) still returned 1 for every cell whose hash fell
+         under 0.09. That put roughly one black cell in eleven across the
+         whole footer, scattered over the text. The gate below makes the
+         band the only place anything can darken at all.
+
+         The edge also breathes: two slow waves of different periods shift
+         where the band begins across the width, so the boundary undulates
+         instead of sitting as a straight horizontal line. */
       vec3 seam(vec3 col, vec2 vuv, vec2 frag){
-        float t = smoothstep(0.72, 1.0, vuv.y);
+        float wob = sin(vuv.x * 5.5 + uTime * 0.28) * 0.016
+                  + sin(vuv.x * 12.0 - uTime * 0.19) * 0.009;
+        float t = smoothstep(0.90 + wob, 1.0, vuv.y);
+        // hard gate: outside the band nothing darkens, whatever the hash is
+        if (t <= 0.001) return col;
+
         // fine grain, independent of the glyph grid so the two never moire
         vec2 c = floor(frag / 3.0);
         float d = hash21(c + 17.3);
-        // a touch of ordered bias keeps it from looking like pure noise
-        float bias = fract((c.x + c.y * 0.5) * 0.25) * 0.18 - 0.09;
+        // a little ordered bias keeps it from reading as pure noise, kept
+        // small enough that it cannot outrun the gate above
+        float bias = fract((c.x + c.y * 0.5) * 0.25) * 0.12 - 0.06;
         vec3 black = vec3(0.039, 0.035, 0.031);
-        return mix(col, black, step(d + bias, t));
+        return mix(col, black, step(clamp(d + bias, 0.0, 1.0), t));
       }
 
       void main(){
         float aspect = uResolution.x / max(uResolution.y, 1.0);
-        vec3 base = field(vUv, aspect);
+        vec2 fragPx = vUv * uResolution;
+        /* The dithered fade is applied to the BACKGROUND here, before the
+           lens is composited. Applying it to the final colour (which is what
+           it did) dragged the glyphs toward black too, so the cursor effect
+           went dark near the top of the footer — which is not what a fade on
+           the background should ever do to something drawn on top of it. */
+        vec3 base = seam(field(vUv, aspect), vUv, fragPx);
 
         /* ---- the lens ------------------------------------------------
            Cells are (5 + 2*spacing) glyph-units wide. Everything is
@@ -2617,9 +2682,7 @@ function initFooterGradient(){
            dissolving evenly. */
         float apply = mask < 0.003 ? 0.0 : step(hash21(cell), mask);
         if (apply < 0.5){
-          // outside the lens the effect contributes NOTHING. Previously this
-          // path mixed toward white, which is where the glow round the
-          // cursor was coming from.
+          // outside the lens the effect contributes nothing at all
           gl_FragColor = vec4(base, 1.0);
           return;
         }
@@ -2641,7 +2704,7 @@ function initFooterGradient(){
         // backgroundOpacity is 0, so the unlit part of an applied cell is
         // fully transparent — the field simply shows through
         vec3 col = mix(base, glyphColor, on * mix(uBgOpacity, 1.0, on));
-        gl_FragColor = vec4(seam(col, vUv, frag), 1.0);
+        gl_FragColor = vec4(col, 1.0);
       }`
   });
   scene.add(new THREE.Mesh(geo, mat));
